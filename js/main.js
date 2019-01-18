@@ -142,10 +142,10 @@ Camera.prototype.drawPlayer = function (x,direction,sprite,seg,location) {
 	var decimal = x%1;
 	var texture = player.texture;
 	if (direction==1) {
-		this.ctx.drawImage(texture.image,sprite[seg],0,200,400,(canvas.width/2)-40,canvas.height/3+20,80,160)
+		this.ctx.drawImage(texture.image,sprite[seg],0,200,400,canvas.width/2.5,canvas.height/2.3,canvas.width/6,canvas.height/1.9)
 	}
 	else {
-		this.ctx.drawImage(texture.image,sprite[seg],400,200,400,(canvas.width/2)-40,canvas.height/3+20,80,160)	
+		this.ctx.drawImage(texture.image,sprite[seg],400,200,400,canvas.width/2.5,canvas.height/2.3,canvas.width/6,canvas.height/1.9)	
 	}
 
 
