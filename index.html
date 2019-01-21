@@ -14,7 +14,24 @@
 	<script src="js/main.js"></script>
 	
 	<script type="text/javascript">
-		
+		//############# STARTING VARIABLES ################//
+
+		var mansion = new Map (5,4, [0,
+			5,0,0,0,2,
+			4,0,0,0,1,
+			3,0,0,0,2,
+			5,0,0,0,1
+			]);
+		var player = new Player(2,3,1);
+		var camera = new Camera(canvas);
+		var controls = new Controls();
+
+		var cornelia_cornhowser = new AI(3.3,3,1,new Bitmap('./assets/walking-guy.png',2000,800),"Hello there");
+
+		var sunuel_sunflower = new AI(2.7,3,1,new Bitmap('./assets/walking-guy.png',2000,800),"Howdy partner");
+
+
+		var AI_array = [cornelia_cornhowser,sunuel_sunflower];
 		// init();
 	</script>
 

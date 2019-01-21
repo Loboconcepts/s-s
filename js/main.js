@@ -20,21 +20,29 @@ var run = setInterval(function() {
 
 
 function logic() {
-	time_keeper();
+	if (gameState == state_PAUSED) logic_PAUSED();
 	if (gameState == state_EXPLORE) logic_EXPLORE();
+	if (gameState == state_CONVERSATION) logic_CONVERSATION();
 	
 
 }
 
 function logic_EXPLORE() {
-
+	time_keeper();
 	player.update(controls.states);
 	for (var i=0;i<AI_array.length;i++) AI_array[i].update();
 	
-	camera.render(player,mansion);
+	camera.render_EXPLORE(player,mansion);
 
-	
-	
+};
+
+function logic_PAUSED() {
+	camera.ctx.fillStyle = "#ff0000";
+	camera.ctx.fillText('PAUSED',camera.width/2.3,camera.height/2);
+};
+
+function logic_CONVERSATION() {
+	camera.render_CONVERSATION();
 
 }
 
@@ -59,7 +67,8 @@ function Map(length, floors, grid) {
 		new Bitmap('./assets/right-top-stair.png',1280,720),    // 2
 		new Bitmap('./assets/left-bottom-stair.png',1280,720),  // 3
 		new Bitmap('./assets/left-top-stair.png',1280,720),     // 4
-		new Bitmap('./assets/floor-sprites.jpg',1280,93)        // 5
+		new Bitmap('./assets/end-left-wall.png',1280,720),      // 5
+		new Bitmap('./assets/end-right-wall.png',1280,720)      // 6
 		];
 };
 
@@ -73,6 +82,7 @@ function Player (x,y,direction) {
     this.texture = new Bitmap('./assets/walking-guy.png',2000,800);
     this.sprite = [0,200,400,600,800,1000,1200,1400,1600,1800];
     this.seg = 0;
+    this.converse = false;
 };
 
 var hold=false;
@@ -102,15 +112,31 @@ Player.prototype.walk = function(distance) {
 		
 };
 
+Player.prototype.interact = function() {
+	for (var i=0;i<AI_array.length;i++) {
+		if (AI_array[i].y==this.y && (AI_array[i].x-this.x)*this.direction<=.2 && (AI_array[i].x-this.x)*this.direction > 0) {
+			this.seg=0;
+			AI_array[i].direction = this.direction*-1;
+			AI_array[i].seg = 0;
+			// camera.drawDialogueBox();
+			this.converse = AI_array[i].dialogue;
+
+			gameState = state_CONVERSATION;
+			
+		}
+	}
+}
+
 Player.prototype.update = function(controls) {
-    if (controls.right) this.walk(.01),this.direction=1;
-    if (controls.left) this.walk(-.01),this.direction=-1;
+    if (controls.right && gameState == state_EXPLORE) this.walk(.01),this.direction=1;
+    if (controls.left && gameState == state_EXPLORE) this.walk(-.01),this.direction=-1;
     if (!controls.left && !controls.right) this.seg=0;
+    if (controls.up && gameState == state_EXPLORE) this.interact(), controls.up=false;
 };
 
 //################ AI #################//
 
-function AI (x,y,direction,texture) {
+function AI (x,y,direction,texture,dialogue) {
 	this.x = x;
 	this.x = x;
     this.y = y;
@@ -118,6 +144,7 @@ function AI (x,y,direction,texture) {
     this.texture = texture;
     this.sprite = [0,200,400,600,800,1000,1200,1400,1600,1800];
     this.seg = 0;
+    this.dialogue = dialogue;
 }
 
 AI.prototype.walk = function(distance) {
@@ -145,12 +172,12 @@ AI.prototype.walk = function(distance) {
 }
 
 AI.prototype.update = function() {
-    if (time[1]%2==0) {
-    	this.walk(.005),this.direction=1;
-    }
-    else {
-		this.walk(-.005),this.direction=-1;
-    }
+  //   if (time[1]%2==0) {
+  //   	this.walk(.005),this.direction=1;
+  //   }
+  //   else {
+		// this.walk(-.005),this.direction=-1;
+  //   }
 };
 
 
@@ -190,9 +217,31 @@ function Camera(ctx) {
     this.height = canvas.height = canvas.width/(16/9);
     this.viewHeight = 0; //controls height of scene in viewport
     this.rgb = [180,180,255];
+    this.dialogueBox = false;
 }
 
-Camera.prototype.render = function(player, map) { 
+// ################ CAMERA CONVERSATION ############### //
+
+Camera.prototype.render_CONVERSATION = function() {
+	if (!this.dialogueBox) this.drawDialogueBox(), this.dialogueBox=true;
+	this.drawLetters(player.converse)
+}
+
+Camera.prototype.drawDialogueBox = function() {
+	this.ctx.fillStyle = "#000000";
+	this.ctx.strokeStyle = "#ffffff";
+	this.ctx.rect(2,2,this.width-4,this.height/3);
+	this.ctx.fill();
+	this.ctx.stroke();
+}
+
+Camera.prototype.drawLetters = function(dialogue) {
+	var saying = dialogue.split('');
+}
+
+// ################ CAMERA EXPLORE ############### //
+
+Camera.prototype.render_EXPLORE = function(player, map) { 
 	this.drawBackground(player.y,time);
     this.drawRoom(player.x,player.y, map.grid);
     this.drawAI(player.x,player.y, AI_array);
@@ -214,6 +263,7 @@ Camera.prototype.drawPlayer = function (x,direction,sprite,seg,location) {
 };
 
 Camera.prototype.drawAI = function (x,y,array) {
+
 	for (var i=0;i<array.length;i++) {
 		if (array[i].y==y && array[i].x < x+1 && array[i].x > x-1) {
 			var texture = array[i].texture;
@@ -302,23 +352,6 @@ Camera.prototype.drawBackground = function() {
 };
 
 
-//############# STARTING VARIABLES ################//
 
-var mansion = new Map (5,4, [0,
-	0,0,0,0,2,
-	4,0,0,0,1,
-	3,0,0,0,2,
-	0,0,0,0,1
-	]);
-var player = new Player(5,3,1);
-var camera = new Camera(canvas);
-var controls = new Controls();
-
-var cornelia_cornhowser = new AI(3.3,3,1,new Bitmap('./assets/walking-guy.png',2000,800));
-
-var sunuel_sunflower = new AI(2.7,3,1,new Bitmap('./assets/walking-guy.png',2000,800));
-
-
-var AI_array = [cornelia_cornhowser,sunuel_sunflower];
 
 
