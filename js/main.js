@@ -60,7 +60,7 @@ function Map(length, floors, grid) {
 		new Bitmap('./assets/left-bottom-stair.png',1280,720),  // 3
 		new Bitmap('./assets/left-top-stair.png',1280,720),     // 4
 		new Bitmap('./assets/floor-sprites.jpg',1280,93)        // 5
-		]
+		];
 };
 
 
@@ -262,11 +262,13 @@ Camera.prototype.drawRoom = function(x,y,location) {
 	if (texture[pos(1, 1)]) this.ctx.drawImage(texture[pos(1, 1)].image,0,0,texture[pos(1, 1)].width,texture[pos(1, 1)].height,rightImagePosition,this.height+this.viewHeight,this.width,this.height);
 
 };
+
 // var rgb = [180,180,255];
 Camera.prototype.drawBackground = function() {
 	if (time[2]<2 && time[0]==0) {
 		this.rgb[1]-=1;
 		this.rgb[2]-=1;
+		
 	}
 	else if (time[2]<3 && time[0]==0) {
 		this.rgb[0]-=3;
@@ -276,9 +278,28 @@ Camera.prototype.drawBackground = function() {
 
 
 	this.ctx.fillStyle = "rgba("+this.rgb[0]+","+this.rgb[1]+","+this.rgb[2]+",1)";
-	this.ctx.fillRect(0,0,this.width,this.height)
+	this.ctx.fillRect(0,0,this.width,this.height);
 
-}
+	if (time[2]<3) {
+		this.ctx.fillStyle = "rgba(255,255,200,1)";
+		this.ctx.fillRect(this.width/2,(time[2]*60)+time[1],50,50)	
+	}
+	else if (time[2]<5) {
+		this.ctx.fillStyle = "rgba(230,230,230,1)";
+		this.ctx.fillRect(this.width/2,this.height/5,50,50)
+	}
+
+	
+	// this.ctx.arc(30,30,30,0,6.28);
+	// this.ctx.fill();
+
+
+	
+		this.ctx.fillStyle = "rgba(100,200,100,1)";
+		this.ctx.fillRect(0,this.height/1.7,this.width,this.height);
+
+	
+};
 
 
 //############# STARTING VARIABLES ################//
