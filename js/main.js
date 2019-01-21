@@ -20,10 +20,10 @@ var run = setInterval(function() {
 
 
 function logic() {
-	if (gameState == state_PAUSED) logic_PAUSED();
 	if (gameState == state_EXPLORE) logic_EXPLORE();
 	if (gameState == state_CONVERSATION) logic_CONVERSATION();
-	
+	if (gameState == state_PAUSED) logic_PAUSED();
+
 
 }
 
@@ -42,9 +42,41 @@ function logic_PAUSED() {
 };
 
 function logic_CONVERSATION() {
+	player.update(controls.states, camera.text_speed);
+	
 	camera.render_CONVERSATION();
+	
 
 }
+
+// ################# CONTROLS #################### //
+
+function Controls () {
+	this.codes = {
+		37: 'left',
+		39: 'right',
+        38: 'up',
+        40: 'down'
+	};
+	this.states = {
+        'left': false,
+        'right': false,
+        'up': false,
+        'down': false
+    };
+    this.holding = false;
+    document.addEventListener('keydown', this.onKey.bind(this, true), false);
+    document.addEventListener('keyup', this.onKey.bind(this, false), false);
+};
+
+Controls.prototype.onKey = function(val, e) {
+    var state = this.codes[e.keyCode];
+    if (typeof state === 'undefined') return;
+    this.states[state] = val;
+    e.preventDefault && e.preventDefault();
+    e.stopPropagation && e.stopPropagation();
+};
+
 
 
 
@@ -83,9 +115,29 @@ function Player (x,y,direction) {
     this.sprite = [0,200,400,600,800,1000,1200,1400,1600,1800];
     this.seg = 0;
     this.converse = false;
+    this.hold = false
 };
 
-var hold=false;
+Player.prototype.update = function(con, word_speed) {
+	// explore controls
+	if (gameState == state_EXPLORE) {
+		if (con.right) this.walk(.01),this.direction=1;
+	    if (con.left) this.walk(-.01),this.direction=-1;
+	    if (!con.left && !con.right) this.seg=0;
+	    if (con.up) this.interact(), con.up=false;
+	    if (!con.up) controls.holding = false;
+	}
+    
+
+    // conversation controls
+    if (gameState == state_CONVERSATION) {
+    	if (con.up && camera.text_speed != 1 && !camera.continue) camera.text_speed=1, controls.holding = true;
+	    if (!con.up) camera.text_speed=5, controls.holding = false;
+	    if (con.up && camera.continue) this.reset(), con.up=false, controls.holding = true;	
+    }
+    
+};
+
 Player.prototype.walk = function(distance) {
 	
 	var pos = function(x,y,horizontal, vertical) {
@@ -96,7 +148,7 @@ Player.prototype.walk = function(distance) {
 		this.x+=distance;
 		this.seg+=Math.abs(distance*20);
 		if (this.seg >= 10) this.seg = 0;
-		if (hold) hold=false;
+		if (this.hold) this.hold=false;
 	}
 	else if (this.x <= 1.5 && distance > 0) {
 		this.x+=distance;
@@ -104,11 +156,11 @@ Player.prototype.walk = function(distance) {
 	else if (this.x >= mansion.length-.1 && distance < 0) {
 		this.x+=distance;	
 	}
-	if (this.x>(mansion.length+.5) && pos(this.x,this.y,0,0) == 1 && !hold) this.y = this.y-1, hold=true;
-	if (this.x<1.5 && pos(this.x,this.y,0,0) == 3 && !hold) this.y = this.y-1, hold=true;
+	if (this.x>(mansion.length+.5) && pos(this.x,this.y,0,0) == 1 && !this.hold) this.y = this.y-1, this.hold=true;
+	if (this.x<1.5 && pos(this.x,this.y,0,0) == 3 && !this.hold) this.y = this.y-1, this.hold=true;
 
-	if (this.x>(mansion.length+.5) && pos(this.x,this.y,0,0) == 2 && !hold) this.y = this.y+1, hold=true;
-	if (this.x<1.5 && pos(this.x,this.y,0,0) == 4 && !hold) this.y = this.y+1, hold=true;
+	if (this.x>(mansion.length+.5) && pos(this.x,this.y,0,0) == 2 && !this.hold) this.y = this.y+1, this.hold=true;
+	if (this.x<1.5 && pos(this.x,this.y,0,0) == 4 && !this.hold) this.y = this.y+1, this.hold=true;
 		
 };
 
@@ -118,8 +170,18 @@ Player.prototype.interact = function() {
 			this.seg=0;
 			AI_array[i].direction = this.direction*-1;
 			AI_array[i].seg = 0;
-			// camera.drawDialogueBox();
+			
 			this.converse = AI_array[i].dialogue;
+			camera.dialogueBox = false;
+		    camera.words_counter = {
+		    	letter:0,
+		    	line:1,
+		    	word:1,
+		    	cursor:canvas.width/30
+		    };
+		    camera.text_speed_counter = 0;
+		    camera.text_speed = 5;
+		    camera.continue = false;
 
 			gameState = state_CONVERSATION;
 			
@@ -127,12 +189,14 @@ Player.prototype.interact = function() {
 	}
 }
 
-Player.prototype.update = function(controls) {
-    if (controls.right && gameState == state_EXPLORE) this.walk(.01),this.direction=1;
-    if (controls.left && gameState == state_EXPLORE) this.walk(-.01),this.direction=-1;
-    if (!controls.left && !controls.right) this.seg=0;
-    if (controls.up && gameState == state_EXPLORE) this.interact(), controls.up=false;
-};
+Player.prototype.reset = function() {
+	controls.holding = false;
+	gameState = state_EXPLORE;
+	
+	
+}
+
+
 
 //################ AI #################//
 
@@ -181,63 +245,81 @@ AI.prototype.update = function() {
 };
 
 
-// ################# CONTROLS #################### //
-
-function Controls () {
-	this.codes = {
-		37: 'left',
-		39: 'right',
-        38: 'up',
-        40: 'down'
-	};
-	this.states = {
-        'left': false,
-        'right': false,
-        'up': false,
-        'down': false
-    };
-    document.addEventListener('keydown', this.onKey.bind(this, true), false);
-    document.addEventListener('keyup', this.onKey.bind(this, false), false);
-};
-
-Controls.prototype.onKey = function(val, e) {
-    var state = this.codes[e.keyCode];
-    if (typeof state === 'undefined') return;
-    this.states[state] = val;
-    e.preventDefault && e.preventDefault();
-    e.stopPropagation && e.stopPropagation();
-};
 
 
 // ################ CAMERA ################## //
 
 function Camera(ctx) {
 	this.ctx = canvas.getContext("2d");
-	this.width = canvas.width = window.innerWidth/2;
+	this.width = canvas.width = window.innerWidth;
     this.height = canvas.height = canvas.width/(16/9);
-    this.viewHeight = 0; //controls height of scene in viewport
+    this.viewHeight = 0; // controls height of scene in viewport
     this.rgb = [180,180,255];
+    // Dialogue variables
     this.dialogueBox = false;
+    this.words_counter = {
+    	letter:0,
+    	line:1,
+    	word:1,
+    	cursor:canvas.width/30
+    };
+    this.text_speed_counter = 0;
+    this.text_speed = 5;
+    this.continue = false;
 }
 
 // ################ CAMERA CONVERSATION ############### //
 
 Camera.prototype.render_CONVERSATION = function() {
 	if (!this.dialogueBox) this.drawDialogueBox(), this.dialogueBox=true;
-	this.drawLetters(player.converse)
+	this.drawLetters(player.converse.split(''),time);
 }
 
 Camera.prototype.drawDialogueBox = function() {
 	this.ctx.fillStyle = "#000000";
 	this.ctx.strokeStyle = "#ffffff";
-	this.ctx.rect(2,2,this.width-4,this.height/3);
+	this.ctx.rect(2,2,this.width-4,this.height/2.8);
 	this.ctx.fill();
 	this.ctx.stroke();
 }
 
-Camera.prototype.drawLetters = function(dialogue) {
-	var saying = dialogue.split('');
-}
+Camera.prototype.drawLetters = function(dialogue, time) {
+	this.text_speed_counter++;
+	this.ctx.font = this.width/22 + 'px Monaco';
+	this.ctx.fillStyle = "#ffffff";
+	function countAhead(d,w) {
+		var i=1;
+		var y = w.cursor;
+		while (d[i+w.letter] != " " && d[i+w.letter]) {
+			y=y+canvas.width/30;
+			if (y > canvas.width) return true;
+			i++;
+		};
+		return false;
+	};
+
+	if (this.words_counter.letter<dialogue.length && this.text_speed_counter >= this.text_speed) {
+		this.ctx.fillText(dialogue[this.words_counter.letter],this.words_counter.cursor,(this.words_counter.line*this.height/9))
+		this.words_counter.letter++;
+		this.text_speed_counter = 0;
+		this.words_counter.word++;
+		if (dialogue[this.words_counter.letter] == " ") {
+			this.words_counter.word=0;
+			if (countAhead(dialogue,this.words_counter)) {
+				this.words_counter.letter=this.words_counter.letter+1
+				this.words_counter.cursor=0;
+				this.words_counter.line++
+			};
+		};
+		this.words_counter.cursor+=this.width/30;
+	}
+	else if (this.words_counter.letter==dialogue.length) {
+		if (!controls.holding) {
+			this.continue = true;	
+		}
+		
+	}
+};
 
 // ################ CAMERA EXPLORE ############### //
 
