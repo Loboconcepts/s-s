@@ -193,14 +193,11 @@ Player.prototype.reset = function() {
 	controls.holding = false;
 	gameState = state_EXPLORE;
 	
-	
-}
+};
 
+// ################ AI ################# //
 
-
-//################ AI #################//
-
-function AI (x,y,direction,texture,dialogue) {
+function AI (x,y,direction,texture,dialogue, logic) {
 	this.x = x;
 	this.x = x;
     this.y = y;
@@ -209,6 +206,7 @@ function AI (x,y,direction,texture,dialogue) {
     this.sprite = [0,200,400,600,800,1000,1200,1400,1600,1800];
     this.seg = 0;
     this.dialogue = dialogue;
+    this.logic = logic;
 }
 
 AI.prototype.walk = function(distance) {
@@ -408,27 +406,27 @@ Camera.prototype.drawBackground = function() {
 		this.rgb[2]-=2;
 	}
 
-
+	// Sky
 	this.ctx.fillStyle = "rgba("+this.rgb[0]+","+this.rgb[1]+","+this.rgb[2]+",1)";
 	this.ctx.fillRect(0,0,this.width,this.height);
 
+	// Sun / Moon
 	if (time[2]<3) {
 		this.ctx.fillStyle = "rgba(255,255,200,1)";
-		this.ctx.fillRect(this.width/2,(time[2]*60)+time[1],50,50)	
+		this.ctx.fillRect(this.width/2,((time[2]*60)+time[1])*this.height/180,this.width/10,this.width/10)	
 	}
 	else if (time[2]<5) {
 		this.ctx.fillStyle = "rgba(230,230,230,1)";
-		this.ctx.fillRect(this.width/2,this.height/5,50,50)
+		this.ctx.fillRect(this.width/2,this.height/5,this.width/10,this.width/10)
 	}
 
 	
-	// this.ctx.arc(30,30,30,0,6.28);
-	// this.ctx.fill();
-
-
 	
-		this.ctx.fillStyle = "rgba(100,200,100,1)";
-		this.ctx.fillRect(0,this.height/1.7,this.width,this.height);
+
+
+	// Ground
+	this.ctx.fillStyle = "rgba(100,200,100,1)";
+	this.ctx.fillRect(0,this.height/1.7,this.width,this.height);
 
 	
 };
