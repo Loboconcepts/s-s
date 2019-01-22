@@ -115,7 +115,8 @@ function Player (x,y,direction) {
     this.sprite = [0,200,400,600,800,1000,1200,1400,1600,1800];
     this.seg = 0;
     this.converse = false;
-    this.hold = false
+    this.hold = false;
+    this.player_lock = false;
 };
 
 Player.prototype.update = function(con, word_speed) {
@@ -126,6 +127,15 @@ Player.prototype.update = function(con, word_speed) {
 	    if (!con.left && !con.right) this.seg=0;
 	    if (con.up) this.interact(), con.up=false;
 	    if (!con.up) controls.holding = false;
+	}
+
+
+	if (camera.camera_lock && !this.player_lock) {
+		this.player_lock = this.x;
+	}
+
+	if (!camera.camera_lock && this.player_lock) {
+		this.player_lock = false;
 	}
     
 
@@ -144,18 +154,42 @@ Player.prototype.walk = function(distance) {
 		return mansion.grid[(Math.floor(x)+(1*horizontal))+((y+vertical)*mansion.length)];
 	}
 
-	if (this.x > 1.5 && this.x < (mansion.length+.5)) {
-		this.x+=distance;
-		this.seg+=Math.abs(distance*20);
-		if (this.seg >= 10) this.seg = 0;
-		if (this.hold) this.hold=false;
+	if (this.player_lock) {
+		if (canvas.width/2.5 + (canvas.width)*(this.x-this.player_lock) > 1 && canvas.width/2.5 + (canvas.width)*(this.x-this.player_lock)< (canvas.width)-(canvas.width/6)) {
+			this.x+=distance;
+			this.seg+=Math.abs(distance*20);
+			if (this.seg >= 10) this.seg = 0;
+			if (this.hold) this.hold=false;
+		}
+		else if (canvas.width/2.5 + (canvas.width)*(this.x-this.player_lock)<=1 && distance>0) {
+			this.x+=distance;
+		}
+		else if (canvas.width/2.5 + (canvas.width)*(this.x-this.player_lock)>=canvas.width-(canvas.width/6) && distance<0) {
+			this.x+=distance;
+		}
 	}
-	else if (this.x <= 1.5 && distance > 0) {
-		this.x+=distance;
+	else {
+		if (this.x > 1.5 && this.x < (mansion.length+.5)) {
+			this.x+=distance;
+			this.seg+=Math.abs(distance*20);
+			if (this.seg >= 10) this.seg = 0;
+			if (this.hold) this.hold=false;
+		}
+		else if (this.x <= 1.5 && distance > 0) {
+			this.x+=distance;
+		}
+		else if (this.x >= mansion.length-.1 && distance < 0) {
+			this.x+=distance;	
+		}
+
 	}
-	else if (this.x >= mansion.length-.1 && distance < 0) {
-		this.x+=distance;	
-	}
+
+
+
+
+
+
+
 	if (this.x>(mansion.length+.5) && pos(this.x,this.y,0,0) == 1 && !this.hold) this.y = this.y-1, this.hold=true;
 	if (this.x<1.5 && pos(this.x,this.y,0,0) == 3 && !this.hold) this.y = this.y-1, this.hold=true;
 
@@ -225,6 +259,7 @@ AI.prototype.walk = function(distance) {
 	else if (this.x >= mansion.length-.1 && distance < 0) {
 		this.x+=distance;	
 	}
+
 	if (this.x>(mansion.length+.5) && pos(this.x,this.y,0,0) == 1 && !hold) this.y = this.y-1;
 	if (this.x<1.5 && pos(this.x,this.y,0,0) == 3 && !hold) this.y = this.y-1;
 
@@ -253,6 +288,8 @@ function Camera(ctx) {
     this.height = canvas.height = canvas.width/(16/9);
     this.viewHeight = 0; // controls height of scene in viewport
     this.rgb = [180,180,255];
+    this.camera_lock = false;
+    this.darkness = false;
     // Dialogue variables
     this.dialogueBox = false;
     this.words_counter = {
@@ -322,10 +359,26 @@ Camera.prototype.drawLetters = function(dialogue, time) {
 // ################ CAMERA EXPLORE ############### //
 
 Camera.prototype.render_EXPLORE = function(player, map) { 
-	this.drawBackground(player.y,time);
-    this.drawRoom(player.x,player.y, map.grid);
-    this.drawAI(player.x,player.y, AI_array);
-    this.drawPlayer(player.x,player.direction,player.sprite,Math.floor(player.seg),map.grid);
+	if(this.darkness) this.ctx.clearRect(0,0,canvas.width,canvas.height);
+
+	if(!this.darkness) this.drawBackground(player.y,time);
+
+
+	if (!this.camera_lock) {
+		this.drawRoom(player.x,player.y, map.grid);
+	    this.drawAI(player.x,player.y, AI_array);
+	    this.drawPlayer(player.x,player.direction,player.sprite,Math.floor(player.seg),map.grid);
+	}
+	else {
+		this.drawRoom(player.player_lock,player.y, map.grid);
+	    this.drawAI(player.player_lock,player.y, AI_array);
+	    this.drawPlayer(player.player_lock,player.direction,player.sprite,Math.floor(player.seg),map.grid);
+	}
+
+	if(this.darkness) this.drawDarkness();
+
+	
+    
 };
 
 Camera.prototype.drawPlayer = function (x,direction,sprite,seg,location) {
@@ -334,13 +387,44 @@ Camera.prototype.drawPlayer = function (x,direction,sprite,seg,location) {
 	}
 	var decimal = x%1;
 	var texture = player.texture;
-	if (direction==1) {
-		this.ctx.drawImage(texture.image,sprite[seg],0,200,400,canvas.width/2.5,canvas.height/2.3,canvas.width/6,canvas.height/1.9)
+	if (!this.camera_lock) {
+		if (direction==1) {
+			this.ctx.drawImage(texture.image,sprite[seg],0,200,400,canvas.width/2.5,canvas.height/2.3,canvas.width/6,canvas.height/1.9)
+		}
+		else {
+			this.ctx.drawImage(texture.image,sprite[seg],400,200,400,canvas.width/2.5,canvas.height/2.3,canvas.width/6,canvas.height/1.9)	
+		}
 	}
 	else {
-		this.ctx.drawImage(texture.image,sprite[seg],400,200,400,canvas.width/2.5,canvas.height/2.3,canvas.width/6,canvas.height/1.9)	
+		var _x = function() {
+			var temp = canvas.width/2.5 + (canvas.width)*(player.x - x);
+			if (temp<0) {
+				return 0
+			}
+			else if (temp > canvas.width){
+				return canvas.width
+			}
+			else {
+				return temp
+			}
+		}
+		if (direction==1) {
+			this.ctx.drawImage(texture.image,sprite[seg],0,200,400,_x(),canvas.height/2.3,canvas.width/6,canvas.height/1.9)
+		}
+		else {
+			this.ctx.drawImage(texture.image,sprite[seg],400,200,400,_x(),canvas.height/2.3,canvas.width/6,canvas.height/1.9)	
+		}
 	}
+		
 };
+
+Camera.prototype.drawDarkness = function() {
+	this.ctx.save();
+	this.ctx.globalCompositeOperation = 'source-atop';
+	this.ctx.fillStyle="#000000";
+	this.ctx.fillRect(0,0,canvas.width,canvas.height);
+	this.ctx.restore();
+}
 
 Camera.prototype.drawAI = function (x,y,array) {
 
