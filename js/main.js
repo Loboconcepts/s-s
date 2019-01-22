@@ -359,9 +359,9 @@ Camera.prototype.drawLetters = function(dialogue, time) {
 // ################ CAMERA EXPLORE ############### //
 
 Camera.prototype.render_EXPLORE = function(player, map) { 
-	if(this.darkness) this.ctx.clearRect(0,0,canvas.width,canvas.height);
+	if (this.darkness) this.ctx.clearRect(0,0,canvas.width,canvas.height);
 
-	if(!this.darkness) this.drawBackground(player.y,time);
+	if (!this.darkness) this.drawBackground(player.y,time);
 
 
 	if (!this.camera_lock) {
@@ -375,10 +375,7 @@ Camera.prototype.render_EXPLORE = function(player, map) {
 	    this.drawPlayer(player.player_lock,player.direction,player.sprite,Math.floor(player.seg),map.grid);
 	}
 
-	if(this.darkness) this.drawDarkness();
-
-	
-    
+	if (this.darkness) this.drawDarkness();
 };
 
 Camera.prototype.drawPlayer = function (x,direction,sprite,seg,location) {
