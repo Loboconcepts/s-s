@@ -29,10 +29,21 @@ function logic() {
 
 function logic_EXPLORE() {
 	time_keeper();
-	player.update(controls.states);
 	for (var i=0;i<AI_array.length;i++) AI_array[i].update();
+	player.update(controls.states);
 	
 	camera.render_EXPLORE(player,mansion);
+	
+
+	// ############## LIGHTNING HERE ################ //
+
+	// if (time[0]>31 && time[0]<35 && !camera.darkness) {
+	// 	if (Math.floor(Math.random()*8) == 0)camera.darkness=true;
+		
+	// }
+	// else if (time[0]<31 || time[0]>35 && camera.darkness) {
+	// 	camera.darkness=false;	
+	// }
 
 };
 
@@ -49,7 +60,7 @@ function logic_CONVERSATION() {
 
 }
 
-// ################# CONTROLS #################### //
+
 
 function Controls () {
 	this.codes = {
@@ -107,7 +118,7 @@ function Map(length, floors, grid) {
 
 //############## PLAYER #################//
 
-function Player (x,y,direction) {
+function Player (x,y,direction,talk) {
 	this.x = x;
     this.y = y;
     this.direction = direction;
@@ -117,7 +128,17 @@ function Player (x,y,direction) {
     this.converse = false;
     this.hold = false;
     this.player_lock = false;
+    this.talk = talk;
+    this.reply_select = 0;
+    this.chosen_reply = false;
 };
+
+// ################# PLAYER CONTROLS #################### //
+// ################# PLAYER CONTROLS #################### //
+// ################# PLAYER CONTROLS #################### //
+// ################# PLAYER CONTROLS #################### //
+// ################# PLAYER CONTROLS #################### //
+// ################# PLAYER CONTROLS #################### //
 
 Player.prototype.update = function(con, word_speed) {
 	// explore controls
@@ -125,7 +146,7 @@ Player.prototype.update = function(con, word_speed) {
 		if (con.right) this.walk(.01),this.direction=1;
 	    if (con.left) this.walk(-.01),this.direction=-1;
 	    if (!con.left && !con.right) this.seg=0;
-	    if (con.up) this.interact(), con.up=false;
+	    if (con.up) this.interact(0), con.up=false;
 	    if (!con.up) controls.holding = false;
 	}
 
@@ -144,6 +165,8 @@ Player.prototype.update = function(con, word_speed) {
     	if (con.up && camera.text_speed != 1 && !camera.continue) camera.text_speed=1, controls.holding = true;
 	    if (!con.up) camera.text_speed=5, controls.holding = false;
 	    if (con.up && camera.continue) this.reset(), con.up=false, controls.holding = true;	
+	    if (con.right && camera.select && !this.chosen_reply) this.chosen_reply=true, this.interact(1,this.reply_select);
+		if (con.left && camera.select && !this.chosen_reply) this.chosen_reply=true, this.interact(1,this.reply_select);
     }
     
 };
@@ -198,14 +221,14 @@ Player.prototype.walk = function(distance) {
 		
 };
 
-Player.prototype.interact = function() {
+Player.prototype.interact = function(point, x_reply) {
 	for (var i=0;i<AI_array.length;i++) {
 		if (AI_array[i].y==this.y && (AI_array[i].x-this.x)*this.direction<=.2 && (AI_array[i].x-this.x)*this.direction > 0) {
 			this.seg=0;
 			AI_array[i].direction = this.direction*-1;
 			AI_array[i].seg = 0;
-			
-			this.converse = AI_array[i].dialogue;
+			this.converse = (point == 0) ? AI_array[i].dialogue.greeting[0] : AI_array[i].dialogue.greeting[1][x_reply]; // This should assign based on time dynamically
+			camera.AI_talk = true;
 			camera.dialogueBox = false;
 		    camera.words_counter = {
 		    	letter:0,
@@ -224,14 +247,48 @@ Player.prototype.interact = function() {
 }
 
 Player.prototype.reset = function() {
-	controls.holding = false;
-	gameState = state_EXPLORE;
+	camera.AI_talk = false;
+	// This is checking if there is a reply and if the replies havent been printed yet.
+	if (this.talk.greeting && !camera.select && !this.chosen_reply) { //GREETING IS JUST A PLACEHOLDER. MAKE THIS FIND WHAT THE AI KEY WAS. 
+		camera.dialogueBox = false;
+	    camera.words_counter = {
+	    	letter:0,
+	    	line:1,
+	    	word:1,
+	    	cursor:canvas.width/30
+	    };
+	    camera.text_speed_counter = 0;
+	    camera.text_speed = 5;
+		camera.reply = this.talk.greeting; // SAME HERE
+		camera.select = this.reply_select;
+	}
+	// if there is a reply and the replies have already been printed.
+	else if (this.talk.greeting && camera.select && !this.chosen_reply) {//GREETING IS JUST A PLACEHOLDER. MAKE THIS FIND WHAT THE AI KEY WAS
+		this.reply_select++;
+		if (this.reply_select >= this.talk.greeting.length) this.reply_select = 0;
+		camera.dialogueBox = false;
+	    camera.words_counter = {
+	    	letter:0,
+	    	line:1,
+	    	word:1,
+	    	cursor:canvas.width/30
+	    };
+	    camera.text_speed_counter = 0;
+	    camera.text_speed = 5;
+		camera.reply = this.talk.greeting; // SAME HERE
+		camera.select = this.reply_select;
+	}
+	else {
+		controls.holding = false;
+		gameState = state_EXPLORE;
+	}
+	
 	
 };
 
 // ################ AI ################# //
 
-function AI (x,y,direction,texture,dialogue, logic) {
+function AI (x,y,direction,texture,dialogue,logic,dispositionTowardsPlayer) {
 	this.x = x;
 	this.x = x;
     this.y = y;
@@ -241,6 +298,7 @@ function AI (x,y,direction,texture,dialogue, logic) {
     this.seg = 0;
     this.dialogue = dialogue;
     this.logic = logic;
+    this.dispositionTowardsPlayer = dispositionTowardsPlayer;
 }
 
 AI.prototype.walk = function(distance) {
@@ -269,13 +327,18 @@ AI.prototype.walk = function(distance) {
 }
 
 AI.prototype.update = function() {
-  //   if (time[1]%2==0) {
-  //   	this.walk(.005),this.direction=1;
-  //   }
-  //   else {
-		// this.walk(-.005),this.direction=-1;
-  //   }
+    if (time[1]%2==0) {
+    	this.walk(.005),this.direction=1;
+    }
+    else {
+		this.walk(-.005),this.direction=-1;
+    }
 };
+
+// Take player.reply_select after player.chosen_reply = true and perform an action with it.
+AI.prototype.react = function() {
+
+}
 
 
 
@@ -290,7 +353,9 @@ function Camera(ctx) {
     this.rgb = [180,180,255];
     this.camera_lock = false;
     this.darkness = false;
+    //
     // Dialogue variables
+    //
     this.dialogueBox = false;
     this.words_counter = {
     	letter:0,
@@ -301,13 +366,23 @@ function Camera(ctx) {
     this.text_speed_counter = 0;
     this.text_speed = 5;
     this.continue = false;
+    this.AI_talk = false
+    this.reply = false;
+    this.select = 0;
 }
 
 // ################ CAMERA CONVERSATION ############### //
+// ################ CAMERA CONVERSATION ############### //
+// ################ CAMERA CONVERSATION ############### //
+// ################ CAMERA CONVERSATION ############### //
+// ################ CAMERA CONVERSATION ############### //
+// ################ CAMERA CONVERSATION ############### //
+
 
 Camera.prototype.render_CONVERSATION = function() {
 	if (!this.dialogueBox) this.drawDialogueBox(), this.dialogueBox=true;
-	this.drawLetters(player.converse.split(''),time);
+	if (this.AI_talk) this.drawLetters(player.converse.split(''),time);
+	if (this.reply) {this.drawPlayerTalk(this.reply), this.dialogueBox=true};
 }
 
 Camera.prototype.drawDialogueBox = function() {
@@ -327,7 +402,7 @@ Camera.prototype.drawLetters = function(dialogue, time) {
 		var y = w.cursor;
 		while (d[i+w.letter] != " " && d[i+w.letter]) {
 			y=y+canvas.width/30;
-			if (y > canvas.width) return true;
+			if (y > canvas.width-(canvas.width/10)) return true;
 			i++;
 		};
 		return false;
@@ -350,12 +425,39 @@ Camera.prototype.drawLetters = function(dialogue, time) {
 	}
 	else if (this.words_counter.letter==dialogue.length) {
 		if (!controls.holding) {
-			this.continue = true;	
+			this.continue = true;
 		}
-		
 	}
 };
 
+Camera.prototype.drawPlayerTalk = function(reply) {
+	this.ctx.font = this.width/22 + 'px Monaco';
+	if (reply[0]) {
+		this.ctx.fillStyle = (this.select == 0) ? "#ffffaa" : "#666666";
+		this.ctx.fillText(reply[0],canvas.width/30,1*this.height/9);
+	}
+	if (reply[1]) {
+		this.ctx.fillStyle = (this.select == 1) ? "#ffffaa" : "#666666";
+		this.ctx.fillText(reply[1],canvas.width/30,2*this.height/9);
+	}
+	if (reply[2]) {
+		this.ctx.fillStyle = (this.select == 2) ? "#ffffaa" : "#666666";
+		this.ctx.fillText(reply[2],canvas.width/30,2*this.height/9);
+	}
+	this.reply = false; // to prevent the word from repeating	
+	this.select = true;
+	
+}
+
+
+
+
+
+// ################ CAMERA EXPLORE ############### //
+// ################ CAMERA EXPLORE ############### //
+// ################ CAMERA EXPLORE ############### //
+// ################ CAMERA EXPLORE ############### //
+// ################ CAMERA EXPLORE ############### //
 // ################ CAMERA EXPLORE ############### //
 
 Camera.prototype.render_EXPLORE = function(player, map) { 
