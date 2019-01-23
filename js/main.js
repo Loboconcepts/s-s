@@ -132,6 +132,7 @@ function Player (x,y,direction,talk) {
     this.reply_select = 0;
     this.chosen_reply = false;
     this.AI_focus = false;
+    this.conversation_point = "greeting";
 };
 
 // ################# PLAYER CONTROLS #################### //
@@ -163,9 +164,9 @@ Player.prototype.update = function(con, word_speed) {
     if (gameState == state_CONVERSATION) {
     	if (con.up && camera.text_speed != 1 && !camera.continue) camera.text_speed=1, controls.holding = true;
 	    if (!con.up) camera.text_speed=5, controls.holding = false;
-	    if (con.up && camera.continue) this.reset(), con.up=false, controls.holding = true;	
-	    if (con.right && camera.select && !this.chosen_reply) this.chosen_reply=true, this.interact(1,this.reply_select);
-		if (con.left && camera.select && !this.chosen_reply) this.chosen_reply=true, this.interact(1,this.reply_select);
+	    if (con.up && camera.continue) this.reset(this.conversation_point), con.up=false, controls.holding = true;	
+	    if (con.right && camera.select && !this.chosen_reply) this.chosen_reply=true, this.interact(this.conversation_point,1,this.reply_select);
+		if (con.left && camera.select && !this.chosen_reply) this.chosen_reply=true, this.interact(this.conversation_point,1,this.reply_select);
     }
     
 };
@@ -221,13 +222,13 @@ Player.prototype.engage = function() {
 			this.AI_focus = AI_array[i];
 			this.AI_focus.direction = this.direction*-1;
 			this.AI_focus.seg = 0;
-			if (gameState != state_CONVERSATION) this.interact(0);
+			if (gameState != state_CONVERSATION) this.interact(this.conversation_point, 0);
 		}
 	}
 }
 
-Player.prototype.interact = function(point_of_convo, x_reply) {
-	this.converse = (point_of_convo == 0) ? this.AI_focus.persona.greeting[0] : this.AI_focus.persona.greeting[1][x_reply]; // This should assign based on time dynamically
+Player.prototype.interact = function(whatConvo, point_of_convo, x_reply) {
+	this.converse = (point_of_convo == 0) ? this.AI_focus.persona[whatConvo][0] : this.AI_focus.persona[whatConvo][1][x_reply]; // This should assign based on time dynamically
 	camera.AI_talk = true;
 	camera.dialogueBox = false;
     camera.words_counter = {
@@ -240,13 +241,13 @@ Player.prototype.interact = function(point_of_convo, x_reply) {
     camera.text_speed = 5;
     camera.continue = false;
 
-	gameState = state_CONVERSATION;		
+	if (gameState != state_CONVERSATION) gameState = state_CONVERSATION;		
 }
 
-Player.prototype.reset = function() {
+Player.prototype.reset = function(whatConvo) {
 	camera.AI_talk = false;
 	// This is checking if there is a reply and if the replies havent been printed yet.
-	if (this.talk.greeting && !camera.select && !this.chosen_reply) { //GREETING IS JUST A PLACEHOLDER. MAKE THIS FIND WHAT THE AI KEY WAS. 
+	if (this.talk[whatConvo] && !camera.select && !this.chosen_reply && !this.AI_focus.persona[whatConvo][2]) { //GREETING IS JUST A PLACEHOLDER. MAKE THIS FIND WHAT THE AI KEY WAS. 
 		camera.dialogueBox = false;
 	    camera.words_counter = {
 	    	letter:0,
@@ -256,13 +257,13 @@ Player.prototype.reset = function() {
 	    };
 	    camera.text_speed_counter = 0;
 	    camera.text_speed = 5;
-		camera.reply = this.talk.greeting; // SAME HERE
+		camera.reply = this.talk[whatConvo]; // SAME HERE
 		camera.select = this.reply_select;
 	}
 	// if there is a reply and the replies have already been printed.
-	else if (this.talk.greeting && camera.select && !this.chosen_reply) {//GREETING IS JUST A PLACEHOLDER. MAKE THIS FIND WHAT THE AI KEY WAS
+	else if (this.talk[whatConvo] && camera.select && !this.chosen_reply) {//GREETING IS JUST A PLACEHOLDER. MAKE THIS FIND WHAT THE AI KEY WAS
 		this.reply_select++;
-		if (this.reply_select >= this.talk.greeting.length) this.reply_select = 0;
+		if (this.reply_select >= this.talk[whatConvo].length) this.reply_select = 0;
 		camera.dialogueBox = false;
 	    camera.words_counter = {
 	    	letter:0,
@@ -272,11 +273,15 @@ Player.prototype.reset = function() {
 	    };
 	    camera.text_speed_counter = 0;
 	    camera.text_speed = 5;
-		camera.reply = this.talk.greeting; // SAME HERE
+		camera.reply = this.talk[whatConvo]; // SAME HERE
 		camera.select = this.reply_select;
 	}
+	else if (!this.AI_focus.persona[whatConvo][2]) {
+		this.AI_focus.react(whatConvo);
+		controls.holding = false;
+		gameState = state_EXPLORE;
+	}
 	else {
-		this.AI_focus.react();
 		controls.holding = false;
 		gameState = state_EXPLORE;
 		this.reply_select = 0;
@@ -340,8 +345,10 @@ AI.prototype.update = function() {
 };
 
 // Take player.reply_select after player.chosen_reply = true and perform an action with it.
-AI.prototype.react = function() {
-	console.log(player.AI_focus.persona.name + " reacts with " + player.reply_select);
+AI.prototype.react = function(whatConvo) {
+	console.log(this.persona.name + " reacts with " + player.reply_select);
+	this.persona[whatConvo][2] = true;
+	this.dispositionTowardsPlayer+=player.reply_select;
 	player.chosen_reply=false;
 	player.reply_select = 0;
 	camera.select = 0;

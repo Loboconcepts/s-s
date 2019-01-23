@@ -23,7 +23,8 @@
 			5,0,0,0,1
 			]);
 		var player = new Player(2,3,1,{
-			greeting: ["Good", "Bad"]
+			greeting: ["Good", "Bad"],
+			introduce: ["TRUTH", "LIE"]
 
 		});
 		var camera = new Camera(canvas);
@@ -36,7 +37,13 @@
 			greeting: ["Hey there friend, how are you?",{
 				0: "Great!",
 				1: "Sorry to hear that."
-			}]
+			},false],
+			introduce : ["What's your name", {
+				0: "Nice to meet you. I'm Cornelia.",
+				1: "Nice to meet you. I'm Cornelia."
+			},false]
+
+
 		},{
 			time: {
 				0:"stand",
@@ -49,7 +56,12 @@
 			greeting: ["Howdy partner. How ya doing?",{
 				0: "Cool!",
 				1: "Bummer."
-			}]
+			},false],
+			introduce : ["What's your name", {
+				0: "Nice to meet you. I'm Sunwell.",
+				1: "Nice to meet you. I'm Sunwell."
+			},false]
+
 		},{
 			time: {
 				0:"stand",
@@ -62,7 +74,12 @@
 			greeting: ["Hiya, pal. How's it going?",{
 				0: "Sweet!",
 				1: "Damn shame."
-			}]
+			},false],
+			introduce : ["What's your name", {
+				0: "Nice to meet you. I'm Perry.",
+				1: "Nice to meet you. I'm Perry."
+			},false]
+
 		},{
 			time: {
 				0:"stand",
