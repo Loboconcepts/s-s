@@ -131,6 +131,7 @@ function Player (x,y,direction,talk) {
     this.talk = talk;
     this.reply_select = 0;
     this.chosen_reply = false;
+    this.AI_focus = false;
 };
 
 // ################# PLAYER CONTROLS #################### //
@@ -225,6 +226,7 @@ Player.prototype.interact = function(point, x_reply) {
 	for (var i=0;i<AI_array.length;i++) {
 		if (AI_array[i].y==this.y && (AI_array[i].x-this.x)*this.direction<=.2 && (AI_array[i].x-this.x)*this.direction > 0) {
 			this.seg=0;
+			this.AI_focus = i;
 			AI_array[i].direction = this.direction*-1;
 			AI_array[i].seg = 0;
 			this.converse = (point == 0) ? AI_array[i].dialogue.greeting[0] : AI_array[i].dialogue.greeting[1][x_reply]; // This should assign based on time dynamically
@@ -279,8 +281,10 @@ Player.prototype.reset = function() {
 		camera.select = this.reply_select;
 	}
 	else {
+		AI_array[this.AI_focus].react();
 		controls.holding = false;
 		gameState = state_EXPLORE;
+		this.reply_select = 0;
 	}
 	
 	
@@ -337,6 +341,9 @@ AI.prototype.update = function() {
 
 // Take player.reply_select after player.chosen_reply = true and perform an action with it.
 AI.prototype.react = function() {
+	player.chosen_reply=false;
+	player.reply_select = 0;
+	camera.select = 0;
 
 }
 
