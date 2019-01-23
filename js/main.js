@@ -147,10 +147,9 @@ Player.prototype.update = function(con, word_speed) {
 		if (con.right) this.walk(.01),this.direction=1;
 	    if (con.left) this.walk(-.01),this.direction=-1;
 	    if (!con.left && !con.right) this.seg=0;
-	    if (con.up) this.interact(0), con.up=false;
+	    if (con.up) this.engage(), con.up=false;
 	    if (!con.up) controls.holding = false;
 	}
-
 
 	if (camera.camera_lock && !this.player_lock) {
 		this.player_lock = this.x;
@@ -160,7 +159,6 @@ Player.prototype.update = function(con, word_speed) {
 		this.player_lock = false;
 	}
     
-
     // conversation controls
     if (gameState == state_CONVERSATION) {
     	if (con.up && camera.text_speed != 1 && !camera.continue) camera.text_speed=1, controls.holding = true;
@@ -209,43 +207,40 @@ Player.prototype.walk = function(distance) {
 	}
 
 
-
-
-
-
-
 	if (this.x>(mansion.length+.5) && pos(this.x,this.y,0,0) == 1 && !this.hold) this.y = this.y-1, this.hold=true;
 	if (this.x<1.5 && pos(this.x,this.y,0,0) == 3 && !this.hold) this.y = this.y-1, this.hold=true;
 
 	if (this.x>(mansion.length+.5) && pos(this.x,this.y,0,0) == 2 && !this.hold) this.y = this.y+1, this.hold=true;
-	if (this.x<1.5 && pos(this.x,this.y,0,0) == 4 && !this.hold) this.y = this.y+1, this.hold=true;
-		
+	if (this.x<1.5 && pos(this.x,this.y,0,0) == 4 && !this.hold) this.y = this.y+1, this.hold=true;	
 };
 
-Player.prototype.interact = function(point, x_reply) {
+Player.prototype.engage = function() {
 	for (var i=0;i<AI_array.length;i++) {
 		if (AI_array[i].y==this.y && (AI_array[i].x-this.x)*this.direction<=.2 && (AI_array[i].x-this.x)*this.direction > 0) {
 			this.seg=0;
-			this.AI_focus = i;
-			AI_array[i].direction = this.direction*-1;
-			AI_array[i].seg = 0;
-			this.converse = (point == 0) ? AI_array[i].dialogue.greeting[0] : AI_array[i].dialogue.greeting[1][x_reply]; // This should assign based on time dynamically
-			camera.AI_talk = true;
-			camera.dialogueBox = false;
-		    camera.words_counter = {
-		    	letter:0,
-		    	line:1,
-		    	word:1,
-		    	cursor:canvas.width/30
-		    };
-		    camera.text_speed_counter = 0;
-		    camera.text_speed = 5;
-		    camera.continue = false;
-
-			gameState = state_CONVERSATION;
-			
+			this.AI_focus = AI_array[i];
+			this.AI_focus.direction = this.direction*-1;
+			this.AI_focus.seg = 0;
+			if (gameState != state_CONVERSATION) this.interact(0);
 		}
 	}
+}
+
+Player.prototype.interact = function(point_of_convo, x_reply) {
+	this.converse = (point_of_convo == 0) ? this.AI_focus.persona.greeting[0] : this.AI_focus.persona.greeting[1][x_reply]; // This should assign based on time dynamically
+	camera.AI_talk = true;
+	camera.dialogueBox = false;
+    camera.words_counter = {
+    	letter:0,
+    	line:1,
+    	word:1,
+    	cursor:canvas.width/30
+    };
+    camera.text_speed_counter = 0;
+    camera.text_speed = 5;
+    camera.continue = false;
+
+	gameState = state_CONVERSATION;		
 }
 
 Player.prototype.reset = function() {
@@ -281,7 +276,7 @@ Player.prototype.reset = function() {
 		camera.select = this.reply_select;
 	}
 	else {
-		AI_array[this.AI_focus].react();
+		this.AI_focus.react();
 		controls.holding = false;
 		gameState = state_EXPLORE;
 		this.reply_select = 0;
@@ -292,7 +287,7 @@ Player.prototype.reset = function() {
 
 // ################ AI ################# //
 
-function AI (x,y,direction,texture,dialogue,logic,dispositionTowardsPlayer) {
+function AI (x,y,direction,texture,persona,logic,dispositionTowardsPlayer) {
 	this.x = x;
 	this.x = x;
     this.y = y;
@@ -300,7 +295,7 @@ function AI (x,y,direction,texture,dialogue,logic,dispositionTowardsPlayer) {
     this.texture = texture;
     this.sprite = [0,200,400,600,800,1000,1200,1400,1600,1800];
     this.seg = 0;
-    this.dialogue = dialogue;
+    this.persona = persona;
     this.logic = logic;
     this.dispositionTowardsPlayer = dispositionTowardsPlayer;
 }
@@ -331,16 +326,22 @@ AI.prototype.walk = function(distance) {
 }
 
 AI.prototype.update = function() {
-    if (time[1]%2==0) {
-    	this.walk(.005),this.direction=1;
-    }
-    else {
-		this.walk(-.005),this.direction=-1;
-    }
+
+
+	if (this.logic.time[time[2]] == "walk") {
+		if (time[1]%2==0) {
+    		this.walk(.005),this.direction=1;
+	    }
+	    else {
+			this.walk(-.005),this.direction=-1;
+	    }	
+	}
+    
 };
 
 // Take player.reply_select after player.chosen_reply = true and perform an action with it.
 AI.prototype.react = function() {
+	console.log(player.AI_focus.persona.name + " reacts with " + player.reply_select);
 	player.chosen_reply=false;
 	player.reply_select = 0;
 	camera.select = 0;

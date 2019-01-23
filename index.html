@@ -32,21 +32,46 @@
 		// GUEST, MURDERER, AVENGER, OCCULTIST, 
 
 		var cornelia_cornhowser = new AI(3.3,3,1,new Bitmap('./assets/walking-guy.png',2000,800),{
+			name: "Cornelia Cornhowser",
 			greeting: ["Hey there friend, how are you?",{
 				0: "Great!",
 				1: "Sorry to hear that."
 			}]
+		},{
+			time: {
+				0:"stand",
+				1:"walk"
+			}
 		},0);
 
-		var sunuel_sunflower = new AI(2.7,3,1,new Bitmap('./assets/walking-guy.png',2000,800),{
+		var sunwell_sunflower = new AI(2.7,3,1,new Bitmap('./assets/walking-guy.png',2000,800),{
+			name: "Sunwell Sunflower",
 			greeting: ["Howdy partner. How ya doing?",{
-				0: "Great!",
-				1: "Sorry to hear that."
+				0: "Cool!",
+				1: "Bummer."
 			}]
+		},{
+			time: {
+				0:"stand",
+				1:"walk"
+			}
+		},0);
+
+		var perry_periscope = new AI(4.3,3,1,new Bitmap('./assets/walking-guy.png',2000,800),{
+			name: "Perry Periscope",
+			greeting: ["Hiya, pal. How's it going?",{
+				0: "Sweet!",
+				1: "Damn shame."
+			}]
+		},{
+			time: {
+				0:"stand",
+				1:"walk"
+			}
 		},0);
 
 
-		var AI_array = [cornelia_cornhowser,sunuel_sunflower];
+		var AI_array = [cornelia_cornhowser,sunwell_sunflower,perry_periscope];
 		// init();
 	</script>
 
