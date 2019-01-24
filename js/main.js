@@ -303,9 +303,22 @@ function AI (x,y,direction,texture,persona,logic,dispositionTowardsPlayer) {
     this.persona = persona;
     this.logic = logic;
     this.dispositionTowardsPlayer = dispositionTowardsPlayer;
+    this.closest_to_me=[];
+    this.spoken_with_already = [];
+    this.my_target=false;
 }
 
-AI.prototype.walk = function(distance) {
+AI.prototype.walk = function(x_distance,UPorDOWN) {
+	if (UPorDOWN) {
+		if (UPorDOWN=="UP") var distance = (mansion.grid[(1+this.y)*mansion.length]==1) ? .005 : -.005;
+		if (UPorDOWN=="DOWN") var distance = (mansion.grid[(1+this.y)*mansion.length]==1) ? -.005 : .005
+		
+		
+	}
+	else {
+		var distance = x_distance;
+	}
+	this.direction = (distance<0) ? -1:1;
 	var pos = function(x,y,horizontal, vertical) {
 		return mansion.grid[(Math.floor(x)+(1*horizontal))+((y+vertical)*mansion.length)];
 	}
@@ -319,27 +332,80 @@ AI.prototype.walk = function(distance) {
 		this.x+=distance;
 	}
 	else if (this.x >= mansion.length-.1 && distance < 0) {
-		this.x+=distance;	
+		this.x+=distance;
 	}
 
-	if (this.x>(mansion.length+.5) && pos(this.x,this.y,0,0) == 1 && !hold) this.y = this.y-1;
-	if (this.x<1.5 && pos(this.x,this.y,0,0) == 3 && !hold) this.y = this.y-1;
+	if (this.x>(mansion.length+.5) && pos(this.x,this.y,0,0) == 1) this.y+=-1;
+	if (this.x<1.5 && pos(this.x,this.y,0,0) == 3) this.y +=-1;
 
-	if (this.x>(mansion.length+.5) && pos(this.x,this.y,0,0) == 2 && !hold) this.y = this.y+1;
-	if (this.x<1.5 && pos(this.x,this.y,0,0) == 4 && !hold) this.y = this.y+1;
+	// if (this.x>(mansion.length+.5) && pos(this.x,this.y,0,0) == 2) this.y = this.y+1;
+	// if (this.x<1.5 && pos(this.x,this.y,0,0) == 4) this.y = this.y+1;
+
+}
+
+AI.prototype.socialize = function() {
+	var pos = function(x,y,horizontal, vertical) {
+		return mansion.grid[(Math.floor(x)+(1*horizontal))+((y+vertical)*mansion.length)];
+	}
+	// first figure out who is the closest AI to this.AI
+		// if two AIs are equidistant to the same AI, whichever AI is closer gets priority.
+	for (var i=0;i<AI_array.length; i++) {
+		if (AI_array[i] != this) {
+			//check if is already in array
+			if (this.closest_to_me.indexOf(AI_array[i])!=-1) { 
+
+			}
+			// not in array yet
+			else if (!this.closest_to_me[0]) {
+				this.closest_to_me.push(AI_array[i]);
+			}
+			else {
+				// if the abs value of my location minus closest location is less than abs val of next AI
+				if (Math.abs(this.x-this.closest_to_me[0].x)<=Math.abs(this.x - AI_array[i].x)) {
+					this.closest_to_me.push(AI_array[i]);
+				}
+				else {
+					this.closest_to_me.unshift(AI_array[i]);
+				}
+			}
+		}
+	}
+	// walk to closest AI
+	if (Math.abs(this.x-this.closest_to_me[0].x) >.1) {
+		if (this.closest_to_me[0].x<this.x) {
+			this.walk(-.005),this.direction=-1;
+		}
+		else {
+			this.walk(.005),this.direction=1;
+		}
+	}
+	else {
+		this.seg[0];
+	}
+	
+
+	// then have a conversation of talking points that lasts about two seconds
+		// perhaps AI on left speaks first for one second, then AI on right responds for one second
+
+	// last exit conversation and log that these two AIs have already spoken to one another.
+
 
 }
 
 AI.prototype.update = function() {
+	if (this.logic.time[time[2]] == "socialize") {
+		this.socialize();
+	}
 
 
 	if (this.logic.time[time[2]] == "walk") {
-		if (time[1]%2==0) {
-    		this.walk(.005),this.direction=1;
-	    }
-	    else {
-			this.walk(-.005),this.direction=-1;
-	    }	
+		// if (time[1]%2==0) {
+		// 	this.walk(.005),this.direction=1;
+		// }
+		// else {
+		// 	this.walk(-.005),this.direction=-1;
+		// }
+		this.walk(.005,"UP");
 	}
     
 };
@@ -544,9 +610,12 @@ Camera.prototype.drawAI = function (x,y,array) {
 
 	for (var i=0;i<array.length;i++) {
 		if (array[i].y==y && array[i].x < x+1 && array[i].x > x-1) {
+			var pos = function(horizontal, vertical) {
+				return location[(Math.floor(x)+(1*horizontal))+((y+vertical)*mansion.length)];
+			}
 			var texture = array[i].texture;
 			var direction = (array[i].direction == 1) ? 0 : 400;
-			this.ctx.drawImage(texture.image,array[i].sprite[Math.floor(array[i].seg)],direction,200,400,(canvas.width/2.5)+((array[i].x-x)*(canvas.width)),canvas.height/2.3,canvas.width/6,canvas.height/1.9)
+			this.ctx.drawImage(texture.image,array[i].sprite[Math.floor(array[i].seg)],direction,200,400,(canvas.width/2.5)+((array[i].x-x)*(canvas.width)),canvas.height/2.3+this.viewHeight,canvas.width/6,canvas.height/1.9)
 		}
 	}
 };
