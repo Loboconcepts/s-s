@@ -217,7 +217,7 @@ Player.prototype.walk = function(distance) {
 
 Player.prototype.engage = function() {
 	for (var i=0;i<AI_array.length;i++) {
-		if (AI_array[i].y==this.y && (AI_array[i].x-this.x)*this.direction<=.2 && (AI_array[i].x-this.x)*this.direction > 0) {
+		if (!AI_array[i].socializing && AI_array[i].y==this.y && (AI_array[i].x-this.x)*this.direction<=.2 && (AI_array[i].x-this.x)*this.direction > 0) {
 			this.seg=0;
 			this.AI_focus = AI_array[i];
 			this.AI_focus.direction = this.direction*-1;
@@ -306,6 +306,9 @@ function AI (x,y,direction,texture,persona,logic,dispositionTowardsPlayer) {
     this.closest_to_me=[];
     this.spoken_with_already = [];
     this.my_target=false;
+    this.socializing = false;
+    this.time_count = 0;
+    this.speech_bubble = false;
 }
 
 AI.prototype.walk = function(x_distance,UPorDOWN) {
@@ -334,62 +337,98 @@ AI.prototype.walk = function(x_distance,UPorDOWN) {
 	else if (this.x >= mansion.length-.1 && distance < 0) {
 		this.x+=distance;
 	}
-
-	if (this.x>(mansion.length+.5) && pos(this.x,this.y,0,0) == 1) this.y+=-1;
-	if (this.x<1.5 && pos(this.x,this.y,0,0) == 3) this.y +=-1;
-
-	// if (this.x>(mansion.length+.5) && pos(this.x,this.y,0,0) == 2) this.y = this.y+1;
-	// if (this.x<1.5 && pos(this.x,this.y,0,0) == 4) this.y = this.y+1;
-
-}
-
-AI.prototype.socialize = function() {
-	var pos = function(x,y,horizontal, vertical) {
-		return mansion.grid[(Math.floor(x)+(1*horizontal))+((y+vertical)*mansion.length)];
+	if (UPorDOWN == "UP") {
+		if (this.x>(mansion.length+.5) && pos(this.x,this.y,0,0) == 1) this.y+=-1;
+		if (this.x<1.5 && pos(this.x,this.y,0,0) == 3) this.y +=-1;	
 	}
-	// first figure out who is the closest AI to this.AI
-		// if two AIs are equidistant to the same AI, whichever AI is closer gets priority.
-	for (var i=0;i<AI_array.length; i++) {
-		if (AI_array[i] != this) {
-			//check if is already in array
-			if (this.closest_to_me.indexOf(AI_array[i])!=-1) { 
+	else {
+		if (this.x>(mansion.length+.5) && pos(this.x,this.y,0,0) == 2) this.y+=1;
+		if (this.x<1.5 && pos(this.x,this.y,0,0) == 4) this.y+=1;	
+	}
+}
+	
 
-			}
-			// not in array yet
-			else if (!this.closest_to_me[0]) {
-				this.closest_to_me.push(AI_array[i]);
-			}
-			else {
-				// if the abs value of my location minus closest location is less than abs val of next AI
-				if (Math.abs(this.x-this.closest_to_me[0].x)<=Math.abs(this.x - AI_array[i].x)) {
+AI.prototype.find_closest_AI = function() {
+	for (var i=0;i<AI_array.length; i++) {
+		// make sure AI isn't finding himself and make sure other AIs are on the same floor and they've never spoken
+		if (AI_array[i] != this && AI_array[i].y==this.y && this.spoken_with_already.indexOf(AI_array[i]) == -1) {
+			//check if is already in array
+			if (this.closest_to_me.indexOf(AI_array[i]) == -1) {
+				// if here, the AI is not in the array and needs to be added.
+				// first check if there's anyone in the array, and if not, add the other AI
+				if (!this.closest_to_me[0]) {
 					this.closest_to_me.push(AI_array[i]);
 				}
+				// If the array is not empty, position the AI from closest to furthest away.
 				else {
-					this.closest_to_me.unshift(AI_array[i]);
-				}
+					// if the abs value of my location minus closest location is less than abs val of next AI
+					if (Math.abs(this.x-this.closest_to_me[0].x)<=Math.abs(this.x - AI_array[i].x)) {
+						this.closest_to_me.push(AI_array[i]);
+					}
+					else {
+						this.closest_to_me.unshift(AI_array[i]);
+					}
+				}		
 			}
+			// if here, that means that the closest to me array has every possible AI
 		}
+		//if here, that means that the AI is by himself or has spoken to everyone.
 	}
-	// walk to closest AI
-	if (Math.abs(this.x-this.closest_to_me[0].x) >.1) {
-		if (this.closest_to_me[0].x<this.x) {
+}
+
+AI.prototype.approach_closest_AI = function(closestAI) {
+	// approach if they are the closest and not talking
+	if (Math.abs(this.x-closestAI.x) >.1 && !closestAI.socializing) {
+		if (closestAI.x<this.x) {
 			this.walk(-.005),this.direction=-1;
 		}
 		else {
 			this.walk(.005),this.direction=1;
 		}
 	}
-	else {
-		this.seg[0];
+	// walk away slowly if they are the closest but they're talking
+	else if (closestAI.socializing) {
+		if (closestAI.x<this.x) {
+			this.walk(.002),this.direction=1;
+		}
+		else {
+			this.walk(-.002),this.direction=-1;
+		}
 	}
-	
+	else {
+		if (this.x<closestAI.x) {this.direction=1;}
+		else {this.direction=-1;};
+		this.seg=0;
+		this.my_target = closestAI;
+	}
+}
 
-	// then have a conversation of talking points that lasts about two seconds
-		// perhaps AI on left speaks first for one second, then AI on right responds for one second
+AI.prototype.socialize = function() {
 
-	// last exit conversation and log that these two AIs have already spoken to one another.
+	if (!this.socializing) this.find_closest_AI();
+	if (!this.socializing && this.closest_to_me[0]) this.approach_closest_AI(this.closest_to_me[0]);
+	if (this.my_target) this.speak(this.my_target);
 
 
+}
+
+AI.prototype.speak = function(conversation_partner) {
+	this.socializing = true;
+	conversation_partner.socializing = true;
+	if(time[0]==0) this.time_count++;
+	// whoever initiates talks first for two seconds
+	if (this.time_count<=2) {
+		this.speech_bubble = this.persona.greeting[0];
+	}
+	else {
+		this.my_target=false;
+		this.socializing = false;
+		conversation_partner.socializing = false;
+		this.spoken_with_already.push(conversation_partner);
+		this.closest_to_me.splice(0,1);
+		this.time_count = 0;
+		this.speech_bubble = false;
+	}
 }
 
 AI.prototype.update = function() {
@@ -467,11 +506,13 @@ Camera.prototype.render_CONVERSATION = function() {
 }
 
 Camera.prototype.drawDialogueBox = function() {
+	this.ctx.save()
 	this.ctx.fillStyle = "#000000";
 	this.ctx.strokeStyle = "#ffffff";
 	this.ctx.rect(2,2,this.width-4,this.height/2.8);
 	this.ctx.fill();
 	this.ctx.stroke();
+	this.ctx.restore();
 }
 
 Camera.prototype.drawLetters = function(dialogue, time) {
@@ -630,47 +671,29 @@ Camera.prototype.drawAI = function (x,y,array,location) {
 
 
 				return ((canvas.height*((Math.abs(hundred + vAI.x))%1))*negpos) + ch;
-			}
-			if (time[0]%5==0 && pos(0,0)!=0) console.log(AI_height(array[i]))
-			this.ctx.drawImage(texture.image,array[i].sprite[Math.floor(array[i].seg)],direction,200,400,(canvas.width/2.5)+((array[i].x-x)*(canvas.width)),canvas.height/2.3+this.viewHeight+AI_height(array[i]),canvas.width/6,canvas.height/1.9)
-
-
-
-
-			// if (pos(0,0) == 1) {
-			// 	// var AI_height = canvas.height*(array[i].x%1);
-			// 	this.ctx.drawImage(texture.image,array[i].sprite[Math.floor(array[i].seg)],direction,200,400,(canvas.width/2.5)+((array[i].x-x)*(canvas.width)),canvas.height/2.3+this.viewHeight-AI_height,canvas.width/6,canvas.height/1.9)
-			// }
-			// else if (pos(0,0) == 3) {
-			// 	// var AI_height = canvas.height*((100-array[i].x)%1);
-			// 	this.ctx.drawImage(texture.image,array[i].sprite[Math.floor(array[i].seg)],direction,200,400,(canvas.width/2.5)+((array[i].x-x)*(canvas.width)),canvas.height/2.3+this.viewHeight-AI_height,canvas.width/6,canvas.height/1.9)
-			// }
-			// else if (pos(0,0) == 2) {
-			// 	// var AI_height = canvas.height*(array[i].x%1);
-			// 	// coming up stairs to player level:
-			// 	this.ctx.drawImage(texture.image,array[i].sprite[Math.floor(array[i].seg)],direction,200,400,(canvas.width/2.5)+((array[i].x-x)*(canvas.width)),canvas.height/2.3+this.viewHeight+AI_height,canvas.width/6,canvas.height/1.9)
-			// }
-			// else if (pos(0,0) == 4) {
-			// 	// var AI_height = canvas.height*((100-array[i].x)%1);
-			// 	// coming up stairs to player level:
-			// 	this.ctx.drawImage(texture.image,array[i].sprite[Math.floor(array[i].seg)],direction,200,400,(canvas.width/2.5)+((array[i].x-x)*(canvas.width)),canvas.height/2.3+this.viewHeight+AI_height,canvas.width/6,canvas.height/1.9)
-			// }
-			
-			
-			// // else if (pos(0,0) == 2 || pos(0,0) == 4) {
-			// // 	var AI_height = canvas.height*Math.abs(array[i].x - Math.floor(array[i].x));
-			// // 	// coming up stairs to player level:
-			// // 	this.ctx.drawImage(texture.image,array[i].sprite[Math.floor(array[i].seg)],direction,200,400,(canvas.width/2.5)+((array[i].x-x)*(canvas.width)),canvas.height/2.3+this.viewHeight-canvas.height+AI_height,canvas.width/6,canvas.height/1.9)
-			// // }
-			// else if (array[i].y==y-1) {
-			// 	this.ctx.drawImage(texture.image,array[i].sprite[Math.floor(array[i].seg)],direction,200,400,(canvas.width/2.5)+((array[i].x-x)*(canvas.width)),canvas.height/2.3+this.viewHeight-canvas.height,canvas.width/6,canvas.height/1.9)			
-			// }
-			// else {
-			// 	this.ctx.drawImage(texture.image,array[i].sprite[Math.floor(array[i].seg)],direction,200,400,(canvas.width/2.5)+((array[i].x-x)*(canvas.width)),canvas.height/2.3+this.viewHeight,canvas.width/6,canvas.height/1.9)
-			// }
-		}
-	}
+			}			
+			this.ctx.drawImage(texture.image,array[i].sprite[Math.floor(array[i].seg)],direction,200,400,(canvas.width/2.5)+((array[i].x-x)*(canvas.width)),canvas.height/2.3+this.viewHeight+AI_height(array[i]),canvas.width/6,canvas.height/1.9);
+			if (array[i].speech_bubble) this.speech_bubble((canvas.width/2.5)+((array[i].x-x)*(canvas.width)),array[i].speech_bubble);
+		};
+	};
 };
+
+Camera.prototype.speech_bubble = function(x,speech) {
+	this.ctx.save();
+	this.ctx.textAlign = "center"
+	this.ctx.font = this.width/25 + 'px Monaco';
+	this.ctx.lineWidth = 4;
+	this.ctx.strokeStyle = "000000"
+	this.ctx.strokeText(speech,x,canvas.height/(3))
+	this.ctx.fillStyle = "#ffffff"
+	this.ctx.fillText(speech,x,canvas.height/(3))
+	this.ctx.restore();
+
+	// this.ctx.moveTo(x,canvas.height/3+10)
+	// this.ctx.lineTo(x,(canvas.height/3)+10)
+	// this.ctx.stroke();
+
+}
 
 Camera.prototype.drawRoom = function(x,y,location) {	
 	var texture = mansion.texture;
