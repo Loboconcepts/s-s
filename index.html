@@ -22,7 +22,7 @@
 			3,0,0,0,2,
 			5,0,0,0,1
 			]);
-		var player = new Player(2,3,1,{
+		var player = new Player(2.5,1,1,{
 			greeting: ["Good", "Bad"],
 			introduce: ["TRUTH", "LIE"]
 
@@ -51,7 +51,7 @@
 			}
 		},0);
 
-		var sunwell_sunflower = new AI(2.7,3,1,new Bitmap('./assets/walking-guy.png',2000,800),{
+		var sunwell_sunflower = new AI(2.5,1,1,new Bitmap('./assets/walking-guy.png',2000,800),{
 			name: "Sunwell Sunflower",
 			greeting: ["Howdy partner. How ya doing?",{
 				0: "Cool!",
@@ -88,7 +88,7 @@
 		},0);
 
 
-		var AI_array = [cornelia_cornhowser,sunwell_sunflower,perry_periscope];
+		var AI_array = [sunwell_sunflower,perry_periscope,cornelia_cornhowser];
 		// init();
 	</script>
 

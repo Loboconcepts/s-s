@@ -405,7 +405,7 @@ AI.prototype.update = function() {
 		// else {
 		// 	this.walk(-.005),this.direction=-1;
 		// }
-		this.walk(.005,"UP");
+		this.walk(.005,"DOWN");
 	}
     
 };
@@ -549,12 +549,12 @@ Camera.prototype.render_EXPLORE = function(player, map) {
 
 	if (!this.camera_lock) {
 		this.drawRoom(player.x,player.y, map.grid);
-	    this.drawAI(player.x,player.y, AI_array);
+	    this.drawAI(player.x,player.y, AI_array, map.grid);
 	    this.drawPlayer(player.x,player.direction,player.sprite,Math.floor(player.seg),map.grid);
 	}
 	else {
 		this.drawRoom(player.player_lock,player.y, map.grid);
-	    this.drawAI(player.player_lock,player.y, AI_array);
+	    this.drawAI(player.player_lock,player.y, AI_array, map.grid);
 	    this.drawPlayer(player.player_lock,player.direction,player.sprite,Math.floor(player.seg),map.grid);
 	}
 
@@ -606,16 +606,68 @@ Camera.prototype.drawDarkness = function() {
 	this.ctx.restore();
 }
 
-Camera.prototype.drawAI = function (x,y,array) {
-
+Camera.prototype.drawAI = function (x,y,array,location) {
+	var pos = function(horizontal, vertical) {
+		return location[(Math.floor(array[i].x)+(1*horizontal))+((array[i].y+vertical)*mansion.length)];
+	};
 	for (var i=0;i<array.length;i++) {
-		if (array[i].y==y && array[i].x < x+1 && array[i].x > x-1) {
-			var pos = function(horizontal, vertical) {
-				return location[(Math.floor(x)+(1*horizontal))+((y+vertical)*mansion.length)];
-			}
+		if (array[i].x < x+1 && array[i].x > x-1 && array[i].y <= y+1 && array[i].y >= y-1) {
 			var texture = array[i].texture;
 			var direction = (array[i].direction == 1) ? 0 : 400;
-			this.ctx.drawImage(texture.image,array[i].sprite[Math.floor(array[i].seg)],direction,200,400,(canvas.width/2.5)+((array[i].x-x)*(canvas.width)),canvas.height/2.3+this.viewHeight,canvas.width/6,canvas.height/1.9)
+			var AI_height = function(vAI) {
+				var ch = 0;
+				if (vAI.y==y-1) ch = -canvas.height;
+				if (vAI.y==y+1) ch = canvas.height;
+				if (vAI.y==y) ch = 0;
+				if (pos(0,0)!=1 && pos(0,0)!=2 && pos(0,0)!=3 && pos(0,0)!=4) return 0+ch;
+				
+				
+				var negpos = 1;
+				var hundred = 0; // makes character ascend but also lowers their starting point
+				if (pos(0,0)==1 || pos(0,0)==3) negpos = -1;
+				if (pos(0,0)==3 || pos(0,0)==4) hundred = -100
+				
+
+
+				return ((canvas.height*((Math.abs(hundred + vAI.x))%1))*negpos) + ch;
+			}
+			if (time[0]%5==0 && pos(0,0)!=0) console.log(AI_height(array[i]))
+			this.ctx.drawImage(texture.image,array[i].sprite[Math.floor(array[i].seg)],direction,200,400,(canvas.width/2.5)+((array[i].x-x)*(canvas.width)),canvas.height/2.3+this.viewHeight+AI_height(array[i]),canvas.width/6,canvas.height/1.9)
+
+
+
+
+			// if (pos(0,0) == 1) {
+			// 	// var AI_height = canvas.height*(array[i].x%1);
+			// 	this.ctx.drawImage(texture.image,array[i].sprite[Math.floor(array[i].seg)],direction,200,400,(canvas.width/2.5)+((array[i].x-x)*(canvas.width)),canvas.height/2.3+this.viewHeight-AI_height,canvas.width/6,canvas.height/1.9)
+			// }
+			// else if (pos(0,0) == 3) {
+			// 	// var AI_height = canvas.height*((100-array[i].x)%1);
+			// 	this.ctx.drawImage(texture.image,array[i].sprite[Math.floor(array[i].seg)],direction,200,400,(canvas.width/2.5)+((array[i].x-x)*(canvas.width)),canvas.height/2.3+this.viewHeight-AI_height,canvas.width/6,canvas.height/1.9)
+			// }
+			// else if (pos(0,0) == 2) {
+			// 	// var AI_height = canvas.height*(array[i].x%1);
+			// 	// coming up stairs to player level:
+			// 	this.ctx.drawImage(texture.image,array[i].sprite[Math.floor(array[i].seg)],direction,200,400,(canvas.width/2.5)+((array[i].x-x)*(canvas.width)),canvas.height/2.3+this.viewHeight+AI_height,canvas.width/6,canvas.height/1.9)
+			// }
+			// else if (pos(0,0) == 4) {
+			// 	// var AI_height = canvas.height*((100-array[i].x)%1);
+			// 	// coming up stairs to player level:
+			// 	this.ctx.drawImage(texture.image,array[i].sprite[Math.floor(array[i].seg)],direction,200,400,(canvas.width/2.5)+((array[i].x-x)*(canvas.width)),canvas.height/2.3+this.viewHeight+AI_height,canvas.width/6,canvas.height/1.9)
+			// }
+			
+			
+			// // else if (pos(0,0) == 2 || pos(0,0) == 4) {
+			// // 	var AI_height = canvas.height*Math.abs(array[i].x - Math.floor(array[i].x));
+			// // 	// coming up stairs to player level:
+			// // 	this.ctx.drawImage(texture.image,array[i].sprite[Math.floor(array[i].seg)],direction,200,400,(canvas.width/2.5)+((array[i].x-x)*(canvas.width)),canvas.height/2.3+this.viewHeight-canvas.height+AI_height,canvas.width/6,canvas.height/1.9)
+			// // }
+			// else if (array[i].y==y-1) {
+			// 	this.ctx.drawImage(texture.image,array[i].sprite[Math.floor(array[i].seg)],direction,200,400,(canvas.width/2.5)+((array[i].x-x)*(canvas.width)),canvas.height/2.3+this.viewHeight-canvas.height,canvas.width/6,canvas.height/1.9)			
+			// }
+			// else {
+			// 	this.ctx.drawImage(texture.image,array[i].sprite[Math.floor(array[i].seg)],direction,200,400,(canvas.width/2.5)+((array[i].x-x)*(canvas.width)),canvas.height/2.3+this.viewHeight,canvas.width/6,canvas.height/1.9)
+			// }
 		}
 	}
 };
