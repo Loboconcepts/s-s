@@ -57,10 +57,7 @@ function logic_CONVERSATION() {
 	
 	camera.render_CONVERSATION();
 	
-
 }
-
-
 
 function Controls () {
 	this.codes = {
@@ -306,8 +303,6 @@ Player.prototype.reset = function(whatConvo) {
 		gameState = state_EXPLORE;
 		this.reply_select = 0;
 	}
-	
-	
 };
 
 // ################ AI ################# //
@@ -329,41 +324,47 @@ function AI (x,y,direction,texture,persona,logic,dispositionTowardsPlayer) {
     this.socializing = false;
     this.time_count = 0;
     this.speech_bubble = false;
+    this.walking = true;
 }
 
 AI.prototype.walk = function(x_distance,UPorDOWN) {
-	if (UPorDOWN) {
-		if (UPorDOWN=="UP") var distance = (mansion.grid[(1+this.y)*mansion.length]==1) ? .005 : -.005;
-		if (UPorDOWN=="DOWN") var distance = (mansion.grid[(1+this.y)*mansion.length]==1) ? -.005 : .005
-		
-		
-	}
-	else {
-		var distance = x_distance;
-	}
-	this.direction = (distance<0) ? -1:1;
-	var pos = function(x,y,horizontal, vertical) {
-		return mansion.grid[(Math.floor(x)+(1*horizontal))+((y+vertical)*mansion.length)];
-	}
+	if (this.walking) {
+		if (UPorDOWN) {
+			if (UPorDOWN=="UP") var distance = (mansion.grid[(1+this.y)*mansion.length]==1) ? .005 : -.005;
+			if (UPorDOWN=="DOWN") var distance = (mansion.grid[(1+this.y)*mansion.length]==1) ? -.005 : .005
+			
+			
+		}
+		else {
+			var distance = x_distance;
+		}
+		this.direction = (distance<0) ? -1:1;
+		var pos = function(x,y,horizontal, vertical) {
+			return mansion.grid[(Math.floor(x)+(1*horizontal))+((y+vertical)*mansion.length)];
+		}
 
-	if (this.x > 1.5 && this.x < (mansion.length+.5)) {
-		this.x+=distance;
-		this.seg+=Math.abs(distance*20);
-		if (this.seg >= 10) this.seg = 0;
-	}
-	else if (this.x <= 1.5 && distance > 0) {
-		this.x+=distance;
-	}
-	else if (this.x >= mansion.length-.1 && distance < 0) {
-		this.x+=distance;
-	}
-	if (UPorDOWN == "UP") {
-		if (this.x>(mansion.length+.5) && pos(this.x,this.y,0,0) == 1) this.y+=-1;
-		if (this.x<1.5 && pos(this.x,this.y,0,0) == 3) this.y +=-1;	
+		if (this.x > 1.5 && this.x < (mansion.length+.5)) {
+			this.x+=distance;
+			this.seg+=Math.abs(distance*20);
+			if (this.seg >= 10) this.seg = 0;
+		}
+		else if (this.x <= 1.5 && distance > 0) {
+			this.x+=distance;
+		}
+		else if (this.x >= mansion.length-.1 && distance < 0) {
+			this.x+=distance;
+		}
+		if (UPorDOWN == "UP") {
+			if (this.x>(mansion.length+.5) && pos(this.x,this.y,0,0) == 1) this.y+=-1;
+			if (this.x<1.5 && pos(this.x,this.y,0,0) == 3) this.y +=-1;	
+		}
+		else {
+			if (this.x>(mansion.length+.5) && pos(this.x,this.y,0,0) == 2) this.y+=1;
+			if (this.x<1.5 && pos(this.x,this.y,0,0) == 4) this.y+=1;	
+		}
 	}
 	else {
-		if (this.x>(mansion.length+.5) && pos(this.x,this.y,0,0) == 2) this.y+=1;
-		if (this.x<1.5 && pos(this.x,this.y,0,0) == 4) this.y+=1;	
+		this.seg = 0;
 	}
 }
 	
@@ -398,7 +399,10 @@ AI.prototype.find_closest_AI = function() {
 
 AI.prototype.approach_closest_AI = function(closestAI) {
 	// approach if they are the closest and not talking
-	if (Math.abs(this.x-closestAI.x) >.1 && !closestAI.socializing) {
+	if (closestAI.y!=this.y) {
+		this.closest_to_me.splice(0,1);
+	}
+	else if (Math.abs(this.x-closestAI.x) >.1 && !closestAI.socializing) {
 		if (closestAI.x<this.x) {
 			this.walk(-.005),this.direction=-1;
 		}
@@ -424,30 +428,35 @@ AI.prototype.approach_closest_AI = function(closestAI) {
 }
 
 AI.prototype.socialize = function() {
-
 	if (!this.socializing) this.find_closest_AI();
 	if (!this.socializing && this.closest_to_me[0]) this.approach_closest_AI(this.closest_to_me[0]);
-	if (this.my_target) this.speak(this.my_target);
-
-
+	if (this.my_target) this.speak(this.my_target), this.my_target.walking = false;
 }
 
 AI.prototype.speak = function(conversation_partner) {
-	this.socializing = true;
+	this.socializing = true; // in the act of talking
 	conversation_partner.socializing = true;
 	if(time[0]==0) this.time_count++;
 	// whoever initiates talks first for two seconds
 	if (this.time_count<=2) {
 		this.speech_bubble = this.persona.greeting[0];
 	}
+	else if (this.time_count>2 && this.time_count<=4) {
+		this.speech_bubble = false;
+		conversation_partner.speech_bubble = conversation_partner.persona.greeting[0];
+	}
 	else {
+		conversation_partner.speech_bubble = false;
+		conversation_partner.walking = true;
 		this.my_target=false;
 		this.socializing = false;
 		conversation_partner.socializing = false;
 		this.spoken_with_already.push(conversation_partner);
+		conversation_partner.spoken_with_already.push(this);
 		this.closest_to_me.splice(0,1);
 		this.time_count = 0;
-		this.speech_bubble = false;
+		
+		
 	}
 }
 
@@ -455,18 +464,17 @@ AI.prototype.update = function() {
 	if (this.logic.time[time[2]] == "socialize") {
 		this.socialize();
 	}
-
-
 	if (this.logic.time[time[2]] == "walk") {
-		// if (time[1]%2==0) {
-		// 	this.walk(.005),this.direction=1;
-		// }
-		// else {
-		// 	this.walk(-.005),this.direction=-1;
-		// }
-		this.walk(.005,"DOWN");
+		if (time[1]%2==0) {
+			this.walk(.003),this.direction=1;
+		}
+		else {
+			this.walk(-.003),this.direction=-1;
+		}
 	}
-    
+	if (this.logic.time[time[2]] == "front door") {
+		this.go_to_location(3,0);
+	}
 };
 
 // Take player.reply_select after player.chosen_reply = true and perform an action with it.
@@ -477,10 +485,38 @@ AI.prototype.react = function(whatConvo) {
 	player.chosen_reply=false;
 	player.reply_select = 0;
 	camera.select = 0;
+};
 
+AI.prototype.go_to_location = function(dest_x,dest_y) {
+	// find self position
+		// this.x, this.y
+	// then find desired position
+		// destination.x destination.y
+	// if not on the same floor, find if desired position is above or below self position
+	if (this.y != dest_y) {
+		if (this.y > dest_y) {
+			this.walk(.005,"UP");
+		}
+		else {
+			this.walk(.005,"DOWN");
+		}
+	}
+	// if on the same floor, find if desired position is left or right of self position
+	if (this.y == dest_y) {
+		if (this.x == dest_x) {
+			this.walking = false;
+		}
+		else if (this.x > dest_x) {
+			this.walk(-.005);
+			this.direction=-1;
+		}
+		else if (this.x < dest_x) {
+			this.walk(.005);
+			this.direction=1;
+		}
+	}
+	// ensure AI does not stand on top of other AI
 }
-
-
 
 
 // ################ CAMERA ################## //
@@ -693,7 +729,7 @@ Camera.prototype.drawAI = function (x,y,array,location) {
 				return ((canvas.height*((Math.abs(hundred + vAI.x))%1))*negpos) + ch;
 			}			
 			this.ctx.drawImage(texture.image,array[i].sprite[Math.floor(array[i].seg)],direction,200,400,(canvas.width/2.5)+((array[i].x-x)*(canvas.width)),canvas.height/2.3+this.viewHeight+AI_height(array[i]),canvas.width/6,canvas.height/1.9);
-			if (array[i].speech_bubble) this.speech_bubble((canvas.width/2.5)+((array[i].x-x)*(canvas.width)),array[i].speech_bubble);
+			if (array[i].speech_bubble && array[i].y == player.y) this.speech_bubble((canvas.width/2.5)+((array[i].x-x)*(canvas.width)),array[i].speech_bubble);
 		};
 	};
 };
