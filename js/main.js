@@ -78,6 +78,9 @@ function Controls () {
     this.holding = false;
     document.addEventListener('keydown', this.onKey.bind(this, true), false);
     document.addEventListener('keyup', this.onKey.bind(this, false), false);
+
+    document.addEventListener('touchstart', this.onTouch.bind(this,true), false);
+    document.addEventListener('touchend', this.onTouch.bind(this,false), false);
 };
 
 Controls.prototype.onKey = function(val, e) {
@@ -85,6 +88,23 @@ Controls.prototype.onKey = function(val, e) {
     if (typeof state === 'undefined') return;
     this.states[state] = val;
     e.preventDefault && e.preventDefault();
+    e.stopPropagation && e.stopPropagation();
+};
+
+Controls.prototype.onTouch = function(val, e) {
+	var state;
+	if (e.changedTouches[0].clientX < window.innerWidth*.25) {
+		var state = 'left';
+	}
+	else if (e.changedTouches[0].clientX > window.innerWidth*.75) {
+		var state = 'right';
+	}
+	else {
+		var state = 'up';
+	}
+	
+	this.states[state] = val;
+	// e.preventDefault && e.preventDefault();
     e.stopPropagation && e.stopPropagation();
 };
 
