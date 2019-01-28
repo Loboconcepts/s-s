@@ -36,20 +36,30 @@
 		var camera = new Camera(canvas);
 		var controls = new Controls();
 
-		// GUEST, MURDERER, AVENGER, OCCULTIST, 
+		// GUEST:              Neutral guest. Will not murder others.
+		// MURDERER:           Neutral guest. Will murder others.
+		// CORRUPT:            Neutral guest. Will not murder others.
+		// AVENGER:            Neutral guest. Will murder specific guest.
+		// OCCULTIST:          Influences guests. Will murder guests.
+		// UNDERCOVER AGENT:   Protects guests. Will murder murderer.
+		// FOREIGN AGENT:      Influence guests. Will murder undercover agent.
+		// VENDOR:             Entertains guests. Can murder based on disposition
+
+		// x,y,direction,texture,persona,logic,dispositionTowardsPlayer
 
 		var cornelia_cornhowser = new AI(3.3,3,1,new Bitmap('./assets/walking-guy.png',2000,800),{
 			name: "Cornelia Cornhowser",
-			greeting: ["Hey there friend, how are you?",{
-				0: "Great!",
-				1: "Sorry to hear that."
-			},false],
-			introduce : ["What's your name", {
-				0: "Nice to meet you. I'm Cornelia.",
-				1: "Nice to meet you. I'm Cornelia."
-			},false]
-
-
+			conversation: {
+				greeting: ["Hey there friend, how are you?",{
+					0: "Great!",
+					1: "Sorry to hear that."
+				},false],
+				introduce : ["What's your name?", {
+					0: "Nice to meet you. I'm Cornelia.",
+					1: "Nice to meet you. I'm Cornelia."
+				},false]
+			}
+			
 		},{
 			time: {
 				0:"socialize",
@@ -59,17 +69,23 @@
 
 		var sunwell_sunflower = new AI(2.7,3,1,new Bitmap('./assets/walking-guy.png',2000,800),{
 			name: "Sunwell Sunflower",
-			greeting: ["Howdy partner. How ya doing?",{
-				0: "Cool!",
-				1: "Bummer."
-			},false],
-			introduce : ["What's your name", {
-				0: "Nice to meet you. I'm Sunwell.",
-				1: "Nice to meet you. I'm Sunwell."
-			},false]
-
+			conversation: { 
+				greeting: ["Howdy partner. How ya doing?",
+					{
+						0: "Cool!",
+						1: "Bummer."
+					},
+				false],
+				introduce : ["What's your name?", 
+					{
+						0: "Nice to meet you. I'm Sunwell.",
+						1: "Nice to meet you. I'm Sunwell."
+					},
+				false]
+			}
 		},{
-			time: {
+			time: 
+			{
 				0:"front door",
 				1:"stand"
 			}
@@ -77,14 +93,21 @@
 
 		var perry_periscope = new AI(4.3,3,1,new Bitmap('./assets/walking-guy.png',2000,800),{
 			name: "Perry Periscope",
-			greeting: ["Hiya, pal. How's it going?",{
-				0: "Sweet!",
-				1: "Damn shame."
-			},false],
-			introduce : ["What's your name", {
-				0: "Nice to meet you. I'm Perry.",
-				1: "Nice to meet you. I'm Perry."
-			},false]
+			conversation: {
+				greeting: ["Hiya, pal. How's it going?",
+					{
+						0: "Sweet!",
+						1: "Damn shame."
+					},
+				false],
+				introduce : ["What's your name?", 
+					{
+						0: "Nice to meet you. I'm Perry.",
+						1: "Nice to meet you. I'm Perry."
+					},
+				false]
+			}
+			
 
 		},{
 			time: {
