@@ -47,8 +47,9 @@ function logic_EXPLORE() {
 };
 
 function logic_PAUSED() {
+	camera.ctx.font = camera.width/12 + 'px Monaco';
 	camera.ctx.fillStyle = "#ff0000";
-	camera.ctx.fillText('PAUSED',camera.width/2.3,camera.height/2);
+	camera.ctx.fillText('PAUSE',camera.width/2-camera.width/6,camera.height/2);
 };
 
 function logic_CONVERSATION() {
@@ -360,6 +361,7 @@ AI.prototype.walk = function(x_distance,UPorDOWN) {
 }
 
 AI.prototype.find_target = function(target, murder) {
+	if (!target) this.pace();
 	if (this.y < target.y) this.walk(.005,"DOWN");
 	if (this.y > target.y) this.walk(.005,"UP");
 	if (this.y == target.y) {

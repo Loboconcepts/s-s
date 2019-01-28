@@ -121,6 +121,9 @@
 		// document.getElementById("controls").style.width = window.innerWidth + "px";
 		// document.getElementById("controls").style.height = window.innerHeight + "px";
 		// init();
+		window.addEventListener("blur",function(ev) {if(gameState == state_EXPLORE)gameState = state_PAUSED}, true);
+		window.addEventListener("focus",function(ev) {if(gameState == state_PAUSED)gameState = state_EXPLORE}, true);
+
 	</script>
 
 </body>
