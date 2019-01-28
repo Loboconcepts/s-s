@@ -359,14 +359,14 @@ AI.prototype.walk = function(x_distance,UPorDOWN) {
 	}
 }
 
-AI.prototype.find_player = function(murder) {
-	if (this.y < player.y) this.walk(.005,"DOWN");
-	if (this.y > player.y) this.walk(.005,"UP");
-	if (this.y == player.y) {
-		if (this.x<player.x-.1) {
+AI.prototype.find_target = function(target, murder) {
+	if (this.y < target.y) this.walk(.005,"DOWN");
+	if (this.y > target.y) this.walk(.005,"UP");
+	if (this.y == target.y) {
+		if (this.x<target.x-.1) {
 			this.walk(.005)
 		}
-		else if (this.x>player.x+.1) {
+		else if (this.x>target.x+.1) {
 			this.walk(-.005)
 		}
 		else {
@@ -441,28 +441,34 @@ AI.prototype.socialize = function() {
 	if (this.my_target) this.speak(this.my_target), this.my_target.walking = false;
 };
 
-AI.prototype.murder_player = function() {
+AI.prototype.murder_target = function(target) {
 	for (i=0;i<AI_array.length;i++) {
 		if (AI_array[i] != this) {
-			if (AI_array[i].x > player.x+.7 || AI_array[i].x < player.x-.7) {
+			if (AI_array[i].x > target.x+.7 && camera.viewHeight == 0) {
 				camera.camera_lock = true;
 				camera.darkness = true;
-				player.walk_speed = .002;
-				if (player.x%1 > .49 && player.x%1 < .51) player.walk_speed = 0;
+				target.walk_speed = .002;
+				if (target.x%1 > .45 && target.x%1 < .46) target.walk_speed = 0;
+			}
+			else if (AI_array[i].x < target.x-.7 && camera.viewHeight == 0){
+				camera.camera_lock = true;
+				camera.darkness = true;
+				target.walk_speed = .002;
+				if (target.x%1 > .55 && target.x%1 < .56) target.walk_speed = 0;
 			}
 			else {
 				camera.camera_lock = false;
 				camera.darkness = false;
-				player.walk_speed = .01;
+				target.walk_speed = .01;
 			}
 		}
 	}
 }
 
-AI.prototype.hunt = function() {
+AI.prototype.hunt = function(target) {
 	if (this.my_target == player) {
-		this.find_player(true);
-		if (this.y == player.y && this.x > player.x-.5 && this.x < player.x+.5) this.murder_player();
+		this.find_target(this.my_target, true);
+		if (this.y == target.y && this.x > target.x-.5 && this.x < target.x+.5 && camera.viewHeight == 0) this.murder_target(this.my_target);
 	}
 }
 
@@ -548,21 +554,22 @@ AI.prototype.go_to_location = function(dest_x,dest_y) {
 	// ensure AI does not stand on top of other AI
 }
 
+AI.prototype.pace = function() {
+	if (time[1]%2==0) {
+		this.walk(.003),this.direction=1;
+	}
+	else {
+		this.walk(-.003),this.direction=-1;
+	}
+}
+
 AI.prototype.update = function() {
-	if (this.logic.time[time[2]] == "socialize") {
-		this.socialize();
-	}
-	if (this.logic.time[time[2]] == "walk") {
-		if (time[1]%2==0) {
-			this.walk(.003),this.direction=1;
-		}
-		else {
-			this.walk(-.003),this.direction=-1;
-		}
-	}
+	if (this.logic.time[time[2]] == "socialize") this.socialize();
+	if (this.logic.time[time[2]] == "pace") this.pace();
 	if (this.logic.time[time[2]] == "front door") this.go_to_location(3,0);
-	if (this.logic.time[time[2]] == "find player") this.my_target = player,this.hunt();
-	
+	if (this.logic.time[time[2]] == "find player") this.my_target = player,this.find_target(this.my_target);
+	if (this.logic.time[time[2]] == "find target") this.find_target(this.my_target);
+	if (this.logic.time[time[2]] == "murder player") this.my_target = player,this.hunt();
 };
 
 
