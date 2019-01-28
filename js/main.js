@@ -149,6 +149,7 @@ function Player (x,y,direction,talk) {
     this.chosen_reply = false;
     this.AI_focus = false;
     this.conversation_point = "greeting";
+    this.walk_speed = .01;
 };
 
 Player.prototype.update = function(con, word_speed) {
@@ -159,8 +160,8 @@ Player.prototype.update = function(con, word_speed) {
 	// ################# PLAYER CONTROLS #################### //
 	// ################# PLAYER CONTROLS #################### //
 	if (gameState == state_EXPLORE) {
-		if (con.right) this.walk(.01),this.direction=1;
-	    if (con.left) this.walk(-.01),this.direction=-1;
+		if (con.right) this.walk(this.walk_speed),this.direction=1;
+	    if (con.left) this.walk(-this.walk_speed),this.direction=-1;
 	    if (!con.left && !con.right) this.seg=0;
 	    if (con.up) this.engage(), con.up=false;
 	    if (!con.up) controls.holding = false;
@@ -324,8 +325,6 @@ AI.prototype.walk = function(x_distance,UPorDOWN) {
 		if (UPorDOWN) {
 			if (UPorDOWN=="UP") var distance = (mansion.grid[(1+this.y)*mansion.length]==1) ? .005 : -.005;
 			if (UPorDOWN=="DOWN") var distance = (mansion.grid[(1+this.y)*mansion.length]==1) ? -.005 : .005
-			
-			
 		}
 		else {
 			var distance = x_distance;
@@ -359,6 +358,22 @@ AI.prototype.walk = function(x_distance,UPorDOWN) {
 		this.seg = 0;
 	}
 }
+
+AI.prototype.find_player = function(murder) {
+	if (this.y < player.y) this.walk(.005,"DOWN");
+	if (this.y > player.y) this.walk(.005,"UP");
+	if (this.y == player.y) {
+		if (this.x<player.x-.1) {
+			this.walk(.005)
+		}
+		else if (this.x>player.x+.1) {
+			this.walk(-.005)
+		}
+		else {
+			this.seg = 0;
+		}
+	};
+};
 	
 
 AI.prototype.find_closest_AI = function() {
@@ -426,6 +441,31 @@ AI.prototype.socialize = function() {
 	if (this.my_target) this.speak(this.my_target), this.my_target.walking = false;
 };
 
+AI.prototype.murder_player = function() {
+	for (i=0;i<AI_array.length;i++) {
+		if (AI_array[i] != this) {
+			if (AI_array[i].x > player.x+.7 || AI_array[i].x < player.x-.7) {
+				camera.camera_lock = true;
+				camera.darkness = true;
+				player.walk_speed = .002;
+				if (player.x%1 > .49 && player.x%1 < .51) player.walk_speed = 0;
+			}
+			else {
+				camera.camera_lock = false;
+				camera.darkness = false;
+				player.walk_speed = .01;
+			}
+		}
+	}
+}
+
+AI.prototype.hunt = function() {
+	if (this.my_target == player) {
+		this.find_player(true);
+		if (this.y == player.y && this.x > player.x-.5 && this.x < player.x+.5) this.murder_player();
+	}
+}
+
 AI.prototype.stand = function() {
 	// find out if this AI is standing on top of another AI
 
@@ -467,23 +507,6 @@ AI.prototype.speak = function(conversation_partner) {
 	}
 }
 
-AI.prototype.update = function() {
-	if (this.logic.time[time[2]] == "socialize") {
-		this.socialize();
-	}
-	if (this.logic.time[time[2]] == "walk") {
-		if (time[1]%2==0) {
-			this.walk(.003),this.direction=1;
-		}
-		else {
-			this.walk(-.003),this.direction=-1;
-		}
-	}
-	if (this.logic.time[time[2]] == "front door") {
-		this.go_to_location(3,0);
-	}
-};
-
 // Take player.reply_select after player.chosen_reply = true and perform an action with it.
 AI.prototype.react = function(whatConvo) {
 	console.log(this.persona.name + " reacts with " + player.reply_select);
@@ -524,6 +547,25 @@ AI.prototype.go_to_location = function(dest_x,dest_y) {
 	}
 	// ensure AI does not stand on top of other AI
 }
+
+AI.prototype.update = function() {
+	if (this.logic.time[time[2]] == "socialize") {
+		this.socialize();
+	}
+	if (this.logic.time[time[2]] == "walk") {
+		if (time[1]%2==0) {
+			this.walk(.003),this.direction=1;
+		}
+		else {
+			this.walk(-.003),this.direction=-1;
+		}
+	}
+	if (this.logic.time[time[2]] == "front door") this.go_to_location(3,0);
+	if (this.logic.time[time[2]] == "find player") this.my_target = player,this.hunt();
+	
+};
+
+
 
 
 // ################ CAMERA ################## //
@@ -630,13 +672,8 @@ Camera.prototype.drawPlayerTalk = function(reply) {
 		this.ctx.fillText(reply[2],canvas.width/30,2*this.height/9);
 	}
 	this.reply = false; // to prevent the word from repeating	
-	this.select = true;
-	
+	this.select = true;	
 }
-
-
-
-
 
 // ################ CAMERA EXPLORE ############### //
 // ################ CAMERA EXPLORE ############### //
@@ -705,7 +742,7 @@ Camera.prototype.drawPlayer = function (x,direction,sprite,seg,location) {
 Camera.prototype.drawDarkness = function() {
 	this.ctx.save();
 	this.ctx.globalCompositeOperation = 'source-atop';
-	this.ctx.fillStyle="#000000";
+	this.ctx.fillStyle="rgba(0,0,0,1)";
 	this.ctx.fillRect(0,0,canvas.width,canvas.height);
 	this.ctx.restore();
 }
