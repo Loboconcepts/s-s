@@ -29,7 +29,7 @@ function logic() {
 
 function logic_EXPLORE() {
 	time_keeper();
-	for (var i=0;i<AI_array.length;i++) AI_array[i].update();
+	for (var i=0;i<AI_array.length;i++) AI_array[i].update(i);
 	player.update(controls.states);
 	camera.render_EXPLORE(player,mansion);
 	
@@ -128,8 +128,12 @@ function Map(length, floors, grid) {
 		new Bitmap('./assets/left-bottom-stair.png',1280,720),  // 3
 		new Bitmap('./assets/left-top-stair.png',1280,720),     // 4
 		new Bitmap('./assets/end-left-wall.png',1280,720),      // 5
-		new Bitmap('./assets/end-right-wall.png',1280,720)      // 6
+		new Bitmap('./assets/end-right-wall.png',1280,720),     // 6
+		new Bitmap('./assets/wallpaper.png',1280,720),          // 7
 		];
+	this.objects = [
+		new Bitmap('./assets/table.png',1280,221)          // 0
+	];
 };
 
 
@@ -488,6 +492,13 @@ AI.prototype.hunt = function(target) {
 
 AI.prototype.stand = function() {
 	// find out if this AI is standing on top of another AI
+	for (i=0;i<AI_array.length;i++) {
+		if (this.y == AI_array[i].y) {
+			if (Math.floor(this.x*100) == Math.floor(AI_array[i].x*100)) {
+				
+			}
+		}
+	}
 
 	// first get x locations of all AI on the same y floor
 
@@ -537,7 +548,7 @@ AI.prototype.react = function(whatConvo) {
 	camera.select = 0;
 };
 
-AI.prototype.go_to_location = function(dest_x,dest_y) {
+AI.prototype.go_to_location = function(dest_x,dest_y,endFacing) {
 	// find self position
 		// this.x, this.y
 	// then find desired position
@@ -553,8 +564,9 @@ AI.prototype.go_to_location = function(dest_x,dest_y) {
 	}
 	// if on the same floor, find if desired position is left or right of self position
 	if (this.y == dest_y) {
-		if (this.x == dest_x) {
-			this.walking = false;
+		if (Math.floor(this.x*100) == Math.floor(dest_x*100)) {
+			this.seg = 0;
+			if(endFacing) this.direction = endFacing;
 		}
 		else if (this.x > dest_x) {
 			this.walk(-.005);
@@ -577,13 +589,15 @@ AI.prototype.pace = function() {
 	}
 }
 
-AI.prototype.update = function() {
+AI.prototype.update = function(pos_in_array) {
 	if (this.logic.time[time[2]] == "socialize") this.socialize();
 	if (this.logic.time[time[2]] == "pace") this.pace();
-	if (this.logic.time[time[2]] == "front door") this.go_to_location(3,0);
+	if (this.logic.time[time[2]] == "front door") this.go_to_location(3+(pos_in_array/10),3);
 	if (this.logic.time[time[2]] == "find player") this.my_target = player,this.find_target(this.my_target);
 	if (this.logic.time[time[2]] == "find target") this.find_target(this.my_target);
 	if (this.logic.time[time[2]] == "murder player") this.my_target = player,this.hunt(this.my_target);
+	// to add - get map position number so specific coordinates don't have to be entered for specific locations
+	if (this.logic.time[time[2]] == "dinner table") this.go_to_location(3+(pos_in_array/10),2);
 };
 
 
@@ -714,11 +728,13 @@ Camera.prototype.render_EXPLORE = function(player, map) {
 		this.drawRoom(player.x,player.y, map.grid);
 	    this.drawAI(player.x,player.y, AI_array, map.grid);
 	    this.drawPlayer(player.x,player.direction,player.sprite,Math.floor(player.seg),map.grid);
+	    this.drawFrontObjects(player.x,player.y,map.grid);
 	}
 	else {
 		this.drawRoom(player.player_lock,player.y, map.grid);
 	    this.drawAI(player.player_lock,player.y, AI_array, map.grid);
 	    this.drawPlayer(player.player_lock,player.direction,player.sprite,Math.floor(player.seg),map.grid);
+	    this.drawFrontObjects(player.x,player.y,map.grid);
 	}
 
 	if (this.darkness) this.drawDarkness();
@@ -782,22 +798,30 @@ Camera.prototype.drawAI = function (x,y,array,location) {
 				if (vAI.y==y-1) ch = -canvas.height;
 				if (vAI.y==y+1) ch = canvas.height;
 				if (vAI.y==y) ch = 0;
-				if (pos(0,0)!=1 && pos(0,0)!=2 && pos(0,0)!=3 && pos(0,0)!=4) return 0+ch;
-				
-				
+				if (pos(0,0)!=1 && pos(0,0)!=2 && pos(0,0)!=3 && pos(0,0)!=4) return 0+ch;		
 				var negpos = 1;
 				var hundred = 0; // makes character ascend but also lowers their starting point
 				if (pos(0,0)==1 || pos(0,0)==3) negpos = -1;
 				if (pos(0,0)==3 || pos(0,0)==4) hundred = -100
-				
-
-
 				return ((canvas.height*((Math.abs(hundred + vAI.x))%1))*negpos) + ch;
 			}			
 			this.ctx.drawImage(texture.image,array[i].sprite[Math.floor(array[i].seg)],direction,200,400,(canvas.width/2.5)+((array[i].x-x)*(canvas.width)),canvas.height/2.3+this.viewHeight+AI_height(array[i]),canvas.width/6,canvas.height/1.9);
 			if (array[i].speech_bubble && array[i].y == player.y) this.speech_bubble((canvas.width/2.5)+((array[i].x-x)*(canvas.width)),array[i].speech_bubble);
 		};
 	};
+};
+
+Camera.prototype.drawFrontObjects = function (x,y,location) {
+	var pos = function(horizontal, vertical) {
+		return location[(Math.floor(player.x)+(1*horizontal))+((player.y+vertical)*mansion.length)];
+	};
+	// table
+	if (pos(0,0)==7 || pos(-1,0)==7 || pos(1,0)==7) {
+		var object = mansion.objects[0];
+		this.ctx.drawImage(object.image,0,0,object.width,object.height,(canvas.width/2.5)+((3-x)*(canvas.width)),(canvas.height-canvas.height/4)+this.viewHeight,canvas.width,canvas.height/4);	
+	}
+	
+
 };
 
 Camera.prototype.speech_bubble = function(x,speech) {
