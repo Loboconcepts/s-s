@@ -360,7 +360,7 @@ AI.prototype.walk = function(x_distance,UPorDOWN) {
 	}
 }
 
-AI.prototype.find_target = function(target, murder) {
+AI.prototype.find_target = function(target) {
 	if (!target) this.pace();
 	if (this.y < target.y) this.walk(.005,"DOWN");
 	if (this.y > target.y) this.walk(.005,"UP");
@@ -452,34 +452,38 @@ AI.prototype.socialize = function() {
 };
 
 AI.prototype.murder_target = function(target) {
+	// see if any other AIs are nearby
 	for (i=0;i<AI_array.length;i++) {
+		// make sure that the nearby AI is not the one being murdered
 		if (AI_array[i] != this) {
-			if (AI_array[i].x > target.x+.7 && camera.viewHeight == 0) {
-				camera.camera_lock = true;
-				camera.darkness = true;
-				target.walk_speed = .002;
-				if (target.x%1 > .45 && target.x%1 < .46) target.walk_speed = 0;
-			}
-			else if (AI_array[i].x < target.x-.7 && camera.viewHeight == 0){
-				camera.camera_lock = true;
-				camera.darkness = true;
-				target.walk_speed = .002;
-				if (target.x%1 > .55 && target.x%1 < .56) target.walk_speed = 0;
+			// Check if AI is on the same floor
+			if (AI_array[i].y == target.y) {
+				// if AI is on the same floor, check if its nearby.
+				if (AI_array[i].x > target.x+.7 || AI_array[i].x < target.x-.7) {
+					if (target == player && target.x < mansion.length-.5 && target.x > mansion.length-.5) camera.camera_lock = true;
+					if (this.x > target.x && target.x%1 > .45 && target.x%1 < .46) target.walk_speed = 0,camera.darkness = true;
+					if (this.x < target.x && target.x%1 > .55 && target.x%1 < .56) target.walk_speed = 0,camera.darkness = true;
+
+				}
+				// AI is nearby.
+				else {
+					camera.camera_lock = false;
+					camera.darkness = false;
+					target.walk_speed = player.walk_speed;
+				}
 			}
 			else {
-				camera.camera_lock = false;
-				camera.darkness = false;
-				target.walk_speed = .01;
+				if (target == player && target.x < mansion.length-.5 && target.x > mansion.length-.5) camera.camera_lock = true;
+				if (this.x > target.x && target.x%1 > .45 && target.x%1 < .46) target.walk_speed = 0,camera.darkness = true;
+				if (this.x < target.x && target.x%1 > .55 && target.x%1 < .56) target.walk_speed = 0,camera.darkness = true;
 			}
 		}
 	}
 }
 
 AI.prototype.hunt = function(target) {
-	if (this.my_target == player) {
-		this.find_target(this.my_target, true);
+		this.find_target(this.my_target);
 		if (this.y == target.y && this.x > target.x-.5 && this.x < target.x+.5 && camera.viewHeight == 0) this.murder_target(this.my_target);
-	}
 }
 
 AI.prototype.stand = function() {
