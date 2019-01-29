@@ -150,7 +150,7 @@ function Player (x,y,direction,talk) {
     this.chosen_reply = false;
     this.AI_focus = false;
     this.conversation_point = "greeting";
-    this.walk_speed = .01;
+    this.walk_speed = .006;
 };
 
 Player.prototype.update = function(con, word_speed) {
@@ -376,7 +376,15 @@ AI.prototype.find_target = function(target, murder) {
 		}
 	};
 };
-	
+
+AI.prototype.catalyst = function(disposition) {
+	// loop through all AIs and player
+
+	// get this.personality
+
+	// make choice of action based on personality and disposition towards other characters based on other character personas
+
+}
 
 AI.prototype.find_closest_AI = function() {
 	for (var i=0;i<AI_array.length; i++) {
@@ -571,7 +579,7 @@ AI.prototype.update = function() {
 	if (this.logic.time[time[2]] == "front door") this.go_to_location(3,0);
 	if (this.logic.time[time[2]] == "find player") this.my_target = player,this.find_target(this.my_target);
 	if (this.logic.time[time[2]] == "find target") this.find_target(this.my_target);
-	if (this.logic.time[time[2]] == "murder player") this.my_target = player,this.hunt();
+	if (this.logic.time[time[2]] == "murder player") this.my_target = player,this.hunt(this.my_target);
 };
 
 
@@ -617,6 +625,7 @@ Camera.prototype.render_CONVERSATION = function() {
 	if (!this.dialogueBox) this.drawDialogueBox(), this.dialogueBox=true;
 	if (this.AI_talk) this.drawLetters(player.converse.split(''),time);
 	if (this.reply) {this.drawPlayerTalk(this.reply), this.dialogueBox=true};
+	
 }
 
 Camera.prototype.drawDialogueBox = function() {
