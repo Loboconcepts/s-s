@@ -390,6 +390,15 @@ AI.prototype.catalyst = function(disposition) {
 
 }
 
+AI.prototype.shout = function(array_position) {
+	if (time[1]%AI_array.length==array_position) {
+		this.speech_bubble = this.persona.conversation[player.conversation_point][0];
+	}
+	else {
+		this.speech_bubble = false;
+	}
+}
+
 AI.prototype.find_closest_AI = function() {
 	for (var i=0;i<AI_array.length; i++) {
 		// make sure AI isn't finding himself and make sure other AIs are on the same floor and they've never spoken
@@ -590,6 +599,9 @@ AI.prototype.pace = function() {
 }
 
 AI.prototype.update = function(pos_in_array) {
+	
+	if (time[0]==0) this.speech_bubble = false; // Reset function to make sure previous time activities don't overlap to next minute.
+
 	if (this.logic.time[time[2]] == "socialize") this.socialize();
 	if (this.logic.time[time[2]] == "pace") this.pace();
 	if (this.logic.time[time[2]] == "find player") this.my_target = player,this.find_target(this.my_target);
@@ -598,14 +610,12 @@ AI.prototype.update = function(pos_in_array) {
 	// to add - get map position number so specific coordinates don't have to be entered for specific locations
 	if (this.logic.time[time[2]] == "dinner table") {
 		if (Math.floor(this.x*100) == (3+(pos_in_array/10))*100 && this.y == 2) {
-			if (pos_in_array < 4) {
-				this.direction = 1;	
-				this.seg=0;
-			}
+			if (pos_in_array < 4) {this.direction = 1;this.seg=0;}
+			else {this.direction = -1;this.seg=0;};
+			this.shout(pos_in_array);
 		}
 		else {
 			this.go_to_location(3+(pos_in_array/10),2);
-			
 		}
 	}
 	if (this.logic.time[time[2]] == "front door") this.go_to_location(3+(pos_in_array/10),3);
