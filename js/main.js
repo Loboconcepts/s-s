@@ -592,12 +592,23 @@ AI.prototype.pace = function() {
 AI.prototype.update = function(pos_in_array) {
 	if (this.logic.time[time[2]] == "socialize") this.socialize();
 	if (this.logic.time[time[2]] == "pace") this.pace();
-	if (this.logic.time[time[2]] == "front door") this.go_to_location(3+(pos_in_array/10),3);
 	if (this.logic.time[time[2]] == "find player") this.my_target = player,this.find_target(this.my_target);
 	if (this.logic.time[time[2]] == "find target") this.find_target(this.my_target);
 	if (this.logic.time[time[2]] == "murder player") this.my_target = player,this.hunt(this.my_target);
 	// to add - get map position number so specific coordinates don't have to be entered for specific locations
-	if (this.logic.time[time[2]] == "dinner table") this.go_to_location(3+(pos_in_array/10),2);
+	if (this.logic.time[time[2]] == "dinner table") {
+		if (Math.floor(this.x*100) == (3+(pos_in_array/10))*100 && this.y == 2) {
+			if (pos_in_array < 4) {
+				this.direction = 1;	
+				this.seg=0;
+			}
+		}
+		else {
+			this.go_to_location(3+(pos_in_array/10),2);
+			
+		}
+	}
+	if (this.logic.time[time[2]] == "front door") this.go_to_location(3+(pos_in_array/10),3);
 };
 
 
