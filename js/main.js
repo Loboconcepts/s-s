@@ -29,20 +29,13 @@ function logic() {
 
 function logic_EXPLORE() {
 	time_keeper();
-	for (var i=0;i<AI_array.length;i++) AI_array[i].update(i);
+	TIME_EVENTS(player, camera, AI_array);
+	for (var i=0;i<AI_array.length;i++) if (AI_array[i].alive == true) AI_array[i].update(i);
 	player.update(controls.states);
 	camera.render_EXPLORE(player,mansion);
 	
 
-	// ############## LIGHTNING HERE ################ //
-
-	// if (time[0]>31 && time[0]<35 && !camera.darkness) {
-	// 	if (Math.floor(Math.random()*8) == 0)camera.darkness=true;
-		
-	// }
-	// else if (time[0]<31 || time[0]>35 && camera.darkness) {
-	// 	camera.darkness=false;	
-	// }
+	
 
 };
 
@@ -56,7 +49,29 @@ function logic_CONVERSATION() {
 	player.update(controls.states, camera.text_speed);
 	
 	camera.render_CONVERSATION();
-	
+}
+
+function TIME_EVENTS(player, camera, AI_array) {
+    if (time[2]==0) player.conversation_point = "greeting";
+    if (time[2]==1) player.conversation_point = "introduce";
+    if (time[2]==1 && time[1]>30) {
+    	camera.darkness = true;
+    	for (var i=0;i<AI_array.length;i++) {
+    		// if (AI_array[i].logic.type == "MURDERER") AI_array[i]. 
+    	}
+    }
+    if (time[2]==1 && time[1]>40) camera.darkness = false, player.conversation_point = "blackout";
+
+    // ############## LIGHTNING HERE ################ //
+
+	// if (time[0]>31 && time[0]<35 && !camera.darkness) {
+	// 	if (Math.floor(Math.random()*8) == 0)camera.darkness=true;
+		
+	// }
+	// else if (time[0]<31 || time[0]>35 && camera.darkness) {
+	// 	camera.darkness=false;	
+	// }
+
 }
 
 function Controls () {
@@ -323,6 +338,7 @@ function AI (x,y,direction,texture,persona,logic,dispositionTowardsPlayer) {
     this.time_count = 0;
     this.speech_bubble = false;
     this.walking = true;
+    this.alive = true;
 }
 
 AI.prototype.walk = function(x_distance,UPorDOWN) {
@@ -380,6 +396,12 @@ AI.prototype.find_target = function(target) {
 		}
 	};
 };
+
+AI.prototype.decide_target = function() {
+	// rank AI based on proximity and murderability. 
+
+	// make most murderable AI = this.my_target.
+}
 
 AI.prototype.catalyst = function(disposition) {
 	// loop through all AIs and player

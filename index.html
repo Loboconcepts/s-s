@@ -25,7 +25,8 @@
 			]);
 		var player = new Player(3.5,2,1,{
 			greeting: ["Good", "Bad"],
-			introduce: ["TRUTH", "LIE"]
+			introduce: ["REAL NAME", "FAKE NAME"],
+			blackout: ["I don't know", "That seems suspicious"],
 
 		});
 		var camera = new Camera(canvas);
@@ -50,16 +51,20 @@
 					0: "Great!",
 					1: "Sorry to hear that."
 				},false],
-				introduce : ["What's your name?", {
-					0: "Nice to meet you. I'm Cornelia.",
-					1: "Nice to meet you. I'm Cornelia."
+				introduce : ["My name is Cornelia.", {
+					0: "Nice to meet you.",
+					1: "Nice to meet you."
+				},false],
+				blackout : ["What was that?", {
+					0: "",
+					1: ""
 				},false]
 			}
 			
 		},{
 			time: {
 				0:"dinner table",
-				1:"pace"
+				1:"socialize"
 			}
 		},0);
 
@@ -73,18 +78,22 @@
 						1: "Bummer."
 					},
 				false],
-				introduce : ["What's your name?", 
+				introduce : ["Hi. I'm Sunwell!", 
 					{
-						0: "Nice to meet you. I'm Sunwell.",
-						1: "Nice to meet you. I'm Sunwell."
+						0: "Nice to meet you.",
+						1: "Nice to meet you."
 					},
-				false]
+				false],
+				blackout : ["What was that?", {
+					0: "",
+					1: ""
+				},false]
 			}
 		},{
 			time: 
 			{
 				0:"dinner table",
-				1:"pace"
+				1:"socialize"
 			}
 		},0);
 
@@ -98,17 +107,21 @@
 						1: "Damn shame."
 					},
 				false],
-				introduce : ["What's your name?", 
+				introduce : ["The name's Perry.", 
 					{
-						0: "Nice to meet you. I'm Perry.",
-						1: "Nice to meet you. I'm Perry."
+						0: "Nice to meet you.",
+						1: "Nice to meet you."
 					},
-				false]
+				false],
+				blackout : ["What was that?", {
+					0: "",
+					1: ""
+				},false]
 			}
 		},{
 			time: {
 				0:"dinner table",
-				1:"pace"
+				1:"socialize"
 			}
 		},0);
 
@@ -117,8 +130,8 @@
 		// document.getElementById("controls").style.width = window.innerWidth + "px";
 		// document.getElementById("controls").style.height = window.innerHeight + "px";
 		// init();
-		window.addEventListener("blur",function(ev) {if(gameState == state_EXPLORE)gameState = state_PAUSED}, true);
-		window.addEventListener("focus",function(ev) {if(gameState == state_PAUSED)gameState = state_EXPLORE}, true);
+		// window.addEventListener("blur",function(ev) {if(gameState == state_EXPLORE)gameState = state_PAUSED}, true);
+		// window.addEventListener("focus",function(ev) {if(gameState == state_PAUSED)gameState = state_EXPLORE}, true);
 
 	</script>
 
