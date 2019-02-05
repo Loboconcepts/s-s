@@ -413,7 +413,7 @@ AI.prototype.catalyst = function(disposition) {
 }
 
 AI.prototype.shout = function(array_position) {
-	if (time[1]%AI_array.length==array_position) {
+	if ((time[1]/2)%AI_array.length==array_position) {
 		this.speech_bubble = this.persona.conversation[player.conversation_point][0];
 	}
 	else {
