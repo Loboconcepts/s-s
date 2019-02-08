@@ -4,7 +4,7 @@ var state_EXPLORE = 0;
 var state_CONVERSATION = 1;
 var state_PAUSED = 2;
 var gameState = state_EXPLORE;
-var time = [0,0,0];
+var time = [0,20,1];
 function time_keeper() {
 	time[0]++;
 	if (time[0]>=FPS) time[1]++,time[0]=0;
@@ -57,10 +57,20 @@ function TIME_EVENTS(player, camera, AI_array) {
     if (time[2]==1 && time[1]>30) {
     	camera.darkness = true;
     	for (var i=0;i<AI_array.length;i++) {
-    		// if (AI_array[i].logic.type == "MURDERER") AI_array[i]. 
+    		if (AI_array[i].persona.genre == "MURDERER") AI_array[i].logic.time[time[2]] = "murder" 
     	}
     }
-    if (time[2]==1 && time[1]>40) camera.darkness = false, player.conversation_point = "blackout";
+    if (time[2]==1 && time[1]>40) {
+    	camera.darkness = false;
+    	player.conversation_point = "blackout";
+    	if (AI_array[AI_array.length-1].logic.time[time[2]] != "shout") {
+    		for (var i=0;i<AI_array.length;i++) {
+	    		AI_array[i].logic.time[time[2]] = "shout";
+	    	}	
+    	}
+    	
+    	
+    };
 
     // ############## LIGHTNING HERE ################ //
 
@@ -397,7 +407,19 @@ AI.prototype.find_target = function(target) {
 	};
 };
 
-AI.prototype.decide_target = function() {
+AI.prototype.murder = function() {
+	if (this.persona.genre == "MURDERER") {
+		// find guest to murder
+		
+
+		if (!this.my_target) {
+			for (var i = 0;i<AI_array.length;i++) {
+				if (AI_array[i].persona.genre == "GUEST") return this.my_target = AI_array[i];
+			}
+			console.log(this.persona.full_name + " is finding a target!")
+		};
+		if (this.my_target) console.log(this.persona.full_name + " is murdering " + this.closest_to_me[0].persona.full_name), this.hunt(this.my_target); 
+	}
 	// rank AI based on proximity and murderability. 
 
 	// make most murderable AI = this.my_target.
@@ -486,39 +508,62 @@ AI.prototype.socialize = function() {
 	if (this.my_target) this.speak(this.my_target), this.my_target.walking = false;
 };
 
-AI.prototype.murder_target = function(target) {
-	// see if any other AIs are nearby
+AI.prototype.no_witnesses = function(target) {
+	// loop through array
 	for (i=0;i<AI_array.length;i++) {
-		// make sure that the nearby AI is not the one being murdered
+		// make sure that the current AI being checked is not the target
 		if (AI_array[i] != this) {
-			// Check if AI is on the same floor
+			// Check if current AI being checked that is not the target is on the same floor
 			if (AI_array[i].y == target.y) {
-				// if AI is on the same floor, check if its nearby.
+				// if current AI being checked is on the same floor, make sure that it's not nearby.
 				if (AI_array[i].x > target.x+.7 || AI_array[i].x < target.x-.7) {
-					if (target == player && target.x < mansion.length-.5 && target.x > mansion.length-.5) camera.camera_lock = true;
-					if (this.x > target.x && target.x%1 > .45 && target.x%1 < .46) target.walk_speed = 0,camera.darkness = true;
-					if (this.x < target.x && target.x%1 > .55 && target.x%1 < .56) target.walk_speed = 0,camera.darkness = true;
-
+					//the current AI being checked is not nearby
 				}
-				// AI is nearby.
 				else {
-					camera.camera_lock = false;
-					camera.darkness = false;
-					target.walk_speed = player.walk_speed;
+					return false;
 				}
-			}
-			else {
-				if (target == player && target.x < mansion.length-.5 && target.x > mansion.length-.5) camera.camera_lock = true;
-				if (this.x > target.x && target.x%1 > .45 && target.x%1 < .46) target.walk_speed = 0,camera.darkness = true;
-				if (this.x < target.x && target.x%1 > .55 && target.x%1 < .56) target.walk_speed = 0,camera.darkness = true;
 			}
 		}
 	}
+	return true;
+}
+
+AI.prototype.murder_target = function(target) {
+		// see if any other AIs are nearby
+	if (camera.darkness == false) {
+		if (this.no_witnesses == true) {
+			// if the player is being murdered
+			if (target == player && target.x < mansion.length-.5 && target.x > mansion.length-.5) camera.camera_lock = true;
+			//MURDER
+			console.log(target.full_name);
+			if (this.x > target.x && target.x%1 > .45 && target.x%1 < .46) target.walk_speed = 0;
+			if (this.x < target.x && target.x%1 > .55 && target.x%1 < .56) target.walk_speed = 0;
+			target.alive = false;
+		}
+		else {
+			camera.camera_lock = false;
+			camera.darkness = false;
+			target.walk_speed = player.walk_speed;
+		}		
+	}
+	else {
+		console.log(target);
+		if (this.x > target.x && target.x%1 > .45 && target.x%1 < .46) target.walk_speed = 0;
+		if (this.x < target.x && target.x%1 > .55 && target.x%1 < .56) target.walk_speed = 0;
+		this.my_target = false;
+		this.logic.time[time[2]] = "pace";
+		target.alive = false;
+
+	}
+		
 }
 
 AI.prototype.hunt = function(target) {
+	if (this.my_target.alive) {
 		this.find_target(this.my_target);
 		if (this.y == target.y && this.x > target.x-.5 && this.x < target.x+.5 && camera.viewHeight == 0) this.murder_target(this.my_target);
+	}
+		
 }
 
 AI.prototype.stand = function() {
@@ -571,7 +616,7 @@ AI.prototype.speak = function(conversation_partner) {
 
 // Take player.reply_select after player.chosen_reply = true and perform an action with it.
 AI.prototype.react = function(whatConvo) {
-	console.log(this.persona.name + " reacts with " + player.reply_select);
+	console.log(this.persona.full_name + " reacts with " + player.reply_select);
 	this.persona.conversation[whatConvo][2] = true;
 	this.dispositionTowardsPlayer+=player.reply_select;
 	player.chosen_reply=false;
@@ -621,8 +666,12 @@ AI.prototype.pace = function() {
 }
 
 AI.prototype.update = function(pos_in_array) {
+
+	if (this.alive == false) console.log(this.full_name + " is dead!"), AI_array = AI_array.splice(pos_in_array,1);
 	
 	if (time[0]==0) this.speech_bubble = false; // Reset function to make sure previous time activities don't overlap to next minute.
+	if (this.logic.time[time[2]] == "shout") this.shout(pos_in_array);
+	if (this.logic.time[time[2]] == "murder") this.murder();
 
 	if (this.logic.time[time[2]] == "socialize") this.socialize();
 	if (this.logic.time[time[2]] == "pace") this.pace();
