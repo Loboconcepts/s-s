@@ -30,7 +30,7 @@ function logic() {
 function logic_EXPLORE() {
 	time_keeper();
 	TIME_EVENTS(player, camera, AI_array);
-	for (var i=0;i<AI_array.length;i++) if (AI_array[i].alive == true) AI_array[i].update(i);
+	for (var i=0;i<AI_array.length;i++) AI_array[i].update(i);
 	player.update(controls.states);
 	camera.render_EXPLORE(player,mansion);
 	
@@ -57,7 +57,8 @@ function TIME_EVENTS(player, camera, AI_array) {
     if (time[2]==1 && time[1]>30) {
     	camera.darkness = true;
     	for (var i=0;i<AI_array.length;i++) {
-    		if (AI_array[i].persona.genre == "MURDERER") AI_array[i].logic.time[time[2]] = "murder" 
+    		AI_array[i].socializing = false;
+    		if (AI_array[i].persona.genre == "MURDERER" && !AI_array[i].fleeing) AI_array[i].logic.time[time[2]] = "murder" 
     	}
     }
     if (time[2]==1 && time[1]>40) {
@@ -65,7 +66,7 @@ function TIME_EVENTS(player, camera, AI_array) {
     	player.conversation_point = "blackout";
     	if (AI_array[AI_array.length-1].logic.time[time[2]] != "shout") {
     		for (var i=0;i<AI_array.length;i++) {
-	    		AI_array[i].logic.time[time[2]] = "shout";
+    			AI_array[i].logic.time[time[2]] = "pace_shout";
 	    	}	
     	}
     	
@@ -349,6 +350,7 @@ function AI (x,y,direction,texture,persona,logic,dispositionTowardsPlayer) {
     this.speech_bubble = false;
     this.walking = true;
     this.alive = true;
+    this.fleeing = false;
 }
 
 AI.prototype.walk = function(x_distance,UPorDOWN) {
@@ -418,7 +420,7 @@ AI.prototype.murder = function() {
 			}
 			console.log(this.persona.full_name + " is finding a target!")
 		};
-		if (this.my_target) console.log(this.persona.full_name + " is murdering " + this.closest_to_me[0].persona.full_name), this.hunt(this.my_target); 
+		if (this.my_target.alive) console.log(this.persona.full_name + " is murdering " + this.my_target.persona.full_name), this.hunt(this.my_target); 
 	}
 	// rank AI based on proximity and murderability. 
 
@@ -547,12 +549,15 @@ AI.prototype.murder_target = function(target) {
 		}		
 	}
 	else {
-		console.log(target);
 		if (this.x > target.x && target.x%1 > .45 && target.x%1 < .46) target.walk_speed = 0;
 		if (this.x < target.x && target.x%1 > .55 && target.x%1 < .56) target.walk_speed = 0;
-		this.my_target = false;
-		this.logic.time[time[2]] = "pace";
+		console.log(target.persona.full_name + " has been murdered by " + this.persona.full_name);
 		target.alive = false;
+		this.my_target = false;
+		this.fleeing = true;
+		this.logic.time[time[2]] = "pace";
+		
+		
 
 	}
 		
@@ -561,7 +566,7 @@ AI.prototype.murder_target = function(target) {
 AI.prototype.hunt = function(target) {
 	if (this.my_target.alive) {
 		this.find_target(this.my_target);
-		if (this.y == target.y && this.x > target.x-.5 && this.x < target.x+.5 && camera.viewHeight == 0) this.murder_target(this.my_target);
+		if (this.y == target.y && this.x > target.x-.1 && this.x < target.x+.1 && camera.viewHeight == 0) console.log("MURDER!"), this.murder_target(this.my_target);
 	}
 		
 }
@@ -657,6 +662,7 @@ AI.prototype.go_to_location = function(dest_x,dest_y,endFacing) {
 }
 
 AI.prototype.pace = function() {
+	if (!this.walking) this.walking;
 	if (time[1]%2==0) {
 		this.walk(.003),this.direction=1;
 	}
@@ -667,7 +673,7 @@ AI.prototype.pace = function() {
 
 AI.prototype.update = function(pos_in_array) {
 
-	if (this.alive == false) console.log(this.full_name + " is dead!"), AI_array = AI_array.splice(pos_in_array,1);
+	if (!this.alive) console.log(this.persona.full_name + " is dead!"), AI_array.splice(pos_in_array,1);
 	
 	if (time[0]==0) this.speech_bubble = false; // Reset function to make sure previous time activities don't overlap to next minute.
 	if (this.logic.time[time[2]] == "shout") this.shout(pos_in_array);
@@ -678,6 +684,8 @@ AI.prototype.update = function(pos_in_array) {
 	if (this.logic.time[time[2]] == "find player") this.my_target = player,this.find_target(this.my_target);
 	if (this.logic.time[time[2]] == "find target") this.find_target(this.my_target);
 	if (this.logic.time[time[2]] == "murder player") this.my_target = player,this.hunt(this.my_target);
+	if (this.logic.time[time[2]] == "pace_shout") this.pace(), this.shout(pos_in_array);
+
 	// to add - get map position number so specific coordinates don't have to be entered for specific locations
 	if (this.logic.time[time[2]] == "dinner table") {
 		if (Math.floor(this.x*100) == (3+(pos_in_array/10))*100 && this.y == 2) {
