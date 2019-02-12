@@ -53,8 +53,9 @@ function logic_CONVERSATION() {
 }
 
 function TIME_EVENTS(player, camera, AI_array) {
-    if (time[2]==0) player.conversation_point = "greeting";
-    if (time[2]==1) player.conversation_point = "introduce";
+	var convoPoint;
+    if (time[2]==0) convoPoint = "greeting";
+    if (time[2]==1) convoPoint = "introduce";
     if (time[2]==1 && time[1]==30 && time[0]==0) {
     	camera.darkness = true;
     	for (var i=0;i<AI_array.length;i++) {
@@ -66,8 +67,10 @@ function TIME_EVENTS(player, camera, AI_array) {
     }
     if (time[2]==1 && time[1]>40) {
     	camera.darkness = false;
-    	player.conversation_point = "blackout";
+    	convoPoint = "blackout";
     };
+
+    if (player.conversation_point != convoPoint) for (var i=0;i<AI_array.length;i++) AI_array[i].spoken_with_already = [], player.conversation_point = convoPoint;
 
     // ############## LIGHTNING HERE ################ //
 
@@ -349,6 +352,13 @@ function AI (x,y,direction,texture,persona,logic,dispositionTowardsPlayer) {
     this.fleeing = false;
 }
 
+// ######### PHYSICAL ACTIONS ##############
+
+AI.prototype.shout = function(array_position) {
+	if ((time[1]/2)%AI_array.length==array_position) this.speech_bubble = this.persona.conversation[player.conversation_point][0];
+	else this.speech_bubble = false;
+}
+
 AI.prototype.walk = function(x_distance,UPorDOWN) {
 	if (this.walking) {
 		if (UPorDOWN) {
@@ -388,10 +398,10 @@ AI.prototype.walk = function(x_distance,UPorDOWN) {
 	}
 }
 
+
+// ############ ACTIONS ###############
+
 AI.prototype.find_target = function() {
-	if (!this.my_target) this.pace();
-
-
 	if (this.y < this.my_target.y) this.walk(.005,"DOWN");
 	if (this.y > this.my_target.y) this.walk(.005,"UP");
 	if (this.y == this.my_target.y) {
@@ -404,27 +414,10 @@ AI.prototype.find_target = function() {
 		else {
 			this.seg = 0;
 			this.engaged = true;
-		}
+		};
 	};
 };
 
-AI.prototype.catalyst = function(disposition) {
-	// loop through all AIs and player
-
-	// get this.personality
-
-	// make choice of action based on personality and disposition towards other characters based on other character personas
-
-}
-
-AI.prototype.shout = function(array_position) {
-	if ((time[1]/2)%AI_array.length==array_position) {
-		this.speech_bubble = this.persona.conversation[player.conversation_point][0];
-	}
-	else {
-		this.speech_bubble = false;
-	}
-}
 
 AI.prototype.make_closest_AI_target = function() {
 	// loop through all AI
@@ -443,14 +436,6 @@ AI.prototype.make_closest_AI_target = function() {
 		}
 	}
 }
-
-AI.prototype.socialize_dnu = function() {
-	if (this.persona.full_name == "Cornelia Cornhowser") console.log("1");
-	if (!this.engaged) this.find_closest_AI();
-	if (!this.engaged && this.closest_to_me[0]) this.approach_closest_AI(this.closest_to_me[0]);
-	if (this.my_target) this.speak(this.my_target), this.my_target.walking = false;
-};
-
 
 
 AI.prototype.no_witnesses = function(target) {
@@ -624,26 +609,28 @@ AI.prototype.socialize = function() {
 	if (this.spoken_with_already.length == AI_array.length-1) this.logic.purpose = "think"
 	if (!this.engaged) this.logic.act = "make_closest_AI_target";
 	if (this.my_target && !this.my_target.engaged && !this.engaged) this.logic.act = "find_target";
+	if (this.my_target && this.my_target.engaged && !this.engaged) this.logic.act = "pace";
 	if (this.engaged) this.logic.act = "speak";
 };
 
 AI.prototype.think = function() {
-	this.logic.act = "pace"
+	if (this.spoken_with_already.length != AI_array.length-1) this.logic.purpose = "socialize";
+	else this.logic.act = "pace"
 }
 
 AI.prototype.murder = function() {
-		// find guest to murder
-		if (!this.my_target) {
-			for (var i = 0;i<AI_array.length;i++) {
-				if (AI_array[i].persona.genre == "GUEST") return this.my_target = AI_array[i];
-			}
-		};
-		if (this.my_target.alive) this.logic.act = "hunt";
-		if (this.y == this.my_target.y && this.x > this.my_target.x-.1 && this.x < this.my_target.x+.1 && camera.viewHeight == 0) this.logic.act = "kill";
-	
-	// rank AI based on proximity and murderability. 
+	if (!this.my_target) for (var i = 0;i<AI_array.length;i++) if (AI_array[i].persona.genre == "GUEST") return this.my_target = AI_array[i];
+	if (this.my_target.alive) this.logic.act = "hunt";
+	if (this.y == this.my_target.y && this.x > this.my_target.x-.1 && this.x < this.my_target.x+.1 && camera.viewHeight == 0) this.logic.act = "kill";
+}
 
-	// make most murderable AI = this.my_target.
+AI.prototype.catalyst = function(disposition) {
+	// loop through all AIs and player
+
+	// get this.personality
+
+	// make choice of action based on personality and disposition towards other characters based on other character personas
+
 }
 
 // ######### UPDATE ##########
