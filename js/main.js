@@ -57,7 +57,7 @@ function TIME_EVENTS(player, camera, AI_array) {
     if (time[2]==1 && time[1]>30) {
     	camera.darkness = true;
     	for (var i=0;i<AI_array.length;i++) {
-    		AI_array[i].socializing = false;
+    		AI_array[i].engaged = false;
     		if (AI_array[i].persona.genre == "MURDERER" && !AI_array[i].fleeing) AI_array[i].logic.time[time[2]] = "murder" 
     	}
     }
@@ -258,7 +258,7 @@ Player.prototype.walk = function(distance) {
 
 Player.prototype.engage = function() {
 	for (var i=0;i<AI_array.length;i++) {
-		if (!AI_array[i].socializing && AI_array[i].y==this.y && (AI_array[i].x-this.x)*this.direction<=.2 && (AI_array[i].x-this.x)*this.direction > 0) {
+		if (!AI_array[i].engaged && AI_array[i].y==this.y && (AI_array[i].x-this.x)*this.direction<=.2 && (AI_array[i].x-this.x)*this.direction > 0) {
 			this.seg=0;
 			this.AI_focus = AI_array[i];
 			this.AI_focus.direction = this.direction*-1;
@@ -345,7 +345,7 @@ function AI (x,y,direction,texture,persona,logic,dispositionTowardsPlayer) {
     this.closest_to_me=[];
     this.spoken_with_already = [];
     this.my_target=false;
-    this.socializing = false;
+    this.engaged = false;
     this.time_count = 0;
     this.speech_bubble = false;
     this.walking = true;
@@ -407,7 +407,7 @@ AI.prototype.find_target = function(target) {
 		}
 		else {
 			this.seg = 0;
-			return true;
+			this.engaged = true;
 		}
 	};
 };
@@ -476,23 +476,25 @@ AI.prototype.find_closest_AI = function() {
 	}
 }
 
-/// @@@@@@@
 AI.prototype.make_closest_AI_target = function(social_visit) {
 	// loop through all AI
 	for (var i=0;i<AI_array.length; i++) {
-		// make sure AI isn't finding himself and make sure other AIs are on the same floor and they've never spoken
-		if (AI_array[i] != this && AI_array[i].y==this.y && ((this.spoken_with_already.indexOf(AI_array[i]) == -1 && social_visit) || !social_visit)) {
-			if (!this.my_target) {
-				this.my_target = AI_array[i];
+		// make sure AI isn't finding himself
+		if (AI_array[i] != this) {
+			// make sure other AIs are on the same floor and they've never spoken
+			if (AI_array[i].y==this.y && ((this.spoken_with_already.indexOf(AI_array[i]) == -1 && social_visit) || !social_visit)) {
+				if (!this.my_target) {
+					this.my_target = AI_array[i];
+				}
+				else {
+					if (Math.abs(this.x - this.my_target.x)>(Math.abs(this.x - AI_array[i].x))+.2) this.my_target = AI_array[i];
+				}
 			}
 			else {
-				if (Math.abs(this.x - this.my_target.x)>(Math.abs(this.x - AI_array[i].x))+.2) this.my_target = AI_array[i];
+				this.my_target = false;
 			}
 		}
-		else {
-			if (this.persona.full_name == "Cornelia Cornhowser") console.log((this.spoken_with_already.indexOf(AI_array[i]) == -1 && social_visit) || !social_visit)
-			this.my_target = false;
-		}
+		
 	}
 }
 
@@ -502,7 +504,7 @@ AI.prototype.approach_closest_AI = function(closestAI) {
 		this.closest_to_me.splice(0,1);
 		this.seg=0;
 	}
-	else if (Math.abs(this.x-closestAI.x) >.1 && !closestAI.socializing) {
+	else if (Math.abs(this.x-closestAI.x) >.1 && !closestAI.engaged) {
 		if (closestAI.x<this.x) {
 			this.walk(-.005),this.direction=-1;
 		}
@@ -511,7 +513,7 @@ AI.prototype.approach_closest_AI = function(closestAI) {
 		}
 	}
 	// walk away slowly if they are the closest but they're talking
-	else if (closestAI.socializing) {
+	else if (closestAI.engaged) {
 		if (closestAI.x<this.x) {
 			this.walk(.002),this.direction=1;
 		}
@@ -527,23 +529,18 @@ AI.prototype.approach_closest_AI = function(closestAI) {
 	}
 }
 
-AI.prototype.socialize = function() {
+AI.prototype.socialize_dnu = function() {
 	if (this.persona.full_name == "Cornelia Cornhowser") console.log("1");
-	if (!this.socializing) this.find_closest_AI();
-	if (!this.socializing && this.closest_to_me[0]) this.approach_closest_AI(this.closest_to_me[0]);
+	if (!this.engaged) this.find_closest_AI();
+	if (!this.engaged && this.closest_to_me[0]) this.approach_closest_AI(this.closest_to_me[0]);
 	if (this.my_target) this.speak(this.my_target), this.my_target.walking = false;
 };
 
-AI.prototype.socialize_2 = function() {
-	var found_target = false;
-	if (!this.socializing) this.make_closest_AI_target(true);
-	if (this.my_target && !this.my_target.socializing) {
-		if (this.find_target(this.my_target) == true) found_target = true;
-	}
-	if (found_target) {
-		this.my_target.walking = false;
-		if (this.speak(this.my_target)==true) found_target = false;
-	}
+AI.prototype.socialize = function() {
+	if (!this.engaged) this.make_closest_AI_target(true);
+	if (this.my_target && !this.my_target.engaged && !this.engaged) this.find_target(this.my_target)
+	if (this.engaged && !this.my_target.speech_bubble) this.my_target.walking = false, this.speak(this.my_target);
+	
 };
 
 AI.prototype.no_witnesses = function(target) {
@@ -624,8 +621,7 @@ AI.prototype.stand = function() {
 }
 
 AI.prototype.speak = function(conversation_partner) {
-	this.socializing = true; // in the act of talking
-	conversation_partner.socializing = true;
+	conversation_partner.engaged = true;
 	conversation_partner.seg=0;
 	if(time[0]==0) this.time_count++;
 	// whoever initiates talks first for two seconds
@@ -643,16 +639,15 @@ AI.prototype.speak = function(conversation_partner) {
 		conversation_partner.walking = true;
 		// resets socialize
 		conversation_partner.my_target=false;
-		this.my_target=false;
-		this.socializing = false;
-		conversation_partner.socializing = false;
+		this.my_target = false;
+		this.engaged = false;
+		conversation_partner.engaged = false;
 		this.spoken_with_already.push(conversation_partner);
 		conversation_partner.spoken_with_already.push(this);
 		this.closest_to_me.splice(0,1);
 		conversation_partner.closest_to_me.splice(0,1);
 		this.time_count = 0;
 		conversation_partner.time_count = 0;
-		return true;
 	}
 }
 
@@ -716,7 +711,7 @@ AI.prototype.update = function(pos_in_array) {
 	if (this.logic.time[time[2]] == "shout") this.shout(pos_in_array);
 	if (this.logic.time[time[2]] == "murder") this.murder();
 
-	if (this.logic.time[time[2]] == "socialize") this.socialize_2();
+	if (this.logic.time[time[2]] == "socialize") this.socialize();
 	if (this.logic.time[time[2]] == "pace") this.pace();
 	if (this.logic.time[time[2]] == "find player") this.my_target = player,this.find_target(this.my_target);
 	if (this.logic.time[time[2]] == "find target") this.find_target(this.my_target);
