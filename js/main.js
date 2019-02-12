@@ -329,8 +329,14 @@ Player.prototype.reset = function(whatConvo) {
 };
 
 // ################ AI ################# //
+// ################ AI ################# //
+// ################ AI ################# //
+// ################ AI ################# //
+// ################ AI ################# //
+// ################ AI ################# //
+// ################ AI ################# //
 
-function AI (x,y,direction,texture,persona,logic,dispositionTowardsPlayer) {
+function AI (x,y,direction,texture,persona,logic,suspicion) {
 	this.x = x;
 	this.x = x;
     this.y = y;
@@ -340,7 +346,7 @@ function AI (x,y,direction,texture,persona,logic,dispositionTowardsPlayer) {
     this.seg = 0;
     this.persona = persona;
     this.logic = logic;
-    this.dispositionTowardsPlayer = dispositionTowardsPlayer;
+    this.suspicion = suspicion;
     this.closest_to_me=[];
     this.spoken_with_already = [];
     this.my_target=false;
@@ -353,11 +359,6 @@ function AI (x,y,direction,texture,persona,logic,dispositionTowardsPlayer) {
 }
 
 // ######### PHYSICAL ACTIONS ##############
-
-AI.prototype.shout = function(array_position) {
-	if ((time[1]/2)%AI_array.length==array_position) this.speech_bubble = this.persona.conversation[player.conversation_point][0];
-	else this.speech_bubble = false;
-}
 
 AI.prototype.walk = function(x_distance,UPorDOWN) {
 	if (this.walking) {
@@ -418,6 +419,10 @@ AI.prototype.find_target = function() {
 	};
 };
 
+AI.prototype.shout = function(array_position) {
+	if ((time[1]/2)%AI_array.length==array_position) this.speech_bubble = this.persona.conversation[player.conversation_point][0];
+	else this.speech_bubble = false;
+}
 
 AI.prototype.make_closest_AI_target = function() {
 	// loop through all AI
@@ -556,7 +561,7 @@ AI.prototype.speak = function() {
 AI.prototype.react = function(whatConvo) {
 	console.log(this.persona.full_name + " reacts with " + player.reply_select);
 	this.persona.conversation[whatConvo][2] = true;
-	this.dispositionTowardsPlayer+=player.reply_select;
+	this.suspicion+=player.reply_select;
 	player.chosen_reply=false;
 	player.reply_select = 0;
 	camera.select = 0;
@@ -604,13 +609,19 @@ AI.prototype.pace = function() {
 	}
 }
 
+AI.prototype.waiting_to_talk = function() {
+	if (this.my_target.x < this.x) this.walk(.003),direction = 1;
+	if (this.my_target.x > this.x) this.walk(-.003),direction = -1;
+
+}
+
 // ####### PURPOSES ########
 AI.prototype.socialize = function() {
 	if (this.spoken_with_already.length == AI_array.length-1) this.logic.purpose = "think"
 	if (!this.engaged) this.logic.act = "make_closest_AI_target";
 	if (this.my_target && !this.my_target.engaged && !this.engaged) this.logic.act = "find_target";
-	if (this.my_target && this.my_target.engaged && !this.engaged) this.logic.act = "pace";
-	if (this.engaged) this.logic.act = "speak";
+	if (this.my_target && this.my_target.engaged && !this.engaged) this.logic.act = "waiting_to_talk";
+	if (this.engaged && (this.my_target.act != "speak" || this.my_target.act != "being_spoken_to")) this.logic.act = "speak";
 };
 
 AI.prototype.think = function() {
@@ -677,6 +688,12 @@ AI.prototype.update = function(logic, pos_in_array) {
 
 
 
+// ################ CAMERA ################## //
+// ################ CAMERA ################## //
+// ################ CAMERA ################## //
+// ################ CAMERA ################## //
+// ################ CAMERA ################## //
+// ################ CAMERA ################## //
 // ################ CAMERA ################## //
 
 function Camera(ctx) {

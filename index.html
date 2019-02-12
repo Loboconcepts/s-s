@@ -7,6 +7,14 @@
 		body {
 			margin:0;
 		}
+		td {
+			border-right:solid 1px #333333;
+			padding: 0 10px;
+
+		}
+		table {
+			border-spacing: 0px;
+		}
 	</style>
 </head>
 <body>
@@ -42,7 +50,7 @@
 		// SPY:                Influence guests. Will murder undercover agent.
 		// VENDOR:             Entertains guests. Can murder based on disposition
 
-		// x,y,direction,texture,persona,logic,dispositionTowardsPlayer
+		// x,y,direction,texture,persona,logic,suspicion
 
 		var cornelia_cornhowser = new AI(3.3,2,1,new Bitmap('./assets/walking-guy.png',2000,800),{
 			full_name: "Cornelia Cornhowser",
