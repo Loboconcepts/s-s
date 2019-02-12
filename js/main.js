@@ -4,7 +4,7 @@ var state_EXPLORE = 0;
 var state_CONVERSATION = 1;
 var state_PAUSED = 2;
 var gameState = state_EXPLORE;
-var time = [0,0,1];
+var time = [0,29,1];
 function time_keeper() {
 	time[0]++;
 	if (time[0]>=FPS) time[1]++,time[0]=0;
@@ -55,23 +55,18 @@ function logic_CONVERSATION() {
 function TIME_EVENTS(player, camera, AI_array) {
     if (time[2]==0) player.conversation_point = "greeting";
     if (time[2]==1) player.conversation_point = "introduce";
-    if (time[2]==1 && time[1]>30) {
+    if (time[2]==1 && time[1]==30 && time[0]==0) {
     	camera.darkness = true;
     	for (var i=0;i<AI_array.length;i++) {
+			if (AI_array[i].persona.genre == "MURDERER") AI_array[i].logic.purpose = "murder";
+			else AI_array[i].logic.purpose = "figure_something_out";
     		AI_array[i].engaged = false;
-    		if (AI_array[i].persona.genre == "MURDERER" && !AI_array[i].fleeing) AI_array[i].logic = "murder" 
+    		AI_array[i].my_target = false;
     	}
     }
     if (time[2]==1 && time[1]>40) {
     	camera.darkness = false;
     	player.conversation_point = "blackout";
-    	if (AI_array[AI_array.length-1].logic != "shout") {
-    		for (var i=0;i<AI_array.length;i++) {
-    			AI_array[i].logic = "pace_shout";
-	    	}	
-    	}
-    	
-    	
     };
 
     // ############## LIGHTNING HERE ################ //
@@ -413,24 +408,6 @@ AI.prototype.find_target = function() {
 	};
 };
 
-AI.prototype.murder = function() {
-	if (this.persona.genre == "MURDERER") {
-		// find guest to murder
-		
-
-		if (!this.my_target) {
-			for (var i = 0;i<AI_array.length;i++) {
-				if (AI_array[i].persona.genre == "GUEST") return this.my_target = AI_array[i];
-			}
-			console.log(this.persona.full_name + " is finding a target!")
-		};
-		if (this.my_target.alive) console.log(this.persona.full_name + " is murdering " + this.my_target.persona.full_name), this.hunt(this.my_target); 
-	}
-	// rank AI based on proximity and murderability. 
-
-	// make most murderable AI = this.my_target.
-}
-
 AI.prototype.catalyst = function(disposition) {
 	// loop through all AIs and player
 
@@ -462,7 +439,7 @@ AI.prototype.make_closest_AI_target = function() {
 			}
 		}
 		else {
-			this.logic.act = "pace"
+			this.seg = 0;
 		}
 	}
 }
@@ -474,12 +451,7 @@ AI.prototype.socialize_dnu = function() {
 	if (this.my_target) this.speak(this.my_target), this.my_target.walking = false;
 };
 
-AI.prototype.socialize = function() {
-	if (!this.engaged) this.logic.act = "make_closest_AI_target";
-	if (this.my_target && !this.my_target.engaged && !this.engaged) this.logic.act = "find_target";
-	if (this.engaged) this.logic.act = "speak";
-	
-};
+
 
 AI.prototype.no_witnesses = function(target) {
 	// loop through array
@@ -501,14 +473,14 @@ AI.prototype.no_witnesses = function(target) {
 	return true;
 }
 
-AI.prototype.murder_target = function(target) {
+AI.prototype.kill = function() {
+	var target = this.my_target;
 		// see if any other AIs are nearby
 	if (camera.darkness == false) {
 		if (this.no_witnesses == true) {
 			// if the player is being murdered
 			if (target == player && target.x < mansion.length-.5 && target.x > mansion.length-.5) camera.camera_lock = true;
 			//MURDER
-			console.log(target.full_name);
 			if (this.x > target.x && target.x%1 > .45 && target.x%1 < .46) target.walk_speed = 0;
 			if (this.x < target.x && target.x%1 > .55 && target.x%1 < .56) target.walk_speed = 0;
 			target.alive = false;
@@ -522,24 +494,18 @@ AI.prototype.murder_target = function(target) {
 	else {
 		if (this.x > target.x && target.x%1 > .45 && target.x%1 < .46) target.walk_speed = 0;
 		if (this.x < target.x && target.x%1 > .55 && target.x%1 < .56) target.walk_speed = 0;
-		console.log(target.persona.full_name + " has been murdered by " + this.persona.full_name);
 		target.alive = false;
 		this.my_target = false;
 		this.fleeing = true;
-		this.logic = "pace";
-		
-		
-
+		this.logic.purpose = "figure_something_out"
 	}
 		
 }
 
-AI.prototype.hunt = function(target) {
+AI.prototype.hunt = function() {
 	if (this.my_target.alive) {
-		this.find_target(this.my_target);
-		if (this.y == target.y && this.x > target.x-.1 && this.x < target.x+.1 && camera.viewHeight == 0) console.log("MURDER!"), this.murder_target(this.my_target);
-	}
-		
+		this.find_target();
+	}	
 }
 
 AI.prototype.stand = function() {
@@ -561,11 +527,10 @@ AI.prototype.stand = function() {
 AI.prototype.being_spoken_to = function() {
 	if(time[0]==0) this.time_count++;
 	this.seg = 0;
-	this.walking = false;
 	if (this.time_count<=2) {
 	}
 	else if (this.time_count>2 && this.time_count<=4) {
-		this.my_target.speech_bubble = this.my_target.persona.conversation[player.conversation_point][0];
+		this.speech_bubble = this.persona.conversation[player.conversation_point][0];
 	}
 	else {
 		this.time_count = 0;
@@ -596,7 +561,6 @@ AI.prototype.speak = function() {
 		this.spoken_with_already.push(this.my_target);
 		this.my_target.spoken_with_already.push(this);
 		
-		this.walking = true;
 		this.engaged = false;
 		this.my_target = false;
 
@@ -654,6 +618,35 @@ AI.prototype.pace = function() {
 		this.walk(-.003),this.direction=-1;
 	}
 }
+
+// ####### PURPOSES ########
+AI.prototype.socialize = function() {
+	if (this.spoken_with_already.length == AI_array.length-1) this.logic.purpose = "figure_something_out"
+	if (!this.engaged) this.logic.act = "make_closest_AI_target";
+	if (this.my_target && !this.my_target.engaged && !this.engaged) this.logic.act = "find_target";
+	if (this.engaged) this.logic.act = "speak";
+};
+
+AI.prototype.figure_something_out = function() {
+	this.logic.act = "pace"
+}
+
+AI.prototype.murder = function() {
+		// find guest to murder
+		if (!this.my_target) {
+			for (var i = 0;i<AI_array.length;i++) {
+				if (AI_array[i].persona.genre == "GUEST") return this.my_target = AI_array[i];
+			}
+		};
+		if (this.my_target.alive) this.logic.act = "hunt";
+		if (this.y == this.my_target.y && this.x > this.my_target.x-.1 && this.x < this.my_target.x+.1 && camera.viewHeight == 0) this.logic.act = "kill";
+	
+	// rank AI based on proximity and murderability. 
+
+	// make most murderable AI = this.my_target.
+}
+
+// ######### UPDATE ##########
 
 AI.prototype.update = function(logic, pos_in_array) {
 	

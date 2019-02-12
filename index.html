@@ -123,15 +123,12 @@
 		 function show_characters_logic() {
 			var report = [];
 			for (var i=0;i<AI_array.length;i++) {
-				report.push(AI_array[i].persona.full_name);
-				report.push(": ");
-				report.push(AI_array[i].logic.purpose);
-				report.push(" | ");
-				report.push(AI_array[i].logic.act);
-				report.push("<br>");
+				report.push("<tr><td>"+AI_array[i].persona.full_name+"</td>");
+				report.push("<td>"+AI_array[i].logic.purpose+"</td>");
+				report.push("<td>"+AI_array[i].logic.act+"</td></tr>");
 				
 			}
-			document.getElementById("purpose_actions").innerHTML = report.join(" ");
+			document.getElementById("purpose_actions").innerHTML = "<table><tr><td><strong>Character</strong></td><td><strong>Purpose</strong></td><td><strong>Action</strong></td></tr>"+report.join(" ")+"</table>";
 		}
 		
 
