@@ -4,7 +4,7 @@ var state_EXPLORE = 0;
 var state_CONVERSATION = 1;
 var state_PAUSED = 2;
 var gameState = state_EXPLORE;
-var time = [0,29,1];
+var time = [0,0,0];
 function time_keeper() {
 	time[0]++;
 	if (time[0]>=FPS) time[1]++,time[0]=0;
@@ -59,7 +59,7 @@ function TIME_EVENTS(player, camera, AI_array) {
     	camera.darkness = true;
     	for (var i=0;i<AI_array.length;i++) {
 			if (AI_array[i].persona.genre == "MURDERER") AI_array[i].logic.purpose = "murder";
-			else AI_array[i].logic.purpose = "figure_something_out";
+			else AI_array[i].logic.purpose = "think";
     		AI_array[i].engaged = false;
     		AI_array[i].my_target = false;
     	}
@@ -497,7 +497,7 @@ AI.prototype.kill = function() {
 		target.alive = false;
 		this.my_target = false;
 		this.fleeing = true;
-		this.logic.purpose = "figure_something_out"
+		this.logic.purpose = "think"
 	}
 		
 }
@@ -621,13 +621,13 @@ AI.prototype.pace = function() {
 
 // ####### PURPOSES ########
 AI.prototype.socialize = function() {
-	if (this.spoken_with_already.length == AI_array.length-1) this.logic.purpose = "figure_something_out"
+	if (this.spoken_with_already.length == AI_array.length-1) this.logic.purpose = "think"
 	if (!this.engaged) this.logic.act = "make_closest_AI_target";
 	if (this.my_target && !this.my_target.engaged && !this.engaged) this.logic.act = "find_target";
 	if (this.engaged) this.logic.act = "speak";
 };
 
-AI.prototype.figure_something_out = function() {
+AI.prototype.think = function() {
 	this.logic.act = "pace"
 }
 
