@@ -12,6 +12,7 @@
 <body>
 	<canvas id="game"></canvas>
 	<button onclick="clearInterval(run)">STOP</button>
+	<div style="font-size:10px;" id="purpose_actions"></div>
 	<script src="js/main.js"></script>
 	
 	<script type="text/javascript">
@@ -61,13 +62,7 @@
 				},false]
 			}
 			
-		},{
-			time: {
-				0:"dinner table",
-				1:"socialize",
-				2:"socialize"
-			}
-		},0);
+		},{purpose:"socialize", act:"socialize"},0);
 
 		var sunwell_sunflower = new AI(2.5,2,1,new Bitmap('./assets/walking-guy.png',2000,800),{
 			full_name: "Sunwell Sunflower",
@@ -90,14 +85,7 @@
 					1: ""
 				},false]
 			}
-		},{
-			time: 
-			{
-				0:"dinner table",
-				1:"socialize",
-				2:"socialize"
-			}
-		},0);
+		},{purpose:"socialize", act:"socialize"},0);
 
 		var perry_periscope = new AI(4.3,2,1,new Bitmap('./assets/walking-guy.png',2000,800),{
 			full_name: "Perry Periscope",
@@ -120,13 +108,8 @@
 					1: ""
 				},false]
 			}
-		},{
-			time: {
-				0:"dinner table",
-				1:"socialize",
-				2:"socialize"
-			}
-		},0);
+		},{purpose:"socialize", act:"socialize"}
+		,0);
 
 
 		var AI_array = [sunwell_sunflower,perry_periscope,cornelia_cornhowser];
@@ -135,6 +118,22 @@
 		// init();
 		// window.addEventListener("blur",function(ev) {if(gameState == state_EXPLORE)gameState = state_PAUSED}, true);
 		// window.addEventListener("focus",function(ev) {if(gameState == state_PAUSED)gameState = state_EXPLORE}, true);
+
+
+		 function show_characters_logic() {
+			var report = [];
+			for (var i=0;i<AI_array.length;i++) {
+				report.push(AI_array[i].persona.full_name);
+				report.push(": ");
+				report.push(AI_array[i].logic.purpose);
+				report.push(" | ");
+				report.push(AI_array[i].logic.act);
+				report.push("<br>");
+				
+			}
+			document.getElementById("purpose_actions").innerHTML = report.join(" ");
+		}
+		
 
 	</script>
 

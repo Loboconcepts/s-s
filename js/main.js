@@ -24,13 +24,14 @@ function logic() {
 	if (gameState == state_CONVERSATION) logic_CONVERSATION();
 	if (gameState == state_PAUSED) logic_PAUSED();
 
+	show_characters_logic();
 
 }
 
 function logic_EXPLORE() {
 	time_keeper();
 	TIME_EVENTS(player, camera, AI_array);
-	for (var i=0;i<AI_array.length;i++) AI_array[i].update(i);
+	for (var i=0;i<AI_array.length;i++) AI_array[i].update(AI_array[i].logic, i);
 	player.update(controls.states);
 	camera.render_EXPLORE(player,mansion);
 	
@@ -58,15 +59,15 @@ function TIME_EVENTS(player, camera, AI_array) {
     	camera.darkness = true;
     	for (var i=0;i<AI_array.length;i++) {
     		AI_array[i].engaged = false;
-    		if (AI_array[i].persona.genre == "MURDERER" && !AI_array[i].fleeing) AI_array[i].logic.time[time[2]] = "murder" 
+    		if (AI_array[i].persona.genre == "MURDERER" && !AI_array[i].fleeing) AI_array[i].logic = "murder" 
     	}
     }
     if (time[2]==1 && time[1]>40) {
     	camera.darkness = false;
     	player.conversation_point = "blackout";
-    	if (AI_array[AI_array.length-1].logic.time[time[2]] != "shout") {
+    	if (AI_array[AI_array.length-1].logic != "shout") {
     		for (var i=0;i<AI_array.length;i++) {
-    			AI_array[i].logic.time[time[2]] = "pace_shout";
+    			AI_array[i].logic = "pace_shout";
 	    	}	
     	}
     	
@@ -392,17 +393,17 @@ AI.prototype.walk = function(x_distance,UPorDOWN) {
 	}
 }
 
-AI.prototype.find_target = function(target) {
-	if (!target) this.pace();
+AI.prototype.find_target = function() {
+	if (!this.my_target) this.pace();
 
 
-	if (this.y < target.y) this.walk(.005,"DOWN");
-	if (this.y > target.y) this.walk(.005,"UP");
-	if (this.y == target.y) {
-		if (this.x<target.x-.1) {
+	if (this.y < this.my_target.y) this.walk(.005,"DOWN");
+	if (this.y > this.my_target.y) this.walk(.005,"UP");
+	if (this.y == this.my_target.y) {
+		if (this.x<this.my_target.x-.1) {
 			this.walk(.005)
 		}
-		else if (this.x>target.x+.1) {
+		else if (this.x>this.my_target.x+.1) {
 			this.walk(-.005)
 		}
 		else {
@@ -448,84 +449,21 @@ AI.prototype.shout = function(array_position) {
 	}
 }
 
-AI.prototype.find_closest_AI = function() {
-	for (var i=0;i<AI_array.length; i++) {
-		// make sure AI isn't finding himself and make sure other AIs are on the same floor and they've never spoken
-		if (AI_array[i] != this && AI_array[i].y==this.y && this.spoken_with_already.indexOf(AI_array[i]) == -1) {
-			//check if is already in array
-			if (this.closest_to_me.indexOf(AI_array[i]) == -1) {
-				// if here, the AI is not in the array and needs to be added.
-				// first check if there's anyone in the array, and if not, add the other AI
-				if (!this.closest_to_me[0]) {
-					this.closest_to_me.push(AI_array[i]);
-				}
-				// If the array is not empty, position the AI from closest to furthest away.
-				else {
-					// if the abs value of my location minus closest location is less than abs val of next AI
-					if (Math.abs(this.x-this.closest_to_me[0].x)<=Math.abs(this.x - AI_array[i].x)) {
-						this.closest_to_me.push(AI_array[i]);
-					}
-					else {
-						this.closest_to_me.unshift(AI_array[i]);
-					}
-				}		
-			}
-			// if here, that means that the closest to me array has every possible AI
-		}
-		//if here, that means that the AI is by himself or has spoken to everyone.
-	}
-}
-
-AI.prototype.make_closest_AI_target = function(social_visit) {
+AI.prototype.make_closest_AI_target = function() {
 	// loop through all AI
 	for (var i=0;i<AI_array.length; i++) {
-		// make sure AI isn't finding himself
-		if (AI_array[i] != this) {
-			// make sure other AIs are on the same floor and they've never spoken
-			if (AI_array[i].y==this.y && ((this.spoken_with_already.indexOf(AI_array[i]) == -1 && social_visit) || !social_visit)) {
-				if (!this.my_target) {
-					this.my_target = AI_array[i];
-				}
-				else {
-					if (Math.abs(this.x - this.my_target.x)>(Math.abs(this.x - AI_array[i].x))+.2) this.my_target = AI_array[i];
-				}
+		// make sure AI isn't finding himself and make sure other AIs are on the same floor and they've never spoken
+		if (AI_array[i] != this && AI_array[i].y==this.y && ((this.spoken_with_already.indexOf(AI_array[i]) == -1 && this.logic.purpose == "socialize") || this.logic.purpose != "socialize")) {
+			if (!this.my_target) {
+				this.my_target = AI_array[i];
 			}
 			else {
-				this.my_target = false;
+				if (Math.abs(this.x - this.my_target.x)>(Math.abs(this.x - AI_array[i].x))+.2) this.my_target = AI_array[i];
 			}
 		}
-		
-	}
-}
-
-AI.prototype.approach_closest_AI = function(closestAI) {
-	// approach if they are the closest and not talking
-	if (closestAI.y!=this.y) {
-		this.closest_to_me.splice(0,1);
-		this.seg=0;
-	}
-	else if (Math.abs(this.x-closestAI.x) >.1 && !closestAI.engaged) {
-		if (closestAI.x<this.x) {
-			this.walk(-.005),this.direction=-1;
-		}
 		else {
-			this.walk(.005),this.direction=1;
+			this.logic.act = "pace"
 		}
-	}
-	// walk away slowly if they are the closest but they're talking
-	else if (closestAI.engaged) {
-		if (closestAI.x<this.x) {
-			this.walk(.002),this.direction=1;
-		}
-		else {
-			this.walk(-.002),this.direction=-1;
-		}
-	}
-	else {
-		if (this.x<closestAI.x) {this.direction=1;}
-		else {this.direction=-1;};
-		this.seg=0;
-		this.my_target = closestAI;
 	}
 }
 
@@ -537,9 +475,9 @@ AI.prototype.socialize_dnu = function() {
 };
 
 AI.prototype.socialize = function() {
-	if (!this.engaged) this.make_closest_AI_target(true);
-	if (this.my_target && !this.my_target.engaged && !this.engaged) this.find_target(this.my_target)
-	if (this.engaged && !this.my_target.speech_bubble) this.my_target.walking = false, this.speak(this.my_target);
+	if (!this.engaged) this.logic.act = "make_closest_AI_target";
+	if (this.my_target && !this.my_target.engaged && !this.engaged) this.logic.act = "find_target";
+	if (this.engaged) this.logic.act = "speak";
 	
 };
 
@@ -588,7 +526,7 @@ AI.prototype.murder_target = function(target) {
 		target.alive = false;
 		this.my_target = false;
 		this.fleeing = true;
-		this.logic.time[time[2]] = "pace";
+		this.logic = "pace";
 		
 		
 
@@ -620,9 +558,30 @@ AI.prototype.stand = function() {
 	// it needs to move until it is not
 }
 
-AI.prototype.speak = function(conversation_partner) {
-	conversation_partner.engaged = true;
-	conversation_partner.seg=0;
+AI.prototype.being_spoken_to = function() {
+	if(time[0]==0) this.time_count++;
+	this.seg = 0;
+	this.walking = false;
+	if (this.time_count<=2) {
+	}
+	else if (this.time_count>2 && this.time_count<=4) {
+		this.my_target.speech_bubble = this.my_target.persona.conversation[player.conversation_point][0];
+	}
+	else {
+		this.time_count = 0;
+		// ends above if else
+		this.speech_bubble = false;
+		// allows conversation partner to continue whatever they were doing
+
+		this.walking = true;
+		this.engaged = false;
+		this.my_target = false;
+
+	}
+}
+
+AI.prototype.speak = function() {
+	this.my_target.logic.act = "being_spoken_to";
 	if(time[0]==0) this.time_count++;
 	// whoever initiates talks first for two seconds
 	if (this.time_count<=2) {
@@ -630,24 +589,17 @@ AI.prototype.speak = function(conversation_partner) {
 	}
 	else if (this.time_count>2 && this.time_count<=4) {
 		this.speech_bubble = false;
-		conversation_partner.speech_bubble = conversation_partner.persona.conversation[player.conversation_point][0];
 	}
 	else {
-		// ends above if else
-		conversation_partner.speech_bubble = false;
-		// allows conversation partner to continue whatever they were doing
-		conversation_partner.walking = true;
-		// resets socialize
-		conversation_partner.my_target=false;
-		this.my_target = false;
-		this.engaged = false;
-		conversation_partner.engaged = false;
-		this.spoken_with_already.push(conversation_partner);
-		conversation_partner.spoken_with_already.push(this);
-		this.closest_to_me.splice(0,1);
-		conversation_partner.closest_to_me.splice(0,1);
 		this.time_count = 0;
-		conversation_partner.time_count = 0;
+		// resets socialize
+		this.spoken_with_already.push(this.my_target);
+		this.my_target.spoken_with_already.push(this);
+		
+		this.walking = true;
+		this.engaged = false;
+		this.my_target = false;
+
 	}
 }
 
@@ -703,33 +655,43 @@ AI.prototype.pace = function() {
 	}
 }
 
-AI.prototype.update = function(pos_in_array) {
-
-	if (!this.alive) console.log(this.persona.full_name + " is dead!"), AI_array.splice(pos_in_array,1);
+AI.prototype.update = function(logic, pos_in_array) {
 	
+	if (!this.alive) console.log(this.persona.full_name + " is dead!"), AI_array.splice(pos_in_array,1);
 	if (time[0]==0) this.speech_bubble = false; // Reset function to make sure previous time activities don't overlap to next minute.
-	if (this.logic.time[time[2]] == "shout") this.shout(pos_in_array);
-	if (this.logic.time[time[2]] == "murder") this.murder();
+	
+	this[logic.act]();
 
-	if (this.logic.time[time[2]] == "socialize") this.socialize();
-	if (this.logic.time[time[2]] == "pace") this.pace();
-	if (this.logic.time[time[2]] == "find player") this.my_target = player,this.find_target(this.my_target);
-	if (this.logic.time[time[2]] == "find target") this.find_target(this.my_target);
-	if (this.logic.time[time[2]] == "murder player") this.my_target = player,this.hunt(this.my_target);
-	if (this.logic.time[time[2]] == "pace_shout") this.pace(), this.shout(pos_in_array);
+	this[logic.purpose]();
 
-	// to add - get map position number so specific coordinates don't have to be entered for specific locations
-	if (this.logic.time[time[2]] == "dinner table") {
-		if (Math.floor(this.x*100) == (3+(pos_in_array/10))*100 && this.y == 2) {
-			if (pos_in_array < 4) {this.direction = 1;this.seg=0;}
-			else {this.direction = -1;this.seg=0;};
-			this.shout(pos_in_array);
-		}
-		else {
-			this.go_to_location(3+(pos_in_array/10),2);
-		}
-	}
-	if (this.logic.time[time[2]] == "front door") this.go_to_location(3+(pos_in_array/10),3);
+	
+
+
+
+	
+	
+
+	// if (logic == "shout") this.shout(pos_in_array);
+	// if (logic == "murder") this.murder();
+
+	// if (logic == "pace") this.pace();
+	// if (logic == "find player") this.my_target = player,this.find_target(this.my_target);
+	// if (logic == "find target") this.find_target(this.my_target);
+	// if (logic == "murder player") this.my_target = player,this.hunt(this.my_target);
+	// if (logic == "pace_shout") this.pace(), this.shout(pos_in_array);
+
+	// // to add - get map position number so specific coordinates don't have to be entered for specific locations
+	// if (logic == "dinner table") {
+	// 	if (Math.floor(this.x*100) == (3+(pos_in_array/10))*100 && this.y == 2) {
+	// 		if (pos_in_array < 4) {this.direction = 1;this.seg=0;}
+	// 		else {this.direction = -1;this.seg=0;};
+	// 		this.shout(pos_in_array);
+	// 	}
+	// 	else {
+	// 		this.go_to_location(3+(pos_in_array/10),2);
+	// 	}
+	// }
+	// if (logic == "front door") this.go_to_location(3+(pos_in_array/10),3);
 };
 
 
