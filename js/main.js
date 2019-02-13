@@ -177,6 +177,7 @@ function Player (x,y,direction,talk) {
     this.AI_focus = false;
     this.conversation_point = "greeting";
     this.walk_speed = .006;
+    this.being_spoken_to = false;
 };
 
 Player.prototype.update = function(con, word_speed) {
@@ -261,6 +262,18 @@ Player.prototype.engage = function() {
 			this.AI_focus.seg = 0;
 			if (gameState != state_CONVERSATION) this.interact(this.conversation_point, 0);
 		}
+		else if (AI_array[i].engaged && AI_array[i].my_target == this) {
+			this.AI_focus = AI_array[i];
+			this.AI_focus.speech_bubble = false;
+			this.AI_focus.direction = this.direction*-1;
+			this.AI_focus.seg = 0;
+			this.AI_focus.logic.act = "target_closest";
+			this.AI_focus.my_target = false;
+			this.being_spoken_to = false;
+			this.AI_focus.spoken_with_already.push(this);
+
+			if (gameState != state_CONVERSATION) this.interact(this.conversation_point, 0);
+		}
 	}
 }
 
@@ -284,7 +297,7 @@ Player.prototype.interact = function(whatConvo, point_of_convo, x_reply) {
 Player.prototype.reset = function(whatConvo) {
 	camera.AI_talk = false;
 	// This is checking if there is a reply and if the replies havent been printed yet.
-	if (this.talk[whatConvo] && !camera.select && !this.chosen_reply && !this.AI_focus.persona.conversation[whatConvo][2]) { //GREETING IS JUST A PLACEHOLDER. MAKE THIS FIND WHAT THE AI KEY WAS. 
+	if (this.talk[whatConvo] && !camera.select && !this.chosen_reply && !this.AI_focus.persona.conversation[whatConvo][2]) {
 		camera.dialogueBox = false;
 	    camera.words_counter = {
 	    	letter:0,
@@ -298,7 +311,7 @@ Player.prototype.reset = function(whatConvo) {
 		camera.select = this.reply_select;
 	}
 	// if there is a reply and the replies have already been printed.
-	else if (this.talk[whatConvo] && camera.select && !this.chosen_reply) {//GREETING IS JUST A PLACEHOLDER. MAKE THIS FIND WHAT THE AI KEY WAS
+	else if (this.talk[whatConvo] && camera.select && !this.chosen_reply) {
 		this.reply_select++;
 		if (this.reply_select >= this.talk[whatConvo].length) this.reply_select = 0;
 		camera.dialogueBox = false;
@@ -316,10 +329,12 @@ Player.prototype.reset = function(whatConvo) {
 	else if (!this.AI_focus.persona.conversation[whatConvo][2]) {
 		this.AI_focus.react(whatConvo);
 		controls.holding = false;
+		camera.dialogueBox = false;
 		gameState = state_EXPLORE;
 	}
 	else {
 		controls.holding = false;
+		camera.dialogueBox = false;
 		gameState = state_EXPLORE;
 		this.reply_select = 0;
 	}
@@ -344,7 +359,6 @@ function AI (x,y,direction,texture,persona,logic,suspicion) {
     this.persona = persona;
     this.logic = logic;
     this.suspicion = suspicion;
-    this.closest_to_me=[];
     this.spoken_with_already = [];
     this.my_target=false;
     this.engaged = false;
@@ -426,16 +440,16 @@ AI.prototype.shout = function(array_position) {
 	else this.speech_bubble = false;
 }
 
-AI.prototype.make_closest_AI_target = function() {
+AI.prototype.target_closest = function() {
 	// loop through all AI
-	for (var i=0;i<AI_array.length; i++) {
+	for (var i=0;i<everyone_array.length; i++) {
 		// make sure AI isn't finding himself and make sure other AIs are on the same floor and they've never spoken
-		if (AI_array[i] != this && AI_array[i].y==this.y && ((this.spoken_with_already.indexOf(AI_array[i]) == -1 && this.logic.purpose == "socialize") || this.logic.purpose != "socialize")) {
+		if (everyone_array[i] != this && everyone_array[i].y==this.y && ((this.spoken_with_already.indexOf(everyone_array[i]) == -1 && this.logic.purpose == "socialize") || this.logic.purpose != "socialize")) {
 			if (!this.my_target) {
-				this.my_target = AI_array[i];
+				this.my_target = everyone_array[i];
 			}
-			else {
-				if (Math.abs(this.x - this.my_target.x)>(Math.abs(this.x - AI_array[i].x))+.2) this.my_target = AI_array[i];
+			else if (Math.abs(this.x - this.my_target.x)>(Math.abs(this.x - everyone_array[i].x))+.2) {
+				this.my_target = everyone_array[i];
 			}
 		}
 		else {
@@ -537,29 +551,37 @@ AI.prototype.being_spoken_to = function() {
 	}
 }
 
+
+// Need to make player conversation_point switch temporarily to AI's when player is engaged by AI.
 AI.prototype.speak = function() {
-	this.my_target.logic.act = "being_spoken_to";
+	if (!this.my_target) this.logic.act = "target_closest";
+	if (this.my_target!=player) this.my_target.logic.act = "being_spoken_to";
+	if (this.my_target==player && Math.abs(this.x-player.x)<=.1) this.my_target.being_spoken_to = true;
+	if (this.my_target==player && Math.abs(this.x-player.x)>.1) this.my_target.being_spoken_to = false;
 	if (this.x<this.my_target.x) this.my_target.direction = -1;
 	if (this.x>this.my_target.x) this.my_target.direction = 1;
+	if (this.my_target!=player && this.my_target.my_target != this) this.my_target.my_target = this;
+
 	if(time[0]==0) this.time_count++;
 	// whoever initiates talks first for two seconds
 	if (this.time_count<=2) {
 		this.speech_bubble = this.persona.conversation[this.persona.conversation.topic][0];
 	}
 	else if (this.time_count>2 && this.time_count<=4) {
-		this.my_target.my_target = this;
 		this.speech_bubble = false;
 	}
 	else {
+		if (this.my_target==player) this.my_target.being_spoken_to = false;
 		this.time_count = 0;
 		// resets socialize
 		this.spoken_with_already.push(this.my_target);
-		this.my_target.spoken_with_already.push(this);
+		if (this.my_target!=player) this.my_target.spoken_with_already.push(this);
 		
 		this.engaged = false;
 		this.my_target = false;
 
 	}
+	if (this.my_target == player && player.AI_focus == this) this.speech_bubble = false;
 }
 
 // Take player.reply_select after player.chosen_reply = true and perform an action with it.
@@ -623,12 +645,20 @@ AI.prototype.waiting_to_talk = function() {
 
 // ####### PURPOSES ########
 AI.prototype.socialize = function() {
-	if (this.spoken_with_already.length >= AI_array.length-1 && this.logic.act != "being_spoken_to") this.my_target=false, this.logic.purpose = "think";
+	if (!this.my_target) this.logic.act = "target_closest";
 	if (this.my_target && Math.abs(this.x - this.my_target.x) > .1) this.engaged = false;
-	if (!this.my_target) this.logic.act = "make_closest_AI_target";
-	if (this.my_target && (this.my_target.logic.act != "speak" && this.my_target.logic.act != "being_spoken_to") && !this.engaged) this.logic.act = "find_target";
-	if (this.my_target && this.my_target.engaged && !this.engaged) this.logic.act = "waiting_to_talk";
-	if (this.engaged && (this.my_target.logic.act != "speak" && this.my_target.logic.act != "being_spoken_to")) this.logic.act = "speak";
+	if (this.spoken_with_already.length >= AI_array.length && this.logic.act != "being_spoken_to") this.my_target=false, this.logic.purpose = "think";
+	if (this.my_target && this.my_target != player) {
+		if ((this.my_target.logic.act != "speak" && this.my_target.logic.act != "being_spoken_to") && !this.engaged) this.logic.act = "find_target";
+		if (this.my_target.engaged && !this.engaged) this.logic.act = "waiting_to_talk";
+		if (this.engaged && (this.my_target.logic.act != "speak" && this.my_target.logic.act != "being_spoken_to")) this.logic.act = "speak";
+	}
+	else if (this.my_target == player) {
+		if (!this.my_target.being_spoken_to) this.logic.act = "find_target";
+		if (this.my_target.being_spoken_to) this.logic.act = "waiting_to_talk";
+		if (this.engaged) this.logic.act = "speak";
+	}
+	
 };
 
 AI.prototype.think = function() {
@@ -823,7 +853,8 @@ Camera.prototype.drawPlayerTalk = function(reply) {
 // ################ CAMERA EXPLORE ############### //
 // ################ CAMERA EXPLORE ############### //
 
-Camera.prototype.render_EXPLORE = function(player, map) { 
+Camera.prototype.render_EXPLORE = function(player, map) {
+	if (this.dialogueBox) this.dialogueBox = false;
 	if (this.darkness) this.ctx.clearRect(0,0,canvas.width,canvas.height);
 
 	if (!this.darkness) this.drawBackground(player.y,time);
@@ -936,7 +967,6 @@ Camera.prototype.speech_bubble = function(x,speech) {
 	this.ctx.strokeStyle = "#000000"
 	this.ctx.lineWidth = 2;
 	this.ctx.strokeRect(center,canvas.height/2.8,2,canvas.height/14)
-	this.ctx.stroke();
 	this.ctx.restore();
 
 	this.ctx.save();
