@@ -254,7 +254,7 @@ Player.prototype.walk = function(distance) {
 
 Player.prototype.engage = function() {
 	for (var i=0;i<AI_array.length;i++) {
-		if (!AI_array[i].engaged && AI_array[i].y==this.y && (AI_array[i].x-this.x)*this.direction<=.2 && (AI_array[i].x-this.x)*this.direction > 0) {
+		if (!AI_array[i].engaged && AI_array[i].y==this.y && (AI_array[i].x-this.x)*this.direction<=.1 && (AI_array[i].x-this.x)*this.direction > .05) {
 			this.seg=0;
 			this.AI_focus = AI_array[i];
 			this.AI_focus.direction = this.direction*-1;
@@ -623,7 +623,7 @@ AI.prototype.waiting_to_talk = function() {
 
 // ####### PURPOSES ########
 AI.prototype.socialize = function() {
-	if (this.spoken_with_already.length >= AI_array.length-1 && this.logic.act != "being_spoken_to") this.logic.purpose = "think";
+	if (this.spoken_with_already.length >= AI_array.length-1 && this.logic.act != "being_spoken_to") this.my_target=false, this.logic.purpose = "think";
 	if (this.my_target && Math.abs(this.x - this.my_target.x) > .1) this.engaged = false;
 	if (!this.my_target) this.logic.act = "make_closest_AI_target";
 	if (this.my_target && (this.my_target.logic.act != "speak" && this.my_target.logic.act != "being_spoken_to") && !this.engaged) this.logic.act = "find_target";
@@ -930,15 +930,27 @@ Camera.prototype.drawFrontObjects = function (x,y,location) {
 };
 
 Camera.prototype.speech_bubble = function(x,speech) {
+	let center = x+canvas.width/12;
+
+	this.ctx.save();
+	this.ctx.strokeStyle = "#000000"
+	this.ctx.lineWidth = 2;
+	this.ctx.strokeRect(center,canvas.height/2.8,2,canvas.height/14)
+	this.ctx.stroke();
+	this.ctx.restore();
+
 	this.ctx.save();
 	this.ctx.textAlign = "center"
 	this.ctx.font = this.width/25 + 'px Monaco';
 	this.ctx.lineWidth = 4;
-	this.ctx.strokeStyle = "000000"
-	this.ctx.strokeText(speech,x,canvas.height/(3))
+	this.ctx.strokeStyle = "#000000"
+	this.ctx.strokeText(speech,center,canvas.height/3)
 	this.ctx.fillStyle = "#ffffff"
-	this.ctx.fillText(speech,x,canvas.height/(3))
+	this.ctx.fillText(speech,center,canvas.height/3)
 	this.ctx.restore();
+
+
+	
 
 	// this.ctx.moveTo(x,canvas.height/3+10)
 	// this.ctx.lineTo(x,(canvas.height/3)+10)
