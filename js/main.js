@@ -175,7 +175,8 @@ function Player (x,y,direction,talk) {
     this.reply_select = 0;
     this.chosen_reply = false;
     this.AI_focus = false;
-    this.conversation_point = "greeting";
+    this.time_conversation = "blackout";
+    this.conversation_point = "blackout";
     this.walk_speed = .006;
     this.being_spoken_to = false;
 };
@@ -267,12 +268,16 @@ Player.prototype.engage = function() {
 			this.AI_focus.speech_bubble = false;
 			this.AI_focus.direction = this.direction*-1;
 			this.AI_focus.seg = 0;
+			// reset for after convo exits back to explore mode
 			this.AI_focus.logic.act = "target_closest";
 			this.AI_focus.my_target = false;
 			this.being_spoken_to = false;
 			this.AI_focus.spoken_with_already.push(this);
-
+			// change player's conversation point to AI's
+			this.conversation_point = this.AI_focus.persona.conversation.topic;
+			// move to interact
 			if (gameState != state_CONVERSATION) this.interact(this.conversation_point, 0);
+			
 		}
 	}
 }
@@ -330,13 +335,15 @@ Player.prototype.reset = function(whatConvo) {
 		this.AI_focus.react(whatConvo);
 		controls.holding = false;
 		camera.dialogueBox = false;
+		if (this.conversation_point != this.time_conversation) this.conversation_point = this.time_conversation;
 		gameState = state_EXPLORE;
 	}
 	else {
 		controls.holding = false;
 		camera.dialogueBox = false;
-		gameState = state_EXPLORE;
+		if (this.conversation_point != this.time_conversation) this.conversation_point = this.time_conversation;
 		this.reply_select = 0;
+		gameState = state_EXPLORE;
 	}
 };
 
@@ -628,11 +635,14 @@ AI.prototype.go_to_location = function(dest_x,dest_y,endFacing) {
 
 AI.prototype.pace = function() {
 	if (!this.walking) this.walking;
-	if (time[1]%2==0) {
+	if (time[1]%3==0) {
 		this.walk(.003);
 	}
-	else {
+	else if (time[1]%4==0) {
 		this.walk(-.003);
+	}
+	else {
+		this.seg = 0;
 	}
 }
 
@@ -647,7 +657,7 @@ AI.prototype.waiting_to_talk = function() {
 AI.prototype.socialize = function() {
 	if (!this.my_target) this.logic.act = "target_closest";
 	if (this.my_target && Math.abs(this.x - this.my_target.x) > .1) this.engaged = false;
-	if (this.spoken_with_already.length >= AI_array.length && this.logic.act != "being_spoken_to") this.my_target=false, this.logic.purpose = "think";
+	if (this.spoken_with_already.length >= everyone_array.length-1 && this.logic.act != "being_spoken_to") this.my_target=false, this.logic.purpose = "think";
 	if (this.my_target && this.my_target != player) {
 		if ((this.my_target.logic.act != "speak" && this.my_target.logic.act != "being_spoken_to") && !this.engaged) this.logic.act = "find_target";
 		if (this.my_target.engaged && !this.engaged) this.logic.act = "waiting_to_talk";
@@ -664,7 +674,7 @@ AI.prototype.socialize = function() {
 AI.prototype.think = function() {
 	if(time[0]==0) this.time_count++;
 	if (this.logic.act == "being_spoken_to") this.time_count = 0, this.logic.purpose = "socialize";
-	if (this.spoken_with_already.length >= AI_array.length-1 && this.persona.conversation.topic == "greeting" && this.time_count >= 3) {
+	if (this.spoken_with_already.length >= everyone_array.length-1 && this.persona.conversation.topic == "greeting" && this.time_count >= 5) {
 		this.time_count=0;
 		this.spoken_with_already = [];
 		this.persona.conversation.topic = "introduce";
