@@ -374,6 +374,7 @@ function AI (x,y,direction,texture,persona,logic,suspicion) {
     this.walking = true;
     this.alive = true;
     this.fleeing = false;
+    this.random = Math.floor(Math.random()*10);
 }
 
 // ######### PHYSICAL ACTIONS ##############
@@ -635,10 +636,10 @@ AI.prototype.go_to_location = function(dest_x,dest_y,endFacing) {
 
 AI.prototype.pace = function() {
 	if (!this.walking) this.walking;
-	if (time[1]%3==0) {
+	if ((time[1]+this.random)%3==0) {
 		this.walk(.003);
 	}
-	else if (time[1]%4==0) {
+	else if ((time[1]+this.random)%4==0 || (time[1]+this.random)%5==0) {
 		this.walk(-.003);
 	}
 	else {
@@ -653,11 +654,20 @@ AI.prototype.waiting_to_talk = function() {
 
 }
 
+AI.prototype.available_conversation_partners = function() {
+
+	for (var i=0;i<everyone_array.length;i++) {
+		if (everyone_array[i] != this && this.spoken_with_already.indexOf(everyone_array[i]) == -1) return true;
+		
+	}
+	return false;
+}
+
 // ####### PURPOSES ########
 AI.prototype.socialize = function() {
 	if (!this.my_target) this.logic.act = "target_closest";
 	if (this.my_target && Math.abs(this.x - this.my_target.x) > .1) this.engaged = false;
-	if (this.spoken_with_already.length >= everyone_array.length-1 && this.logic.act != "being_spoken_to") this.my_target=false, this.logic.purpose = "think";
+	if (this.available_conversation_partners() == false && this.logic.act != "being_spoken_to") this.my_target=false, this.logic.purpose = "think";
 	if (this.my_target && this.my_target != player) {
 		if ((this.my_target.logic.act != "speak" && this.my_target.logic.act != "being_spoken_to") && !this.engaged) this.logic.act = "find_target";
 		if (this.my_target.engaged && !this.engaged) this.logic.act = "waiting_to_talk";
@@ -674,7 +684,7 @@ AI.prototype.socialize = function() {
 AI.prototype.think = function() {
 	if(time[0]==0) this.time_count++;
 	if (this.logic.act == "being_spoken_to") this.time_count = 0, this.logic.purpose = "socialize";
-	if (this.spoken_with_already.length >= everyone_array.length-1 && this.persona.conversation.topic == "greeting" && this.time_count >= 5) {
+	if (this.available_conversation_partners() == false && this.persona.conversation.topic == "greeting" && this.time_count >= 5) {
 		this.time_count=0;
 		this.spoken_with_already = [];
 		this.persona.conversation.topic = "introduce";
