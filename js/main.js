@@ -460,6 +460,14 @@ AI.prototype.target_closest = function() {
 				this.my_target = everyone_array[i];
 			}
 		}
+		else if (everyone_array[i] != this && (everyone_array[i].y==this.y+1 || everyone_array[i].y==this.y-1) && ((this.spoken_with_already.indexOf(everyone_array[i]) == -1 && this.logic.purpose == "socialize") || this.logic.purpose != "socialize")) {
+			if (!this.my_target) {
+				this.my_target = everyone_array[i];
+			}
+			else if (this.my_target.y != this.y && Math.abs(this.x - this.my_target.x)>(Math.abs(this.x - everyone_array[i].x))+.2) {
+				this.my_target = everyone_array[i];
+			}
+		}
 		else {
 			this.seg = 0;
 		}
@@ -636,10 +644,10 @@ AI.prototype.go_to_location = function(dest_x,dest_y,endFacing) {
 
 AI.prototype.pace = function() {
 	if (!this.walking) this.walking;
-	if ((time[1]+this.random)%3==0) {
+	if ((time[1]+this.random)%6==0) {
 		this.walk(.003);
 	}
-	else if ((time[1]+this.random)%4==0 || (time[1]+this.random)%5==0) {
+	else if ((time[1]+this.random)%10==0 || (time[1]+this.random)%11==0) {
 		this.walk(-.003);
 	}
 	else {
@@ -665,9 +673,9 @@ AI.prototype.available_conversation_partners = function() {
 
 // ####### PURPOSES ########
 AI.prototype.socialize = function() {
+	if (this.available_conversation_partners() == false && this.logic.act != "being_spoken_to") this.my_target=false, this.logic.purpose = "think";
 	if (!this.my_target) this.logic.act = "target_closest";
 	if (this.my_target && Math.abs(this.x - this.my_target.x) > .1) this.engaged = false;
-	if (this.available_conversation_partners() == false && this.logic.act != "being_spoken_to") this.my_target=false, this.logic.purpose = "think";
 	if (this.my_target && this.my_target != player) {
 		if ((this.my_target.logic.act != "speak" && this.my_target.logic.act != "being_spoken_to") && !this.engaged) this.logic.act = "find_target";
 		if (this.my_target.engaged && !this.engaged) this.logic.act = "waiting_to_talk";
