@@ -655,10 +655,10 @@ AI.prototype.waiting_to_talk = function() {
 }
 
 AI.prototype.available_conversation_partners = function() {
-
+	// this function takes up a decent amount of memory. Is there a more memory-efficient way to pull this off?
+	// Maybe run this once after leaving a conversation.
 	for (var i=0;i<everyone_array.length;i++) {
 		if (everyone_array[i] != this && this.spoken_with_already.indexOf(everyone_array[i]) == -1) return true;
-		
 	}
 	return false;
 }
@@ -682,9 +682,10 @@ AI.prototype.socialize = function() {
 };
 
 AI.prototype.think = function() {
+	if(this.engaged) this.engaged = false;
 	if(time[0]==0) this.time_count++;
 	if (this.logic.act == "being_spoken_to") this.time_count = 0, this.logic.purpose = "socialize";
-	if (this.available_conversation_partners() == false && this.persona.conversation.topic == "greeting" && this.time_count >= 5) {
+	if (this.available_conversation_partners() == false && this.persona.conversation.topic == "greeting" && this.time_count >= 3+this.random) {
 		this.time_count=0;
 		this.spoken_with_already = [];
 		this.persona.conversation.topic = "introduce";
