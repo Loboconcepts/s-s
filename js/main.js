@@ -181,6 +181,7 @@ function Player (x,y,direction,talk) {
     this.conversation_point = "blackout";
     this.walk_speed = .006;
     this.being_spoken_to = false;
+    this.alive = true;
 };
 
 Player.prototype.update = function(con, word_speed) {
@@ -542,13 +543,14 @@ AI.prototype.hunt = function() {
 
 AI.prototype.stand = function() {
 	// find out if this AI is standing on top of another AI
-	for (i=0;i<AI_array.length;i++) {
-		if (this.y == AI_array[i].y) {
-			if (Math.floor(this.x*100) == Math.floor(AI_array[i].x*100)) {
+	this.seg = 0;
+	// for (i=0;i<AI_array.length;i++) {
+	// 	if (this.y == AI_array[i].y) {
+	// 		if (Math.floor(this.x*100) == Math.floor(AI_array[i].x*100)) {
 				
-			}
-		}
-	}
+	// 		}
+	// 	}
+	// }
 
 	// first get x locations of all AI on the same y floor
 
@@ -577,6 +579,7 @@ AI.prototype.being_spoken_to = function() {
 
 		this.walking = true;
 		this.engaged = false;
+		if (this.my_target.persona.genre != "GUEST") this.suspicion += 1;
 		this.my_target = false;
 
 	}
@@ -585,35 +588,42 @@ AI.prototype.being_spoken_to = function() {
 
 // Need to make player conversation_point switch temporarily to AI's when player is engaged by AI.
 AI.prototype.speak = function() {
-	if (!this.my_target || !this.my_target.alive) this.logic.act = "target_closest";
-	if (this.my_target!=player && this.my_target.logic.act != "being_spoken_to") this.my_target.time_count = 0, this.my_target.logic.act = "being_spoken_to";
-	if (this.my_target==player && Math.abs(this.x-player.x)<=.1) this.my_target.being_spoken_to = true;
-	if (this.my_target==player && Math.abs(this.x-player.x)>.1) this.my_target.being_spoken_to = false;
-	if (this.x<this.my_target.x) this.my_target.direction = -1;
-	if (this.x>this.my_target.x) this.my_target.direction = 1;
-	if (this.my_target!=player && this.my_target.my_target != this) this.my_target.my_target = this;
-
-	if(time[0]==0) this.time_count++;
-	// whoever initiates talks first for two seconds
-	if (this.time_count<=2) {
-		this.speech_bubble = this.persona.conversation[this.persona.conversation.topic][0];
-	}
-	else if (this.time_count>2 && this.time_count<=4) {
-		this.speech_bubble = false;
+	if (!this.my_target || !this.my_target.alive) {
+		this.my_target = false;
+		this.logic.act = "target_closest";	
 	}
 	else {
-		if (this.my_target==player) this.my_target.being_spoken_to = false;
-		this.time_count = 0;
-		// resets socialize
-		this.spoken_with_already.push(this.my_target);
-		if (this.my_target!=player) this.my_target.spoken_with_already.push(this);
-		
-		this.engaged = false;
-		this.my_target = false;
-		this.logic.purpose = "think";
+		if (this.my_target!=player && this.my_target.logic.act != "being_spoken_to") this.my_target.time_count = 0, this.my_target.logic.act = "being_spoken_to";
+		if (this.my_target==player && Math.abs(this.x-player.x)<=.1) this.my_target.being_spoken_to = true;
+		if (this.my_target==player && Math.abs(this.x-player.x)>.1) this.my_target.being_spoken_to = false;
+		if (this.x<this.my_target.x) this.my_target.direction = -1;
+		if (this.x>this.my_target.x) this.my_target.direction = 1;
+		if (this.my_target!=player && this.my_target.my_target != this) this.my_target.my_target = this;
 
+		if(time[0]==0) this.time_count++;
+		// whoever initiates talks first for two seconds
+		if (this.time_count<=2) {
+			this.speech_bubble = this.persona.conversation[this.persona.conversation.topic][0];
+		}
+		else if (this.time_count>2 && this.time_count<=4) {
+			this.speech_bubble = false;
+		}
+		else {
+			if (this.my_target==player) this.my_target.being_spoken_to = false;
+			this.time_count = 0;
+			// resets socialize
+			this.spoken_with_already.push(this.my_target);
+			if (this.my_target!=player) this.my_target.spoken_with_already.push(this);
+			
+			this.engaged = false;
+			if (this.my_target != player && this.my_target.persona.genre != "GUEST") this.suspicion += 1;
+			this.my_target = false;
+			this.logic.purpose = "think";
+
+		}
+		if (this.my_target == player && player.AI_focus == this) this.speech_bubble = false;
 	}
-	if (this.my_target == player && player.AI_focus == this) this.speech_bubble = false;
+	
 };
 
 // Take player.reply_select after player.chosen_reply = true and perform an action with it.
@@ -688,6 +698,7 @@ AI.prototype.available_conversation_partners = function() {
 // ####### PURPOSES ########
 AI.prototype.socialize = function() {
 	if (this.available_conversation_partners() == false && this.logic.act != "being_spoken_to") this.my_target=false, this.logic.purpose = "think";
+	if (this.suspicion > 2 && this.logic.act != "being_spoken_to") this.my_target=false, this.logic.purpose = "think";
 	if (!this.my_target) this.logic.act = "target_closest";
 	if (this.my_target && Math.abs(this.x - this.my_target.x) > .1) this.engaged = false;
 	if (this.my_target && this.my_target != player) {
@@ -706,8 +717,8 @@ AI.prototype.think = function() {
 	if(this.engaged) this.engaged = false;
 	if(time[0]==0) this.time_count++;
 	if (this.logic.act == "being_spoken_to") this.time_count = 0, this.logic.purpose = "socialize";
-	if (this.available_conversation_partners() == true && this.time_count >= 3+this.random) this.time_count=0, this.logic.purpose = "socialize";
-	if (this.available_conversation_partners() == false && this.persona.conversation.topic == "greeting" && this.time_count >= 3+this.random) {
+	if (this.available_conversation_partners() == true && this.time_count >= 3+this.random && this.suspicion < 3) this.time_count=0, this.logic.purpose = "socialize";
+	if (this.available_conversation_partners() == false && this.persona.conversation.topic == "greeting" && this.time_count >= 3+this.random && this.suspicion < 3) {
 		this.time_count=0;
 		this.spoken_with_already = [];
 		this.persona.conversation.topic = "introduce";

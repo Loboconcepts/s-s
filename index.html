@@ -37,7 +37,7 @@
 		var player = new Player(3.5,2,1,{
 			greeting: ["Good", "Bad"],
 			introduce: ["REAL NAME", "FAKE NAME"],
-			blackout: ["I don't know", "That seems suspicious"],
+			blackout: ["I don't know", "That was suspicious"],
 
 		});
 		var camera = new Camera(canvas);
@@ -73,7 +73,7 @@
 				},false]
 			}
 			
-		},{purpose:"socialize", act:"socialize"},0);
+		},{purpose:"think", act:"stand"},0);
 
 		var dogingo_dogergie = new AI(2.3,1,1,new Bitmap('./assets/walking-guy.png',2000,800),{
 			full_name: "Dogingo Dogerie",
@@ -94,33 +94,54 @@
 				},false]
 			}
 			
-		},{purpose:"socialize", act:"socialize"},0);
+		},{purpose:"think", act:"stand"},0);
 
-		var sunwell_sunflower = new AI(2.5,2,1,new Bitmap('./assets/walking-guy.png',2000,800),{
-			full_name: "Sunwell Sunflower",
-			genre: "MURDERER",
+		var fransesca_flamenco = new AI(4.8,1,1,new Bitmap('./assets/walking-guy.png',2000,800),{
+			full_name: "Fransesca Flamenco",
+			genre: "GUEST",
 			conversation: {
 				topic : "greeting",
-				greeting: ["Howdy partner. How ya doing?",
-					{
+				greeting: ["Howdy partner. How ya doing?",{
 						0: "Cool!",
 						1: "Bummer."
-					},
-				false],
-				introduce : ["Hi. I'm Sunwell!", 
-					{
+					},false],
+				introduce : ["Hi. I'm Fransesca!", {
 						0: "Nice to meet you.",
 						1: "Nice to meet you."
-					},
-				false],
+					},false],
 				blackout : ["What was that?", {
 					0: "",
 					1: ""
 				},false]
 			}
-		},{purpose:"socialize", act:"socialize"},0);
+			
+		},{purpose:"think", act:"stand"},0);
 
-		var perry_periscope = new AI(4.3,3,1,new Bitmap('./assets/walking-guy.png',2000,800),{
+		var sunwell_sunflower = new AI(2.5,1,1,new Bitmap('./assets/walking-guy.png',2000,800),{
+			full_name: "Sunwell Sunflower",
+			genre: "MURDERER",
+			conversation: {
+				topic : "greeting",
+				greeting: ["How does the rest of your life look?",
+					{
+						0: "Hmmm.",
+						1: "I can help with that."
+					},
+				false],
+				introduce : ["Sunwell. Leave me alone.", 
+					{
+						0: "Go away.",
+						1: "Go away."
+					},
+				false],
+				blackout : ["What do you want?", {
+					0: "",
+					1: ""
+				},false]
+			}
+		},{purpose:"think", act:"stand"},3);
+
+		var perry_periscope = new AI(4.3,1,1,new Bitmap('./assets/walking-guy.png',2000,800),{
 			full_name: "Perry Periscope",
 			genre: "AGENT",
 			conversation: {
@@ -142,12 +163,12 @@
 					1: ""
 				},false]
 			}
-		},{purpose:"socialize", act:"socialize"}
-		,0);
+		},{purpose:"think", act:"stand"}
+		,3);
 
 
-		var AI_array = [sunwell_sunflower,perry_periscope,cornelia_cornhowser,dogingo_dogergie];
-		var everyone_array = [player,sunwell_sunflower,perry_periscope,cornelia_cornhowser,dogingo_dogergie];
+		var AI_array = [sunwell_sunflower,perry_periscope,cornelia_cornhowser,dogingo_dogergie,fransesca_flamenco];
+		var everyone_array = [player,sunwell_sunflower,perry_periscope,cornelia_cornhowser,dogingo_dogergie,fransesca_flamenco];
 		// document.getElementById("controls").style.width = window.innerWidth + "px";
 		// document.getElementById("controls").style.height = window.innerHeight + "px";
 		// init();
