@@ -58,6 +58,8 @@ function TIME_EVENTS(player, camera, AI_array) {
     	for (var i=0;i<AI_array.length;i++) {
 			if (AI_array[i].persona.genre == "MURDERER") AI_array[i].logic.purpose = "murder";
 			else AI_array[i].logic.purpose = "think";
+			player.being_spoken_to = false;
+			player.AI_focus = false;
     		AI_array[i].engaged = false;
     		AI_array[i].my_target = false;
     	}
@@ -560,7 +562,12 @@ AI.prototype.being_spoken_to = function() {
 	if (this.time_count<=2) {
 	}
 	else if (this.time_count>2 && this.time_count<=4) {
-		this.speech_bubble = this.persona.conversation[this.my_target.persona.conversation.topic][0];
+		if (this.my_target) {
+			this.speech_bubble = this.persona.conversation[this.my_target.persona.conversation.topic][0];
+		}
+		else {
+			this.logic.purpose = "think";
+		}
 	}
 	else {
 		this.time_count = 0;
@@ -578,8 +585,8 @@ AI.prototype.being_spoken_to = function() {
 
 // Need to make player conversation_point switch temporarily to AI's when player is engaged by AI.
 AI.prototype.speak = function() {
-	if (!this.my_target) this.logic.act = "target_closest";
-	if (this.my_target!=player) this.my_target.logic.act = "being_spoken_to";
+	if (!this.my_target || !this.my_target.alive) this.logic.act = "target_closest";
+	if (this.my_target!=player && this.my_target.logic.act != "being_spoken_to") this.my_target.time_count = 0, this.my_target.logic.act = "being_spoken_to";
 	if (this.my_target==player && Math.abs(this.x-player.x)<=.1) this.my_target.being_spoken_to = true;
 	if (this.my_target==player && Math.abs(this.x-player.x)>.1) this.my_target.being_spoken_to = false;
 	if (this.x<this.my_target.x) this.my_target.direction = -1;
@@ -603,6 +610,7 @@ AI.prototype.speak = function() {
 		
 		this.engaged = false;
 		this.my_target = false;
+		this.logic.purpose = "think";
 
 	}
 	if (this.my_target == player && player.AI_focus == this) this.speech_bubble = false;
@@ -698,6 +706,7 @@ AI.prototype.think = function() {
 	if(this.engaged) this.engaged = false;
 	if(time[0]==0) this.time_count++;
 	if (this.logic.act == "being_spoken_to") this.time_count = 0, this.logic.purpose = "socialize";
+	if (this.available_conversation_partners() == true && this.time_count >= 3+this.random) this.time_count=0, this.logic.purpose = "socialize";
 	if (this.available_conversation_partners() == false && this.persona.conversation.topic == "greeting" && this.time_count >= 3+this.random) {
 		this.time_count=0;
 		this.spoken_with_already = [];
@@ -725,45 +734,11 @@ AI.prototype.catalyst = function(disposition) {
 // ######### UPDATE ##########
 
 AI.prototype.update = function(logic, pos_in_array) {
-	
 	if (!this.alive) console.log(this.persona.full_name + " is dead!"), AI_array.splice(pos_in_array,1);
 	if (time[0]==0) this.speech_bubble = false; // Reset function to make sure previous time activities don't overlap to next minute.
-	
 	this[logic.act]();
-
 	this[logic.purpose]();
-
-	
-
-
-
-	
-	
-
-	// if (logic == "shout") this.shout(pos_in_array);
-	// if (logic == "murder") this.murder();
-
-	// if (logic == "pace") this.pace();
-	// if (logic == "find player") this.my_target = player,this.find_target(this.my_target);
-	// if (logic == "find target") this.find_target(this.my_target);
-	// if (logic == "murder player") this.my_target = player,this.hunt(this.my_target);
-	// if (logic == "pace_shout") this.pace(), this.shout(pos_in_array);
-
-	// // to add - get map position number so specific coordinates don't have to be entered for specific locations
-	// if (logic == "dinner table") {
-	// 	if (Math.floor(this.x*100) == (3+(pos_in_array/10))*100 && this.y == 2) {
-	// 		if (pos_in_array < 4) {this.direction = 1;this.seg=0;}
-	// 		else {this.direction = -1;this.seg=0;};
-	// 		this.shout(pos_in_array);
-	// 	}
-	// 	else {
-	// 		this.go_to_location(3+(pos_in_array/10),2);
-	// 	}
-	// }
-	// if (logic == "front door") this.go_to_location(3+(pos_in_array/10),3);
 };
-
-
 
 
 // ################ CAMERA ################## //

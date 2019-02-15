@@ -73,6 +73,27 @@
 			
 		},{purpose:"socialize", act:"socialize"},0);
 
+		var dogingo_dogergie = new AI(2.3,1,1,new Bitmap('./assets/walking-guy.png',2000,800),{
+			full_name: "Dogingo Dogerie",
+			genre: "GUEST",
+			conversation: {
+				topic : "greeting",
+				greeting: ["Wazzup?",{
+					0: "Chill!",
+					1: "Weaksauce."
+				},false],
+				introduce : ["Me Nambre is Dogingo, yo.", {
+					0: "Nice to meet you.",
+					1: "Nice to meet you."
+				},false],
+				blackout : ["What was that?", {
+					0: "",
+					1: ""
+				},false]
+			}
+			
+		},{purpose:"socialize", act:"socialize"},0);
+
 		var sunwell_sunflower = new AI(2.5,2,1,new Bitmap('./assets/walking-guy.png',2000,800),{
 			full_name: "Sunwell Sunflower",
 			genre: "MURDERER",
@@ -123,8 +144,8 @@
 		,0);
 
 
-		var AI_array = [sunwell_sunflower,perry_periscope,cornelia_cornhowser];
-		var everyone_array = [player,sunwell_sunflower,perry_periscope,cornelia_cornhowser];
+		var AI_array = [sunwell_sunflower,perry_periscope,cornelia_cornhowser,dogingo_dogergie];
+		var everyone_array = [player,sunwell_sunflower,perry_periscope,cornelia_cornhowser,dogingo_dogergie];
 		// document.getElementById("controls").style.width = window.innerWidth + "px";
 		// document.getElementById("controls").style.height = window.innerHeight + "px";
 		// init();
