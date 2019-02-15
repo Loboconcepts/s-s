@@ -433,6 +433,14 @@ AI.prototype.find_target = function() {
 			if (this.engaged) this.engaged = false;
 			this.walk(-.005)
 		}
+		else if (this.x>=this.my_target.x && this.x<this.my_target.x+.05) {
+			if (this.engaged) this.engaged = false;
+			this.walk(.005)
+		}
+		else if (this.x<this.my_target.x && this.x>this.my_target.x-.05) {
+			if (this.engaged) this.engaged = false;
+			this.walk(-.005)
+		}
 		else {
 			if (this.x<this.my_target.x) this.direction = 1;
 			if (this.x>this.my_target.x) this.direction = -1;
@@ -446,7 +454,7 @@ AI.prototype.find_target = function() {
 AI.prototype.shout = function(array_position) {
 	if ((time[1]/2)%AI_array.length==array_position) this.speech_bubble = this.persona.conversation[this.persona.conversation.topic][0];
 	else this.speech_bubble = false;
-}
+};
 
 AI.prototype.target_closest = function() {
 	// loop through all AI
@@ -472,7 +480,7 @@ AI.prototype.target_closest = function() {
 			this.seg = 0;
 		}
 	}
-}
+};
 
 
 AI.prototype.no_witnesses = function(target) {
@@ -493,7 +501,7 @@ AI.prototype.no_witnesses = function(target) {
 		}
 	}
 	return true;
-}
+};
 
 AI.prototype.kill = function() {
 	var target = this.my_target;
@@ -528,7 +536,7 @@ AI.prototype.hunt = function() {
 	if (this.my_target.alive) {
 		this.find_target();
 	}	
-}
+};
 
 AI.prototype.stand = function() {
 	// find out if this AI is standing on top of another AI
@@ -544,7 +552,7 @@ AI.prototype.stand = function() {
 
 	// if this.x is greater than AI.x - canvas.width/6 or less than AI.x + canvas.width/6
 	// it needs to move until it is not
-}
+};
 
 AI.prototype.being_spoken_to = function() {
 	if(time[0]==0) this.time_count++;
@@ -565,7 +573,7 @@ AI.prototype.being_spoken_to = function() {
 		this.my_target = false;
 
 	}
-}
+};
 
 
 // Need to make player conversation_point switch temporarily to AI's when player is engaged by AI.
@@ -598,7 +606,7 @@ AI.prototype.speak = function() {
 
 	}
 	if (this.my_target == player && player.AI_focus == this) this.speech_bubble = false;
-}
+};
 
 // Take player.reply_select after player.chosen_reply = true and perform an action with it.
 AI.prototype.react = function(whatConvo) {
@@ -676,7 +684,7 @@ AI.prototype.socialize = function() {
 	if (this.my_target && Math.abs(this.x - this.my_target.x) > .1) this.engaged = false;
 	if (this.my_target && this.my_target != player) {
 		if ((this.my_target.logic.act != "speak" && this.my_target.logic.act != "being_spoken_to") && !this.engaged) this.logic.act = "find_target";
-		if (this.my_target.engaged) this.logic.act = "waiting_to_talk";
+		if (this.my_target.engaged && this.logic.act != "being_spoken_to") this.logic.act = "waiting_to_talk";
 		if (this.engaged && (this.my_target.logic.act != "speak" && this.my_target.logic.act != "being_spoken_to")) this.logic.act = "speak";
 	}
 	else if (this.my_target == player) {
