@@ -733,13 +733,8 @@ AI.prototype.murder = function() {
 	if (this.y == this.my_target.y && this.x > this.my_target.x-.1 && this.x < this.my_target.x+.1 && camera.viewHeight == 0) this.logic.act = "kill";
 }
 
-AI.prototype.catalyst = function(disposition) {
-	// loop through all AIs and player
-
-	// get this.personality
-
-	// make choice of action based on personality and disposition towards other characters based on other character personas
-
+AI.prototype.investigate = function() {
+	
 }
 
 // ######### UPDATE ##########
