@@ -653,14 +653,12 @@ AI.prototype.pace = function() {
 	else {
 		this.seg = 0;
 	}
-}
+};
 
 AI.prototype.waiting_to_talk = function() {
-	this.engaged = false;
 	if (this.my_target.x < this.x) this.walk(.003),direction = 1;
 	if (this.my_target.x > this.x) this.walk(-.003),direction = -1;
-
-}
+};
 
 AI.prototype.available_conversation_partners = function() {
 	// this function takes up a decent amount of memory. Is there a more memory-efficient way to pull this off?
@@ -669,7 +667,7 @@ AI.prototype.available_conversation_partners = function() {
 		if (everyone_array[i] != this && this.spoken_with_already.indexOf(everyone_array[i]) == -1) return true;
 	}
 	return false;
-}
+};
 
 // ####### PURPOSES ########
 AI.prototype.socialize = function() {
@@ -678,7 +676,7 @@ AI.prototype.socialize = function() {
 	if (this.my_target && Math.abs(this.x - this.my_target.x) > .1) this.engaged = false;
 	if (this.my_target && this.my_target != player) {
 		if ((this.my_target.logic.act != "speak" && this.my_target.logic.act != "being_spoken_to") && !this.engaged) this.logic.act = "find_target";
-		if (this.my_target.engaged && !this.engaged) this.logic.act = "waiting_to_talk";
+		if (this.my_target.engaged) this.logic.act = "waiting_to_talk";
 		if (this.engaged && (this.my_target.logic.act != "speak" && this.my_target.logic.act != "being_spoken_to")) this.logic.act = "speak";
 	}
 	else if (this.my_target == player) {
@@ -686,7 +684,6 @@ AI.prototype.socialize = function() {
 		if (this.my_target.being_spoken_to) this.logic.act = "waiting_to_talk";
 		if (this.engaged) this.logic.act = "speak";
 	}
-	
 };
 
 AI.prototype.think = function() {
