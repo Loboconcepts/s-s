@@ -485,6 +485,26 @@ AI.prototype.target_closest = function() {
 	}
 };
 
+AI.prototype.target_suspicion = function() {
+	if (this.suspicion < 2) {
+		for (var i = 0;i<AI_array.length;i++) {
+			if (AI_array[i].persona.genre == "GUEST") return this.my_target = AI_array[i];
+		}
+	}
+	else {
+		let target_with_highest_suspicion;
+		for (var i = 0;i<AI_array.length;i++) {
+			if (AI_array[i].persona.genre == "GUEST" && !target_with_highest_suspicion) {
+				target_with_highest_suspicion = AI_array[i];
+			}
+			else if (AI_array[i].persona.genre == "GUEST" && AI_array[i].suspicion > target_with_highest_suspicion.suspicion) {
+				target_with_highest_suspicion = AI_array[i];
+			}
+		}
+		return this.my_target = target_with_highest_suspicion;
+	};
+};
+
 
 AI.prototype.no_witnesses = function(target) {
 	// loop through array
@@ -728,13 +748,13 @@ AI.prototype.think = function() {
 }
 
 AI.prototype.murder = function() {
-	if (!this.my_target) for (var i = 0;i<AI_array.length;i++) if (AI_array[i].persona.genre == "GUEST") return this.my_target = AI_array[i];
+	if (!this.my_target) this.logic.act = "target_suspicion";
 	if (this.my_target.alive) this.logic.act = "hunt";
 	if (this.y == this.my_target.y && this.x > this.my_target.x-.1 && this.x < this.my_target.x+.1 && camera.viewHeight == 0) this.logic.act = "kill";
 }
 
 AI.prototype.investigate = function() {
-	
+
 }
 
 // ######### UPDATE ##########
