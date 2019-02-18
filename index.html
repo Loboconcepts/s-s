@@ -21,7 +21,7 @@
 </head>
 <body>
 	<canvas id="game"></canvas>
-	<button onclick="clearInterval(run)">STOP</button>
+	<button onclick="FPS = .0001">STOP</button>
 	<div style="font-size:10px;" id="purpose_actions"></div>
 	<script src="js/main.js"></script>
 	
@@ -95,7 +95,7 @@
 			}
 			
 		},{purpose:"think", act:"stand"},0);
-
+ 
 		var fransesca_flamenco = new AI(4.8,1,1,new Bitmap('./assets/walking-guy.png',2000,800),{
 			full_name: "Fransesca Flamenco",
 			genre: "GUEST",
@@ -139,7 +139,7 @@
 					1: ""
 				},false]
 			}
-		},{purpose:"think", act:"stand"},3);
+		},{purpose:"think", act:"stand"},4);
 
 		var perry_periscope = new AI(4.3,1,1,new Bitmap('./assets/walking-guy.png',2000,800),{
 			full_name: "Perry Periscope",
@@ -186,6 +186,20 @@
 			}
 			document.getElementById("purpose_actions").innerHTML = "<table><tr><td><strong>Character</strong></td><td><strong>Purpose</strong></td><td><strong>Action</strong></td></tr>"+report.join(" ")+"</table><br>Time: "+ time.join(" : ");
 		}
+
+		function load() {
+			console.log("loading")
+			for (var i =0;i<mansion.texture.length;i++) {
+				if (mansion.texture[i].image.complete) counter++;
+			}
+			if (counter >= mansion.texture.length) {
+				init();	
+			}
+			else {
+				window.setTimeout(load,500)
+			}
+		}
+		load();
 		
 
 	</script>

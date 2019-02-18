@@ -3,28 +3,33 @@ var canvas = document.getElementById("game");
 var state_EXPLORE = 0;
 var state_CONVERSATION = 1;
 var state_PAUSED = 2;
+var state_GAMEOVER = 3;
 var gameState = state_EXPLORE;
-var time = [0,0,0];
+var time = [0,28,1];
 function time_keeper() {
 	time[0]++;
 	if (time[0]>=FPS) time[1]++,time[0]=0;
 	if (time[1]>=60) time[2]++,time[1]=0;
 };
+var counter = 0;
 
 
-var run = setInterval(function() {
-	logic();
+// var run = setInterval(function() {
+// 	logic();
 
-}, 1000/FPS);
+// }, 1000/FPS);
 
 
 
-function logic() {
+function init() {
 	if (gameState == state_EXPLORE) logic_EXPLORE();
 	if (gameState == state_CONVERSATION) logic_CONVERSATION();
 	if (gameState == state_PAUSED) logic_PAUSED();
+	if (gameState == state_GAMEOVER) logic_GAMEOVER();
 
 	show_characters_logic();
+
+	window.setTimeout(init, 1000/FPS);
 
 }
 
@@ -34,9 +39,6 @@ function logic_EXPLORE() {
 	for (var i=0;i<AI_array.length;i++) AI_array[i].update(AI_array[i].logic, i);
 	player.update(controls.states);
 	camera.render_EXPLORE(player,mansion);
-	
-
-	
 
 };
 
@@ -44,12 +46,29 @@ function logic_PAUSED() {
 	camera.ctx.font = camera.width/12 + 'px Monaco';
 	camera.ctx.fillStyle = "#ff0000";
 	camera.ctx.fillText('PAUSE',camera.width/2-camera.width/6,camera.height/2);
+	FPS = 1;
 };
 
 function logic_CONVERSATION() {
 	player.update(controls.states, camera.text_speed);
 	
 	camera.render_CONVERSATION();
+};
+
+function logic_GAMEOVER() {
+	if (FPS != 10) FPS--;
+	camera.ctx.globalCompositeOperation = 'source-over';
+	camera.ctx.save();
+	
+	camera.ctx.fillStyle = "rgba(0,0,0,.05)"
+	camera.ctx.fillRect(0,0,camera.width,camera.height);
+	camera.ctx.restore();
+	camera.ctx.save();
+	camera.ctx.font = camera.width/12 + 'px Monaco';
+	camera.ctx.textAlign = "center"
+	camera.ctx.fillStyle = "rgba(255,150,150,.05)"
+	camera.ctx.fillText('GAME OVER',camera.width/2,camera.height/2);
+	
 }
 
 function TIME_EVENTS(player, camera, AI_array) {
@@ -177,20 +196,16 @@ function Player (x,y,direction,talk) {
     this.reply_select = 0;
     this.chosen_reply = false;
     this.AI_focus = false;
-    this.time_conversation = "blackout";
-    this.conversation_point = "blackout";
+    this.time_conversation = "greeting";
+    this.conversation_point = "greeting";
     this.walk_speed = .006;
     this.being_spoken_to = false;
     this.alive = true;
 };
 
 Player.prototype.update = function(con, word_speed) {
-	// ################# PLAYER CONTROLS #################### //
-	// ################# PLAYER CONTROLS #################### //
-	// ################# PLAYER CONTROLS #################### //
-	// ################# PLAYER CONTROLS #################### //
-	// ################# PLAYER CONTROLS #################### //
-	// ################# PLAYER CONTROLS #################### //
+	if (!this.alive) gameState = state_GAMEOVER;
+
 	if (gameState == state_EXPLORE) {
 		if (con.right) this.walk(this.walk_speed),this.direction=1;
 	    if (con.left) this.walk(-this.walk_speed),this.direction=-1;
@@ -494,14 +509,20 @@ AI.prototype.target_suspicion = function() {
 	else {
 		let target_with_highest_suspicion;
 		for (var i = 0;i<AI_array.length;i++) {
-			if (AI_array[i].persona.genre == "GUEST" && !target_with_highest_suspicion) {
+			if (!target_with_highest_suspicion) {
 				target_with_highest_suspicion = AI_array[i];
 			}
-			else if (AI_array[i].persona.genre == "GUEST" && AI_array[i].suspicion > target_with_highest_suspicion.suspicion) {
+			else if (AI_array[i].suspicion > target_with_highest_suspicion.suspicion) {
 				target_with_highest_suspicion = AI_array[i];
 			}
 		}
-		return this.my_target = target_with_highest_suspicion;
+		if (target_with_highest_suspicion == this) {
+			return this.my_target = player;
+		}
+		else {
+			return this.my_target = target_with_highest_suspicion;
+		}
+
 	};
 };
 
@@ -532,25 +553,25 @@ AI.prototype.kill = function() {
 	if (camera.darkness == false) {
 		if (this.no_witnesses == true) {
 			// if the player is being murdered
-			if (target == player && target.x < mansion.length-.5 && target.x > mansion.length-.5) camera.camera_lock = true;
+			if (target == player && Math.abs(this.x-target.x)%1<.3 && !camera.camera_lock) camera.camera_lock = true, player.walk_speed = 0;
 			//MURDER
-			if (this.x > target.x && target.x%1 > .45 && target.x%1 < .46) target.walk_speed = 0;
-			if (this.x < target.x && target.x%1 > .55 && target.x%1 < .56) target.walk_speed = 0;
 			target.alive = false;
+			this.fleeing = true;
+			this.logic.purpose = "think";
 		}
 		else {
 			camera.camera_lock = false;
 			camera.darkness = false;
 			target.walk_speed = player.walk_speed;
+			this.logic.purpose = "think";
 		}		
 	}
 	else {
-		if (this.x > target.x && target.x%1 > .45 && target.x%1 < .46) target.walk_speed = 0;
-		if (this.x < target.x && target.x%1 > .55 && target.x%1 < .56) target.walk_speed = 0;
+		if (target == player && Math.abs(this.x-target.x)%1<.3 && !camera.camera_lock) camera.camera_lock = true, player.walk_speed = 0;
 		target.alive = false;
 		this.my_target = false;
 		this.fleeing = true;
-		this.logic.purpose = "think"
+		this.logic.purpose = "think";
 	}
 		
 }
