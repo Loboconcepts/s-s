@@ -5,7 +5,7 @@ var state_CONVERSATION = 1;
 var state_PAUSED = 2;
 var state_GAMEOVER = 3;
 var gameState = state_EXPLORE;
-var time = [0,0,0];
+var time = [0,28,1];
 function time_keeper() {
 	time[0]++;
 	if (time[0]>=FPS) time[1]++,time[0]=0;
@@ -76,17 +76,20 @@ function TIME_EVENTS(player, camera, AI_array) {
     if (time[2]==1 && time[1]==30 && time[0]==0) {
     	camera.darkness = true;
     	for (var i=0;i<AI_array.length;i++) {
-			if (AI_array[i].persona.genre == "MURDERER") AI_array[i].logic.purpose = "murder";
-			else AI_array[i].logic.purpose = "think";
-			player.being_spoken_to = false;
+    		player.being_spoken_to = false;
 			player.AI_focus = false;
     		AI_array[i].engaged = false;
     		AI_array[i].my_target = false;
+			if (AI_array[i].persona.genre == "MURDERER") AI_array[i].logic.purpose = "murder";
+			else AI_array[i].logic.purpose = "survival";
+			
+    		
     	}
     }
     if (time[2]==1 && time[1]>40) {
     	camera.darkness = false;
-    	for (var i=0;i<AI_array.length;i++) AI_array[i].spoken_with_already = [], player.conversation_point = "blackout"
+    	player.conversation_point = "blackout";
+    	for (var i=0;i<AI_array.length;i++) AI_array[i].spoken_with_already = [], AI_array[i].persona.conversation.topic = "blackout", AI_array[i].logic.purpose = "think";
     };
 
     
@@ -765,20 +768,25 @@ AI.prototype.think = function() {
 	if(this.engaged) this.engaged = false;
 	if(time[0]==0) this.time_count++;
 	if (this.logic.act == "being_spoken_to") this.time_count = 0, this.logic.purpose = "socialize";
-	if (this.available_conversation_partners() == true && this.time_count >= 3+this.random && this.suspicion < 3) this.time_count=0, this.logic.purpose = "socialize";
-	if (this.available_conversation_partners() == false && this.persona.conversation.topic == "greeting" && this.time_count >= 3+this.random && this.suspicion < 3) {
+	if (this.available_conversation_partners() == true && this.time_count >= 3+this.random && this.suspicion < 3 && !this.fleeing) this.time_count=0, this.logic.purpose = "socialize";
+	if (this.available_conversation_partners() == false && this.persona.conversation.topic == "greeting" && this.time_count >= 3+this.random && this.suspicion < 3 && !this.fleeing) {
 		this.time_count=0;
 		this.spoken_with_already = [];
 		this.persona.conversation.topic = "introduce";
 		this.logic.purpose = "socialize";
 	}
 	else if (this.logic.act != "being_spoken_to") this.logic.act = "pace";
-}
+};
 
 AI.prototype.murder = function() {
 	if (!this.my_target) this.logic.act = "target_suspicion";
 	if (this.my_target.alive) this.logic.act = "hunt";
 	if (this.y == this.my_target.y && this.x > this.my_target.x-.1 && this.x < this.my_target.x+.1 && camera.viewHeight == 0) this.logic.act = "kill";
+};
+
+AI.prototype.survival = function() {
+	this.fleeing = true;
+	this.logic.act = "pace";
 }
 
 AI.prototype.investigate = function() {
