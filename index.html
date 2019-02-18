@@ -168,9 +168,8 @@
 
 		var AI_array = [sunwell_sunflower,perry_periscope,cornelia_cornhowser,dogingo_dogergie,fransesca_flamenco];
 		var everyone_array = [player,sunwell_sunflower,perry_periscope,cornelia_cornhowser,dogingo_dogergie,fransesca_flamenco];
-		// document.getElementById("controls").style.width = window.innerWidth + "px";
-		// document.getElementById("controls").style.height = window.innerHeight + "px";
-		// init();
+		
+		
 		// window.addEventListener("blur",function(ev) {if(gameState == state_EXPLORE)gameState = state_PAUSED}, true);
 		// window.addEventListener("focus",function(ev) {if(gameState == state_PAUSED)gameState = state_EXPLORE}, true);
 
@@ -196,10 +195,17 @@
 				if (mansion.texture[i].image.complete) counter++;
 			}
 			if (counter >= mansion.texture.length) {
-				init();	
+				init();
 			}
 			else {
+				for (var i = 0; i<=counter;i++) {
+					camera.ctx.save();
+					camera.ctx.fillStyle = "rgba(250,250,250,1)"
+					camera.ctx.fillRect(20+(i*20),camera.height/2,20,20);
+					camera.ctx.restore();
+				}
 				counter = 0;
+				
 				window.setTimeout(load,500)
 			}
 		}
