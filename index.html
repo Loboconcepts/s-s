@@ -21,7 +21,7 @@
 </head>
 <body>
 	<canvas id="game"></canvas>
-	<button onclick="FPS = .0001">STOP</button>
+	<button onclick="window.clearTimeout(go)">STOP</button>
 	<div style="font-size:10px;" id="purpose_actions"></div>
 	<script src="js/main.js"></script>
 	
@@ -139,7 +139,7 @@
 					1: ""
 				},false]
 			}
-		},{purpose:"think", act:"stand"},4);
+		},{purpose:"think", act:"stand"},1);
 
 		var perry_periscope = new AI(4.3,1,1,new Bitmap('./assets/walking-guy.png',2000,800),{
 			full_name: "Perry Periscope",
@@ -163,8 +163,7 @@
 					1: ""
 				},false]
 			}
-		},{purpose:"think", act:"stand"}
-		,3);
+		},{purpose:"think", act:"stand"},1);
 
 
 		var AI_array = [sunwell_sunflower,perry_periscope,cornelia_cornhowser,dogingo_dogergie,fransesca_flamenco];
@@ -188,6 +187,10 @@
 		}
 
 		function load() {
+			camera.ctx.save();
+			camera.ctx.fillStyle = "rgba(0,0,0,1)"
+			camera.ctx.fillRect(0,0,camera.width,camera.height);
+			camera.ctx.restore();
 			console.log("loading")
 			for (var i =0;i<mansion.texture.length;i++) {
 				if (mansion.texture[i].image.complete) counter++;

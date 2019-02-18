@@ -5,13 +5,14 @@ var state_CONVERSATION = 1;
 var state_PAUSED = 2;
 var state_GAMEOVER = 3;
 var gameState = state_EXPLORE;
-var time = [0,28,1];
+var time = [0,0,0];
 function time_keeper() {
 	time[0]++;
 	if (time[0]>=FPS) time[1]++,time[0]=0;
 	if (time[1]>=60) time[2]++,time[1]=0;
 };
 var counter = 0;
+var go; // this is temporary for dev purposes. Gamer will use pause to pause game. 
 
 
 // var run = setInterval(function() {
@@ -29,7 +30,7 @@ function init() {
 
 	show_characters_logic();
 
-	window.setTimeout(init, 1000/FPS);
+	go = window.setTimeout(init, 1000/FPS); // this does not need variable attached. Go is strictly for dev purposes.
 
 }
 
@@ -520,9 +521,15 @@ AI.prototype.target_suspicion = function() {
 			return this.my_target = player;
 		}
 		else {
-			return this.my_target = target_with_highest_suspicion;
+			if (target_with_highest_suspicion.persona.genre != "GUEST") {
+				for (var i = 0;i<AI_array.length;i++) {
+					return this.my_target = AI_array[i];
+				}
+			}
+			else {
+				return this.my_target = target_with_highest_suspicion;	
+			}
 		}
-
 	};
 };
 
