@@ -191,7 +191,7 @@
 			camera.ctx.fillStyle = "rgba(0,0,0,1)"
 			camera.ctx.fillRect(0,0,camera.width,camera.height);
 			camera.ctx.restore();
-			console.log("loading")
+			console.log("loading");
 			for (var i =0;i<mansion.texture.length;i++) {
 				if (mansion.texture[i].image.complete) counter++;
 			}
@@ -199,6 +199,7 @@
 				init();	
 			}
 			else {
+				counter = 0;
 				window.setTimeout(load,500)
 			}
 		}
