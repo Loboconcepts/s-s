@@ -185,31 +185,78 @@
 			document.getElementById("purpose_actions").innerHTML = "<table><tr><td><strong>Character</strong></td><td><strong>Purpose</strong></td><td><strong>Action</strong></td></tr>"+report.join(" ")+"</table><br>Time: "+ time.join(" : ");
 		}
 
-		function load() {
+		var start = new Start()
+
+		function Start() {
+			this.counter = 0
+			this.mansion_assets = false;
+			this.ai_assets = false;
+			this.player_assets = false;
+		}
+
+		Start.prototype.load = function() {
 			camera.ctx.save();
 			camera.ctx.fillStyle = "rgba(0,0,0,1)"
 			camera.ctx.fillRect(0,0,camera.width,camera.height);
 			camera.ctx.restore();
-			console.log("loading");
-			for (var i =0;i<mansion.texture.length;i++) {
-				if (mansion.texture[i].image.complete) counter++;
+
+			if (!this.mansion_assets) {
+				for (var i =0;i<mansion.texture.length;i++) {
+					if (mansion.texture[i].image.complete) counter++;
+				}
+				if (this.counter >= mansion.texture.length) {
+					this.mansion_assets = true;
+				}
 			}
-			if (counter >= mansion.texture.length) {
-				init();
+			else if (this.mansion_assets && !this.ai_assets) {
+				for (var i =0;i<AI_array.length;i++) {
+					if (AI_array[i].texture.image.complete) counter++;
+				}
+				if (this.counter >= AI_array.length) {
+					this.ai_assets = true;
+				}
+
+			}
+			else if (this.mansion_assets && this.ai_assets && !this.player_assets) {
+				if (player.texture.image.complete) {
+					return init();
+				}
+			}
+			
+			// for (var i = 0; i<=counter;i++) {
+			// 	camera.ctx.save();
+			// 	camera.ctx.fillStyle = "rgba(250,250,250,1)"
+			// 	camera.ctx.fillRect(20+(i*20),camera.height/2,20,20);
+			// 	camera.ctx.restore();
+			// }
+			this.counter = 0;
+			
+			window.setTimeout(start.load,500)
+			
+		}
+
+		function startScreen(con) {
+			camera.ctx.save();
+			camera.ctx.fillStyle = "rgba(0,0,0,1)"
+			camera.ctx.fillRect(0,0,camera.width,camera.height);
+			camera.ctx.restore();
+			camera.ctx.save();
+			camera.ctx.font = camera.width/12 + 'px Monaco';
+			camera.ctx.textAlign = "center"
+			camera.ctx.fillStyle = "rgba(255,255,150,1)"
+			camera.ctx.fillText('START',camera.width/2,camera.height/2);
+			camera.ctx.restore();
+			if (controls.states.up) {
+				start.load();
 			}
 			else {
-				for (var i = 0; i<=counter;i++) {
-					camera.ctx.save();
-					camera.ctx.fillStyle = "rgba(250,250,250,1)"
-					camera.ctx.fillRect(20+(i*20),camera.height/2,20,20);
-					camera.ctx.restore();
-				}
-				counter = 0;
-				
-				window.setTimeout(load,500)
+				window.setTimeout(startScreen,100)	
 			}
+			
 		}
-		load();
+
+		startScreen();
+		
 		
 
 	</script>

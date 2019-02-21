@@ -5,7 +5,7 @@ var state_CONVERSATION = 1;
 var state_PAUSED = 2;
 var state_GAMEOVER = 3;
 var gameState = state_EXPLORE;
-var time = [0,28,1];
+var time = [0,0,0];
 function time_keeper() {
 	time[0]++;
 	if (time[0]>=FPS) time[1]++,time[0]=0;
@@ -69,6 +69,7 @@ function logic_GAMEOVER() {
 	camera.ctx.textAlign = "center"
 	camera.ctx.fillStyle = "rgba(255,150,150,.05)"
 	camera.ctx.fillText('GAME OVER',camera.width/2,camera.height/2);
+	camera.ctx.restore();
 	
 }
 
