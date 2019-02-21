@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Chargen</title>
+	<style type="text/css">
+		body {
+			margin:0;
+		}
+	</style>
+</head>
+<body>
+	<canvas id="canvas" width="2000" height="800"></canvas>
+
+	<script type="text/javascript">
+		var canvas = document.getElementById("canvas");
+		var ctx = canvas.getContext("2d");
+		canvas.width = 2000;
+		canvas.height = 800;
+
+		function Front_Arm(x,y) {
+			this.x = x;
+			this.y = y
+			ctx.moveTo(x+20,y+20);
+			ctx.lineTo(x+40,y+40);
+			ctx.lineWitch
+			ctx.strokeStyle = "#000000";
+			ctx.stroke();
+
+		}
+
+		function Head(x,y) {
+			this.x = x;
+			this.y = y
+			ctx.moveTo(x+20,y+20);
+			ctx.lineTo(x+40,y+40);
+			ctx.lineWitch
+			ctx.strokeStyle = "#000000";
+			ctx.stroke();
+
+		}
+
+		var step_1 = {
+			arm: Front_Arm(0,0), 
+			head: Head(40,0)
+		}
+		// var step_2 = Front_Arm(200,0);
+
+		
+
+		
+	</script>
+
+</body>
+</html>
