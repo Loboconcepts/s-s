@@ -33,29 +33,43 @@
 
 		}
 
-		function Hair(x,y) {
+		function Hair(x,y,length) {
 			this.x = x;
 			this.y = y
-			ctx.moveTo(x+80,y+40);
-			ctx.lineTo(x+90,y+30);
-			ctx.lineWidth = 4
-			ctx.strokeStyle = "#000000";
-			ctx.stroke();
+			ctx.fillStyle = "#220000";
+			// hair back
+			ctx.fillRect(x+60,y+10,10,40); //adding length to the end of this makes longer hair.
+			ctx.fillRect(x+70,y,10,30); //adding length to the end of this makes longer hair. stopping here is a mullet
+			// head middle
+			ctx.fillRect(x+80,y,10,40); //adding length to the end of this makes longer hair. stopping here is normal long hair
+			ctx.fillRect(x+90,y,10,30); //adding length to the end of this makes longer hair. stopping here is a lot of hair
+			ctx.fillRect(x+100,y,10,20);
+			// bangs
+			ctx.fillRect(x+110,y+10,10,10);
+			ctx.fillRect(x+120,y+20,10,0);
+			
+			
+
 		}
 
 		function Face(x,y) {
 			this.x = x;
 			this.y = y
-			ctx.moveTo(x+60,y+40);
-			ctx.lineTo(x+60,y+60);
-			ctx.lineWidth = 4
-			ctx.strokeStyle = "#000000";
-			ctx.stroke();
+			ctx.fillStyle = "#ebbf82";
+			ctx.fillRect(x+60,y+10,10,40);
+			ctx.fillRect(x+70,y,10,60);
+			ctx.fillRect(x+80,y,10,70);
+			ctx.fillRect(x+90,y,10,70);
+			ctx.fillRect(x+100,y,10,70);
+			ctx.fillRect(x+110,y+10,10,60);
+			
 
 		}
 
 		var character = {
-			hair: Hair(0,0)
+			
+			face: Face(0,0),
+			hair: Hair(0,0,   60)
 		}
 		// var step_2 = Front_Arm(200,0);
 
