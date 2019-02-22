@@ -5,6 +5,11 @@
 	<style type="text/css">
 		body {
 			margin:0;
+			background-image: url('assets/walking-guy.png');
+			background-repeat: no-repeat;
+		}
+		canvas {
+			background-color: rgba(255,255,255,.8)
 		}
 	</style>
 </head>
@@ -28,20 +33,29 @@
 
 		}
 
-		function Head(x,y) {
+		function Hair(x,y) {
 			this.x = x;
 			this.y = y
-			ctx.moveTo(x+20,y+20);
-			ctx.lineTo(x+40,y+40);
-			ctx.lineWitch
+			ctx.moveTo(x+80,y+40);
+			ctx.lineTo(x+90,y+30);
+			ctx.lineWidth = 4
+			ctx.strokeStyle = "#000000";
+			ctx.stroke();
+		}
+
+		function Face(x,y) {
+			this.x = x;
+			this.y = y
+			ctx.moveTo(x+60,y+40);
+			ctx.lineTo(x+60,y+60);
+			ctx.lineWidth = 4
 			ctx.strokeStyle = "#000000";
 			ctx.stroke();
 
 		}
 
-		var step_1 = {
-			arm: Front_Arm(0,0), 
-			head: Head(40,0)
+		var character = {
+			hair: Hair(0,0)
 		}
 		// var step_2 = Front_Arm(200,0);
 

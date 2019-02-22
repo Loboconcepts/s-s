@@ -191,7 +191,7 @@ function Player (x,y,direction,talk) {
 	this.x = x;
     this.y = y;
     this.direction = direction;
-    this.texture = new Bitmap('./assets/walking-guy.png',2000,800);
+    this.texture = new Bitmap('./assets/walking-main.png',2000,800);
     this.sprite = [0,200,400,600,800,1000,1200,1400,1600,1800];
     this.seg = 0;
     this.converse = false;
