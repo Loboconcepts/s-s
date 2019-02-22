@@ -191,7 +191,7 @@ function Player (x,y,direction,talk) {
 	this.x = x;
     this.y = y;
     this.direction = direction;
-    this.texture = new Bitmap('./assets/walking-main.png',2000,800);
+    this.texture = new Bitmap('./assets/walking-three.png',2000,800);
     this.sprite = [0,200,400,600,800,1000,1200,1400,1600,1800];
     this.seg = 0;
     this.converse = false;
@@ -956,10 +956,10 @@ Camera.prototype.drawPlayer = function (x,direction,sprite,seg,location) {
 	var texture = player.texture;
 	if (!this.camera_lock) {
 		if (direction==1) {
-			this.ctx.drawImage(texture.image,sprite[seg],0,200,400,canvas.width/2.5,canvas.height/2.3,canvas.width/6,canvas.height/1.9)
+			this.ctx.drawImage(texture.image,sprite[seg],0,200,400,canvas.width/2.5,canvas.height/3,canvas.width/5,canvas.height/1.6)
 		}
 		else {
-			this.ctx.drawImage(texture.image,sprite[seg],400,200,400,canvas.width/2.5,canvas.height/2.3,canvas.width/6,canvas.height/1.9)	
+			this.ctx.drawImage(texture.image,sprite[seg],400,200,400,canvas.width/2.5,canvas.height/3,canvas.width/5,canvas.height/1.6)	
 		}
 	}
 	else {
