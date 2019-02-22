@@ -5,7 +5,7 @@ var state_CONVERSATION = 1;
 var state_PAUSED = 2;
 var state_GAMEOVER = 3;
 var gameState = state_EXPLORE;
-var time = [0,25,1];
+var time = [0,0,0];
 function time_keeper() {
 	time[0]++;
 	if (time[0]>=FPS) time[1]++,time[0]=0;
