@@ -5,13 +5,15 @@
 	<style type="text/css">
 		body {
 			margin:0;
-			background-color: #000000;
-			
-		}
-		div {
 			background-image: url('assets/walking-three.png');
 			background-repeat: no-repeat;
 			background-size: contain;
+			
+			
+		}
+		div {
+			background-color: rgba(255,235,205,.8);
+			
 		}
 		canvas {
 			margin: 0;
@@ -42,17 +44,13 @@
 			this.y = y
 			ctx.fillStyle = "#eeee77";
 			// hair back
-			ctx.fillRect(x+60,y+10,10,40); 
-			ctx.fillRect(x+65,y,10,35);
-			ctx.fillRect(x+70,y,10,30);
-			// head middle
-			ctx.fillRect(x+75,y,10,30);
-			ctx.fillRect(x+80,y,10,40);
-			ctx.fillRect(x+90,y,10,30);
-			ctx.fillRect(x+100,y,10,20);
-			// bangs
-			ctx.fillRect(x+110,y+10,10,10);
-			ctx.fillRect(x+120,y+20,10,0);
+			ctx.beginPath();
+			ctx.moveTo(80,10);
+			ctx.lineTo(120,10);
+			ctx.lineTo(120,30);
+			ctx.lineTo(80,30);
+			ctx.fill();
+			ctx.closePath();
 			
 			
 
@@ -60,17 +58,16 @@
 
 		function Face(x,y) {
 			this.x = x;
-			this.y = y
+			this.y = y;
 			ctx.fillStyle = "#ebbf82";
-			ctx.fillRect(x+60,y+10,10,40);
-			ctx.fillRect(x+70,y,10,60);
-			ctx.fillRect(x+80,y,10,70);
-			ctx.fillRect(x+90,y,10,70);
-			ctx.fillRect(x+100,y,10,70);
-			ctx.fillRect(x+110,y+10,10,60);
-
-			ctx.fillStyle = "#444499";
-			ctx.fillRect(x+100,y+30,10,10);
+			ctx.beginPath();
+			ctx.moveTo(80,15);
+			ctx.lineTo(120,15);
+			ctx.lineTo(120,65);
+			ctx.lineTo(80,65);
+			ctx.fill();
+			ctx.closePath();
+			
 
 			
 			
@@ -80,38 +77,50 @@
 		function Body(x,y) {
 			this.x = x;
 			this.y = y;
-			ctx.fillStyle = "#daae71";
+			ctx.fillStyle = "#292e34";
+			ctx.beginPath();
+			ctx.moveTo(60,65);
+			ctx.lineTo(140,65);
+			ctx.lineTo(140,215);
+			ctx.lineTo(60,215);
+			ctx.fill();
+			ctx.closePath();
 			
-			ctx.fillRect(x+50,y+90,10,40);
-			ctx.fillRect(x+60,y+80,10,100);
-			ctx.fillRect(x+70,y+70,10,100);
-			ctx.fillRect(x+80,y+70,10,100);
-			ctx.fillRect(x+90,y+70,10,100);
-			ctx.fillRect(x+100,y+70,10,100);
-			ctx.fillRect(x+110,y+80,10,100);
-			ctx.fillRect(x+120,y+90,10,100);
 
 		}
 
 		function Front_Arm(x,y) {
 			this.x = x;
-			this.y = y
-			ctx.moveTo(x+20,y+20);
-			ctx.lineTo(x+40,y+40);
+			this.y = y;
+			ctx.fillStyle = "#ffffff";
+			ctx.beginPath();
+			ctx.moveTo(60,75);
+			ctx.lineTo(60,225);
+			ctx.lineTo(90,225);
+			ctx.lineTo(90,75);
+			ctx.fill();
+			ctx.closePath();
+			ctx.fillStyle = "#ebbf82";
+			ctx.beginPath();
+			ctx.moveTo(65,225);
+			ctx.lineTo(65,245);
+			ctx.lineTo(85,245);
+			ctx.lineTo(85,225);
+			ctx.fill();
+			ctx.closePath();			
 			
-			ctx.strokeStyle = "#000000";
-			ctx.stroke();
 
 		}
 
-		var character = {
+		var step_1 = {
+			positon : ctx.translate(0,0),
 			
 			face: Face(0,0),
 			hair: Hair(0,0,60),
 			body: Body(0,0),
 			front_arm : Front_Arm(0,0)
 		}
-		// var step_2 = Front_Arm(200,0);
+		
 
 		
 
