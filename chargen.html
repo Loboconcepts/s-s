@@ -7,7 +7,7 @@
 			margin:0;
 			background-image: url('assets/walking-three.png');
 			background-repeat: no-repeat;
-			background-size: contain;
+			/*background-size: contain;*/
 			
 			
 		}
@@ -18,7 +18,7 @@
 		canvas {
 			margin: 0;
 			background-color: rgba(255,255,255,0);
-			width:100%;
+			/*width:100%;*/
 			/*image-rendering: -moz-crisp-edges;
 			image-rendering: -webkit-crisp-edges;
 			image-rendering: pixelated;
@@ -39,86 +39,147 @@
 
 		
 
-		function Hair(x,y,length) {
+		function Hair(x,y,back,sideburns,middle,front) {
 			this.x = x;
 			this.y = y
 			ctx.fillStyle = "#eeee77";
 			// hair back
-			ctx.beginPath();
-			ctx.moveTo(80,10);
-			ctx.lineTo(120,10);
-			ctx.lineTo(120,30);
-			ctx.lineTo(80,30);
-			ctx.fill();
-			ctx.closePath();
-			
-			
+			ctx.save();
+			ctx.translate(x,y);
+			for (var i=0;i<42;i++) {
+				//back
+				if (i<15) ctx.fillRect(75+i,25-i,5,Math.max(0,back-i));
+				//sideburns
+				else if (i<20) ctx.fillRect(75+i,10,5,Math.max(0,sideburns-i));
+				//middle
+				else if (i<35) ctx.fillRect(75+i,10,5,middle);
+				//front
+				else ctx.fillRect(75+i,10,5,front);
+			}
 
+			ctx.restore();
+		}
+
+		function Beard(x,y,sideburns,middle,front) {
+			this.x = x;
+			this.y = y
+			ctx.fillStyle = "#eeee77";
+			// hair back
+			ctx.save();
+			ctx.translate(x,y);
+			for (var i=0;i<32;i++) {
+				//back
+				//sideburns
+				if (i<5) ctx.fillRect(90+i,40,5,sideburns);
+				//middle
+				else if (i<20) ctx.fillRect(85+i,40+i,5,Math.max(0,middle-i));
+				//front
+				else ctx.fillRect(140-i,60,-5,Math.max(0,front-(i-20)));
+			}
+
+			ctx.restore();
 		}
 
 		function Face(x,y) {
 			this.x = x;
 			this.y = y;
-			ctx.fillStyle = "#ebbf82";
+			ctx.save();
+			ctx.translate(x,y);
+			ctx.fillStyle = "rgb(235, 191, 129)";
+			//head
 			ctx.beginPath();
-			ctx.moveTo(80,15);
-			ctx.lineTo(120,15);
+			ctx.moveTo(80,35);
+			ctx.bezierCurveTo(75,5,115,10,120,25);
 			ctx.lineTo(120,65);
 			ctx.lineTo(80,65);
 			ctx.fill();
 			ctx.closePath();
-			
+			//neck
+			ctx.beginPath();
+			ctx.fillRect(80,65,30,20)
+			//neck shadow
+			ctx.fillStyle = "rgb(215, 171, 109)";
+			ctx.fillRect(90,65,20,20)
+			ctx.closePath();
 
-			
-			
-
+			ctx.restore();
 		}
 
 		function Body(x,y) {
 			this.x = x;
 			this.y = y;
+			ctx.save();
+			ctx.translate(x,y);
 			ctx.fillStyle = "#292e34";
 			ctx.beginPath();
-			ctx.moveTo(60,65);
-			ctx.lineTo(140,65);
-			ctx.lineTo(140,215);
+			ctx.moveTo(80,70);
+			ctx.quadraticCurveTo(105,80,110,70);
+			ctx.bezierCurveTo(130,100,120,180,120,215);
 			ctx.lineTo(60,215);
+			ctx.bezierCurveTo(65,180,45,110,75,75);
 			ctx.fill();
 			ctx.closePath();
-			
+			ctx.restore();
 
 		}
 
-		function Front_Arm(x,y) {
+		function Front_Arm(x,y,rotation,extension) {
 			this.x = x;
 			this.y = y;
+			ctx.save();
+			ctx.translate(x,y);
+			ctx.rotate(rotation * Math.PI / 180);
+			//upper arm
 			ctx.fillStyle = "#ffffff";
 			ctx.beginPath();
-			ctx.moveTo(60,75);
-			ctx.lineTo(60,225);
-			ctx.lineTo(90,225);
-			ctx.lineTo(90,75);
+			ctx.moveTo(60,90);
+			ctx.lineTo(50,140);
+			ctx.lineTo(80,140);
+			ctx.lineTo(90,95);
+			ctx.bezierCurveTo(90,65,70,65,60,90)
 			ctx.fill();
 			ctx.closePath();
+			//lower arm
+			ctx.fillStyle = "#ffffff";
+			ctx.beginPath();
+			ctx.moveTo(50,140);
+			ctx.lineTo(60,205);
+			ctx.lineTo(90,205);
+			ctx.lineTo(80,140);
+			ctx.fill();
+			ctx.closePath();
+			//hand
 			ctx.fillStyle = "#ebbf82";
 			ctx.beginPath();
-			ctx.moveTo(65,225);
-			ctx.lineTo(65,245);
-			ctx.lineTo(85,245);
-			ctx.lineTo(85,225);
+			ctx.moveTo(65,205);
+			ctx.lineTo(70,225);
+			ctx.lineTo(90,220);
+			ctx.lineTo(85,205);
 			ctx.fill();
-			ctx.closePath();			
-			
-
+			ctx.closePath();
+			ctx.restore();
 		}
 
 		var step_1 = {
 			positon : ctx.translate(0,0),
 			
 			face: Face(0,0),
-			hair: Hair(0,0,60),
+			
 			body: Body(0,0),
-			front_arm : Front_Arm(0,0)
+			hair: Hair(0,0,30,50,20,20),
+			beard: Beard(0,0,20,25,30),
+			front_arm : Front_Arm(0,0,0,0)
+		}
+
+		var step_2 = {
+			positon : ctx.translate(200,0),
+			
+			face: Face(0,0),
+			
+			body: Body(0,0),
+			hair: Hair(0,0,0,0,0,0),
+			beard: Beard(0,0,20,25,30),
+			front_arm : Front_Arm(50,-25,30,0)
 		}
 		
 
