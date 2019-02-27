@@ -5,7 +5,7 @@
 	<style type="text/css">
 		body {
 			margin:0;
-			background-image: url('assets/walking-three.png');
+			/*background-image: url('assets/walking-three.png');*/
 			background-repeat: no-repeat;
 			/*background-size: contain;*/
 			
@@ -42,18 +42,18 @@
 		ctx['mozImageSmoothingEnabled'] = false;
 
 		var c = {
-			size : 100,
+			size : 90,
 			hair : {
-				color     : [121,85,72],
-				back      : 30,
-				sideburns : 50,
+				color     : [221,215,72],
+				back      : 70,
+				sideburns : 70,
 				middle    : 30,
-				max       : 20
+				max       : 10
 			},
 			beard : {
-				sideburns : 20,
-				chops     : 25,
-				chin      : 20
+				sideburns : 0,
+				chops     : 0,
+				chin      : 0
 			},
 			torso : {
 				chest     : 0,
@@ -61,7 +61,7 @@
 			},
 			clothes : {
 				pants     : [69,99,136],
-				sleeves   : [215,255,255],
+				sleeves   : [41, 46, 52],
 				shoes     : [68, 56, 52]
 			}
 		}
@@ -189,8 +189,8 @@
 			//upper leg
 			ctx.beginPath();
 			ctx.moveTo(60,200);
-			ctx.lineTo(90+knee,280);
-			ctx.lineTo(120+knee,280);
+			ctx.lineTo(90+knee,281);
+			ctx.lineTo(120+knee,281);
 			ctx.lineTo(120,200);
 			ctx.fill();
 			ctx.closePath();
@@ -244,9 +244,10 @@
 			front_foot : Foot(0,0,0,0,0),
 			front_leg  : Leg(0,0,0,0,false,[0,0]),
 			body       : Body(0,0),
+			front_arm  : Arm(0,5,0,0,false),
 			hair       : Hair(0,0),
 			beard      : Beard(0,0),
-			front_arm  : Arm(0,5,0,0,false),
+			
 
 			restore      : ctx.restore()
 		}
@@ -261,9 +262,10 @@
 			front_foot : Foot(35,-4,0,0,0),
 			front_leg  : Leg(0,0,20,10,false,[-5,-5]),
 			body       : Body(0,0),
+			front_arm  : Arm(15,-5,10,0,false),
 			hair       : Hair(0,0),
 			beard      : Beard(0,0),
-			front_arm  : Arm(15,-5,10,0,false),
+			
 
 			restore      : ctx.restore()
 
@@ -278,9 +280,10 @@
 			front_foot : Foot(-100,75,0,0,-25),
 			front_leg  : Leg(0,0,20,30,false,[10,-10]),
 			body       : Body(0,0),
+			front_arm  : Arm(25,-10,15,0,false),
 			hair       : Hair(0,0),
 			beard      : Beard(0,0),
-			front_arm  : Arm(25,-10,15,0,false),
+			
 
 			restore      : ctx.restore()
 
@@ -296,9 +299,10 @@
 			front_foot : Foot(15,0,0,0,0),
 			front_leg  : Leg(0,0,10,5,false,[0,0]),
 			body       : Body(0,5),
-			hair       : Hair(0,5),
+			front_arm  : Arm(30,-10,20,0,false),
+			hair       : Hair(-2,5),
 			beard      : Beard(0,5),
-			front_arm  : Arm(40,-15,25,0,false),
+			
 
 			restore    : ctx.restore()
 
@@ -314,9 +318,10 @@
 			front_foot : Foot(0,0,0,0,0),
 			front_leg  : Leg(0,0,0,0,false,[0,0]),
 			body       : Body(0,5),
-			hair       : Hair(0,5),
-			beard      : Beard(0,5),
 			front_arm  : Arm(15,0,10,0,false),
+			hair       : Hair(-2,5),
+			beard      : Beard(0,5),
+			
 
 			restore    : ctx.restore()
 
@@ -332,9 +337,10 @@
 			front_foot : Foot(-20,0,0,0,0),
 			front_leg  : Leg(0,0,-10,-10,false,[0,0]),
 			body       : Body(0,0),
+			front_arm  : Arm(0,5,0,0,false),
 			hair       : Hair(0,0),
 			beard      : Beard(0,0),
-			front_arm  : Arm(0,5,0,0,false),
+			
 
 			restore      : ctx.restore()
 		}
@@ -349,9 +355,10 @@
 			front_foot : Foot(-50,0,-8,0,0),
 			front_leg  : Leg(0,0,-30,-20,false,[0,0]),
 			body       : Body(0,0),
+			front_arm  : Arm(-15,30,-15,0,false),
 			hair       : Hair(0,0),
 			beard      : Beard(0,0),
-			front_arm  : Arm(-15,30,-15,0,false),
+			
 
 			restore      : ctx.restore()
 		}
@@ -366,9 +373,10 @@
 			front_foot : Foot(170,0,0,-7,35),
 			front_leg  : Leg(0,-8,-35,-30,false,[-10,10]),
 			body       : Body(0,0),
+			front_arm  : Arm(-20,47,-25,0,false),
 			hair       : Hair(0,0),
 			beard      : Beard(0,0),
-			front_arm  : Arm(-20,45,-25,0,false),
+			
 
 			restore      : ctx.restore()
 		}
@@ -383,9 +391,10 @@
 			front_foot : Foot(170,-10,0,0,35),
 			front_leg  : Leg(0,0,-25,-50,false,[-30,-10]),
 			body       : Body(0,5),
-			hair       : Hair(0,5),
+			front_arm  : Arm(-20,51,-25,0,false),
+			hair       : Hair(-2,5),
 			beard      : Beard(0,5),
-			front_arm  : Arm(-20,50,-25,0,false),
+			
 
 			restore      : ctx.restore()
 		}
@@ -400,9 +409,10 @@
 			front_foot : Foot(180,-5,0,0,35),
 			front_leg  : Leg(0,0,-15,-50,false,[-30,-10]),
 			body       : Body(0,5),
-			hair       : Hair(0,5),
+			front_arm  : Arm(-15,35,-15,0,false),
+			hair       : Hair(-2,5),
 			beard      : Beard(0,5),
-			front_arm  : Arm(-15,30,-15,0,false),
+			
 
 			restore      : ctx.restore()
 		}
@@ -432,6 +442,8 @@
 			log        : console.log(rev_step_1)
 		}
 
+
+		
 
 		var dataURL = canvas.toDataURL();
 		var animate = new Image();
