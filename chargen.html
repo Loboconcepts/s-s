@@ -38,7 +38,7 @@
 		var canvas = document.getElementById("canvas");
 		var ctx = canvas.getContext("2d");
 		canvas.width = 2000;
-		canvas.height = 800;
+		canvas.height = 1200;
 		ctx['mozImageSmoothingEnabled'] = false;
 
 
@@ -234,28 +234,28 @@
 			if (darker) ctx.fillStyle = "rgba("+(c.clothes.sleeves[0]-20)+","+(c.clothes.sleeves[1]-20)+","+(c.clothes.sleeves[2]-20)+")";
 			else ctx.fillStyle = "rgba("+c.clothes.sleeves[0]+","+c.clothes.sleeves[1]+","+c.clothes.sleeves[2]+")";
 			ctx.beginPath();
-			ctx.moveTo(65-c.torso.arms,90);
-			ctx.lineTo(55-c.torso.arms,141);
-			ctx.lineTo(75+c.torso.arms,141);
+			ctx.moveTo(65-c.torso.arms+extension,90-extension);
+			ctx.lineTo(55-c.torso.arms+extension,141+extension);
+			ctx.lineTo(75+c.torso.arms+extension,141+extension);
 			ctx.lineTo(85+c.torso.arms,95);
-			ctx.bezierCurveTo(90,65,70,65,65-c.torso.arms,90)
+			ctx.bezierCurveTo(90,65,70,65,65-c.torso.arms+extension,90-extension)
 			ctx.fill();
 			ctx.closePath();
 			//lower arm
 			ctx.beginPath();
-			ctx.moveTo(55-c.torso.arms,139);
-			ctx.lineTo(65-c.torso.arms,206);
-			ctx.lineTo(85+c.torso.arms,206);
-			ctx.lineTo(75+c.torso.arms,139);
+			ctx.moveTo(55-c.torso.arms+extension,139+extension);
+			ctx.lineTo(65-c.torso.arms,206+extension);
+			ctx.lineTo(85+c.torso.arms,206+extension);
+			ctx.lineTo(75+c.torso.arms+extension,139+extension);
 			ctx.fill();
 			ctx.closePath();
 			//hand
 			ctx.fillStyle = "rgba("+c.skin[0]+","+c.skin[1]+","+c.skin[2]+")";
 			ctx.beginPath();
-			ctx.moveTo(65,205);
-			ctx.lineTo(70,225);
-			ctx.quadraticCurveTo(80,227,90,223);
-			ctx.quadraticCurveTo(92,210,87,205);
+			ctx.moveTo(65,205+extension);
+			ctx.lineTo(70,225+extension);
+			ctx.quadraticCurveTo(80,227+extension,90,223+extension);
+			ctx.quadraticCurveTo(92,210+extension,87,205+extension);
 			ctx.fill();
 			ctx.fillStyle = "rgba(0, 0, 0,.1)";
 			ctx.fillRect(65,205,20,2)
@@ -642,6 +642,22 @@
 			front_arm  : Arm(-15,35,-15,0,false),
 			hair       : Hair(0,5,0),
 			beard      : Beard(0,5),
+			restore    : ctx.restore()
+		}
+
+		var arm_1 = {
+			save       : ctx.save(),
+			size       : ctx.setTransform(c.size/100,0,0,c.size/100,100-c.size,(300-c.size)*4),
+			back_arm   : Arm(0,5,0,0,true),
+			back_foot  : Foot(-7,-3,0,0,0),
+			back_leg   : Leg(0,-2,-10,0,true,[0,0]),
+			face       : Face(0,0),
+			front_foot : Foot(0,0,0,0,0),
+			front_leg  : Leg(0,0,0,0,false,[0,0]),
+			body       : Body(0,0),
+			front_arm  : Arm(-25,50,-25,-10,false),
+			hair       : Hair(0,0,-2),
+			beard      : Beard(0,0),
 			restore    : ctx.restore()
 		}
 
