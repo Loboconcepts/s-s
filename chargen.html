@@ -41,14 +41,47 @@
 		canvas.height = 800;
 		ctx['mozImageSmoothingEnabled'] = false;
 
-		var c = {
-			size : 90,
+		var boyc = {
+			size : 92, // height in inches divided by 80 (6'8") in inches.
+			skin : [235, 191, 129,1],
 			hair : {
-				color     : [221,215,72],
-				back      : 70,
-				sideburns : 70,
+				color     : [80,50,50],
+				back      : 40,
+				sideburns : 50,
 				middle    : 30,
-				max       : 10
+				max       : 20
+			},
+			beard : {
+				sideburns : 20,
+				chops     : 20,
+				chin      : 20
+			},
+			torso : {
+				chest     : 20,
+				stomach   : 10,
+				build     : 0, // higher for more feminine
+				posture   : 0, // lower the better shape
+				waist     : 10,
+				back      : 10,
+				arms      : 5
+			},
+			clothes : {
+				pants     : [69,99,136],
+				shirt     : [245, 245, 245],
+				sleeves   : [235, 235, 235],
+				shoes     : [68, 56, 52]
+			}
+		}
+
+		var c = {
+			size : 82, // height in inches divided by 80 (6'8") in inches.
+			skin : [245, 201, 139,1],
+			hair : {
+				color     : [121,55,52],
+				back      : 100,
+				sideburns : 70,
+				middle    : 40,
+				max       : 20
 			},
 			beard : {
 				sideburns : 0,
@@ -56,23 +89,38 @@
 				chin      : 0
 			},
 			torso : {
-				chest     : 0,
-				stomach   : 0
+				chest     : 40,
+				stomach   : 0,
+				build     : 25,
+				posture   : 0,
+				waist     : 40,
+				back      : 10,
+				arms      : 2
 			},
 			clothes : {
-				pants     : [69,99,136],
-				sleeves   : [41, 46, 52],
+				pants     : [99,59,136],
+				shirt     : [141, 46, 52],
+				sleeves   : [141, 46, 52],
 				shoes     : [68, 56, 52]
 			}
 		}
 
 		
 
-		function Hair(x,y) {
+		function Hair(x,y,backWave) {
 			ctx.fillStyle = "rgba("+c.hair.color[0]+","+c.hair.color[1]+","+c.hair.color[2]+")";
 			// hair back
 			ctx.save();
 			ctx.translate(x,y);
+
+			if (c.hair.back > 50) {
+				ctx.beginPath(80,40);
+				ctx.fillStyle = "rgba("+c.hair.color[0]+","+c.hair.color[1]+","+c.hair.color[2]+")";
+				ctx.quadraticCurveTo(85,45-(backWave/2),65+backWave,30+c.hair.back+backWave);
+				ctx.quadraticCurveTo(100+backWave,c.hair.back,75,25+c.hair.back);
+				ctx.fill();
+				ctx.closePath();
+			}
 			for (var i=0;i<42;i++) {
 				//back
 				if (i<15) ctx.fillRect(75+i,25-i,5,Math.max(0,c.hair.back-i));
@@ -108,7 +156,7 @@
 		function Face(x,y) {
 			ctx.save();
 			ctx.translate(x,y);
-			ctx.fillStyle = "rgba(235, 191, 129,1)";
+			ctx.fillStyle = "rgba("+c.skin[0]+","+c.skin[1]+","+c.skin[2]+")";
 			//head
 			ctx.beginPath();
 			ctx.moveTo(80,35);
@@ -128,16 +176,16 @@
 			ctx.restore();
 		}
 
-		function Body(x,y,chest,stomach) {
+		function Body(x,y) {
 			ctx.save();
 			ctx.translate(x,y);
-			ctx.fillStyle = "#292e34";
+			ctx.fillStyle = "rgba("+c.clothes.shirt[0]+","+c.clothes.shirt[1]+","+c.clothes.shirt[2]+")";
 			ctx.beginPath();
 			ctx.moveTo(80,70);
 			ctx.quadraticCurveTo(105,80,110,70);
-			ctx.bezierCurveTo(130,100,120,180,120,215);
-			ctx.lineTo(60,215);
-			ctx.bezierCurveTo(65,180,45,110,75,75);
+			ctx.bezierCurveTo(110+c.torso.chest,100+c.torso.build,120+c.torso.stomach,110+c.torso.posture,120,200);
+			ctx.quadraticCurveTo(70,215,60,195);
+			ctx.bezierCurveTo(65+c.torso.waist,130,45+c.torso.back,110,75,75);
 			ctx.fill();
 			ctx.closePath();
 			ctx.restore();
@@ -152,19 +200,19 @@
 			if (darker) ctx.fillStyle = "rgba("+(c.clothes.sleeves[0]-20)+","+(c.clothes.sleeves[1]-20)+","+(c.clothes.sleeves[2]-20)+")";
 			else ctx.fillStyle = "rgba("+c.clothes.sleeves[0]+","+c.clothes.sleeves[1]+","+c.clothes.sleeves[2]+")";
 			ctx.beginPath();
-			ctx.moveTo(60,90);
-			ctx.lineTo(50,141);
-			ctx.lineTo(80,141);
-			ctx.lineTo(90,95);
-			ctx.bezierCurveTo(90,65,70,65,60,90)
+			ctx.moveTo(65-c.torso.arms,90);
+			ctx.lineTo(55-c.torso.arms,141);
+			ctx.lineTo(75+c.torso.arms,141);
+			ctx.lineTo(85+c.torso.arms,95);
+			ctx.bezierCurveTo(90,65,70,65,65-c.torso.arms,90)
 			ctx.fill();
 			ctx.closePath();
 			//lower arm
 			ctx.beginPath();
-			ctx.moveTo(50,139);
-			ctx.lineTo(60,205);
-			ctx.lineTo(90,205);
-			ctx.lineTo(80,139);
+			ctx.moveTo(55-c.torso.arms,139);
+			ctx.lineTo(65-c.torso.arms,205);
+			ctx.lineTo(85+c.torso.arms,205);
+			ctx.lineTo(75+c.torso.arms,139);
 			ctx.fill();
 			ctx.closePath();
 			//hand
@@ -237,7 +285,7 @@
 		var step_1 = {
 			save       : ctx.save(),
 			size       : ctx.setTransform(c.size/100,0,0,c.size/100,100-c.size,(100-c.size)*4),
-			back_arm   : Arm(10,5,0,0,true),
+			back_arm   : Arm(0,5,0,0,true),
 			back_foot  : Foot(-7,-3,0,0,0),
 			back_leg   : Leg(0,-2,-10,0,true,[0,0]),
 			face       : Face(0,0),
@@ -245,17 +293,15 @@
 			front_leg  : Leg(0,0,0,0,false,[0,0]),
 			body       : Body(0,0),
 			front_arm  : Arm(0,5,0,0,false),
-			hair       : Hair(0,0),
+			hair       : Hair(0,0,-2),
 			beard      : Beard(0,0),
-			
-
-			restore      : ctx.restore()
+			restore    : ctx.restore()
 		}
 
 		var step_2 = {
 			save       : ctx.save(),
 			size       : ctx.setTransform(c.size/100,0,0,c.size/100,300-c.size,(100-c.size)*4),
-			back_arm   : Arm(-15,25,-15,0,true),
+			back_arm   : Arm(0,25,-12,0,true),
 			back_foot  : Foot(-50,0,-8,0,0),
 			back_leg   : Leg(0,-2,-30,-20,true,[0,0]),
 			face       : Face(0,0),
@@ -263,12 +309,9 @@
 			front_leg  : Leg(0,0,20,10,false,[-5,-5]),
 			body       : Body(0,0),
 			front_arm  : Arm(15,-5,10,0,false),
-			hair       : Hair(0,0),
+			hair       : Hair(0,0,-4),
 			beard      : Beard(0,0),
-			
-
-			restore      : ctx.restore()
-
+			restore    : ctx.restore()
 		}
 		var step_3 = {
 			save       : ctx.save(),
@@ -281,11 +324,9 @@
 			front_leg  : Leg(0,0,20,30,false,[10,-10]),
 			body       : Body(0,0),
 			front_arm  : Arm(25,-10,15,0,false),
-			hair       : Hair(0,0),
+			hair       : Hair(0,0,-6),
 			beard      : Beard(0,0),
-			
-
-			restore      : ctx.restore()
+			restore    : ctx.restore()
 
 		}
 
@@ -299,11 +340,9 @@
 			front_foot : Foot(15,0,0,0,0),
 			front_leg  : Leg(0,0,10,5,false,[0,0]),
 			body       : Body(0,5),
-			front_arm  : Arm(30,-10,20,0,false),
-			hair       : Hair(-2,5),
+			front_arm  : Arm(35,-10,20,0,false),
+			hair       : Hair(0,5,-8),
 			beard      : Beard(0,5),
-			
-
 			restore    : ctx.restore()
 
 		}
@@ -319,10 +358,8 @@
 			front_leg  : Leg(0,0,0,0,false,[0,0]),
 			body       : Body(0,5),
 			front_arm  : Arm(15,0,10,0,false),
-			hair       : Hair(-2,5),
+			hair       : Hair(0,5,-4),
 			beard      : Beard(0,5),
-			
-
 			restore    : ctx.restore()
 
 		}
@@ -338,11 +375,9 @@
 			front_leg  : Leg(0,0,-10,-10,false,[0,0]),
 			body       : Body(0,0),
 			front_arm  : Arm(0,5,0,0,false),
-			hair       : Hair(0,0),
+			hair       : Hair(0,0,0),
 			beard      : Beard(0,0),
-			
-
-			restore      : ctx.restore()
+			restore    : ctx.restore()
 		}
 
 		var step_7 = {
@@ -356,11 +391,9 @@
 			front_leg  : Leg(0,0,-30,-20,false,[0,0]),
 			body       : Body(0,0),
 			front_arm  : Arm(-15,30,-15,0,false),
-			hair       : Hair(0,0),
+			hair       : Hair(0,0,0),
 			beard      : Beard(0,0),
-			
-
-			restore      : ctx.restore()
+			restore    : ctx.restore()
 		}
 
 		var step_8 = {
@@ -374,7 +407,7 @@
 			front_leg  : Leg(0,-8,-35,-30,false,[-10,10]),
 			body       : Body(0,0),
 			front_arm  : Arm(-20,47,-25,0,false),
-			hair       : Hair(0,0),
+			hair       : Hair(0,0,0),
 			beard      : Beard(0,0),
 			
 
@@ -384,7 +417,7 @@
 		var step_9 = {
 			save       : ctx.save(),
 			size       : ctx.setTransform(c.size/100,0,0,c.size/100,1700-c.size,(100-c.size)*4),
-			back_arm   : Arm(45,-20,20,0,true),
+			back_arm   : Arm(35,-10,15,0,true),
 			back_foot  : Foot(15,0,0,0,0),
 			back_leg   : Leg(0,0,10,5,true,[0,0]),
 			face       : Face(0,5),
@@ -392,11 +425,9 @@
 			front_leg  : Leg(0,0,-25,-50,false,[-30,-10]),
 			body       : Body(0,5),
 			front_arm  : Arm(-20,51,-25,0,false),
-			hair       : Hair(-2,5),
+			hair       : Hair(0,5,0),
 			beard      : Beard(0,5),
-			
-
-			restore      : ctx.restore()
+			restore    : ctx.restore()
 		}
 
 		var step_10 = {
@@ -410,37 +441,180 @@
 			front_leg  : Leg(0,0,-15,-50,false,[-30,-10]),
 			body       : Body(0,5),
 			front_arm  : Arm(-15,35,-15,0,false),
-			hair       : Hair(-2,5),
+			hair       : Hair(0,5,0),
 			beard      : Beard(0,5),
-			
-
-			restore      : ctx.restore()
+			restore    : ctx.restore()
 		}
 
 
 
 
-		
-
-
 		var rev_step_1 = {
 			save       : ctx.save(),
-			size       : ctx.setTransform(c.size/100,0,0,c.size/100,300-c.size,(200-c.size)*4),
-			flip       : ctx.scale(-1,1),
-			back_arm   : Arm(0,0,0,0,true),
+			size       : ctx.setTransform(-c.size/100,0,0,c.size/100,100+c.size,(200-c.size)*4),
+			back_arm   : Arm(0,5,0,0,true),
 			back_foot  : Foot(-7,-3,0,0,0),
 			back_leg   : Leg(0,-2,-10,0,true,[0,0]),
 			face       : Face(0,0),
 			front_foot : Foot(0,0,0,0,0),
 			front_leg  : Leg(0,0,0,0,false,[0,0]),
 			body       : Body(0,0),
-			hair       : Hair(0,0),
+			front_arm  : Arm(0,5,0,0,false),
+			hair       : Hair(0,0,-2),
 			beard      : Beard(0,0),
-			front_arm  : Arm(0,0,0,0,false),
-
-			restore    : ctx.restore(),
-			log        : console.log(rev_step_1)
+			restore    : ctx.restore()
 		}
+
+		var rev_step_2 = {
+			save       : ctx.save(),
+			size       : ctx.setTransform(-c.size/100,0,0,c.size/100,300+c.size,(200-c.size)*4),
+			back_arm   : Arm(0,25,-12,0,true),
+			back_foot  : Foot(-50,0,-8,0,0),
+			back_leg   : Leg(0,-2,-30,-20,true,[0,0]),
+			face       : Face(0,0),
+			front_foot : Foot(35,-4,0,0,0),
+			front_leg  : Leg(0,0,20,10,false,[-5,-5]),
+			body       : Body(0,0),
+			front_arm  : Arm(15,-5,10,0,false),
+			hair       : Hair(0,0,-4),
+			beard      : Beard(0,0),
+			restore    : ctx.restore()
+		}
+
+		var rev_step_3 = {
+			save       : ctx.save(),
+			size       : ctx.setTransform(-c.size/100,0,0,c.size/100,500+c.size,(200-c.size)*4),
+			back_arm   : Arm(0,30,-17,0,true),
+			back_foot  : Foot(170,0,0,-7,35),
+			back_leg   : Leg(0,-8,-35,-30,true,[-10,10]),
+			face       : Face(0,0),
+			front_foot : Foot(-100,75,0,0,-25),
+			front_leg  : Leg(0,0,20,30,false,[10,-10]),
+			body       : Body(0,0),
+			front_arm  : Arm(25,-10,15,0,false),
+			hair       : Hair(0,0,-6),
+			beard      : Beard(0,0),
+			restore    : ctx.restore()
+		}
+
+		var rev_step_4 = {
+			save       : ctx.save(),
+			size       : ctx.setTransform(-c.size/100,0,0,c.size/100,700+c.size,(200-c.size)*4),
+			back_arm   : Arm(0,30,-17,0,true),
+			back_foot  : Foot(170,-10,0,0,35),
+			back_leg   : Leg(0,0,-25,-50,true,[-30,-10]),
+			face       : Face(0,5),
+			front_foot : Foot(15,0,0,0,0),
+			front_leg  : Leg(0,0,10,5,false,[0,0]),
+			body       : Body(0,5),
+			front_arm  : Arm(35,-10,20,0,false),
+			hair       : Hair(0,5,-8),
+			beard      : Beard(0,5),
+			restore    : ctx.restore()
+
+		}
+
+		var rev_step_5 = {
+			save       : ctx.save(),
+			size       : ctx.setTransform(-c.size/100,0,0,c.size/100,900+c.size,(200-c.size)*4),
+			back_arm   : Arm(-15,30,-15,0,true),
+			back_foot  : Foot(180,-5,0,0,35),
+			back_leg   : Leg(0,0,-15,-50,true,[-30,-10]),
+			face       : Face(0,5),
+			front_foot : Foot(0,0,0,0,0),
+			front_leg  : Leg(0,0,0,0,false,[0,0]),
+			body       : Body(0,5),
+			front_arm  : Arm(15,0,10,0,false),
+			hair       : Hair(0,5,-4),
+			beard      : Beard(0,5),
+			restore    : ctx.restore()
+
+		}
+
+		var rev_step_6 = {
+			save       : ctx.save(),
+			size       : ctx.setTransform(-c.size/100,0,0,c.size/100,1100+c.size,(200-c.size)*4),
+			back_arm   : Arm(5,0,0,0,true),
+			back_foot  : Foot(15,-3,0,0,0),
+			back_leg   : Leg(0,-2,10,0,true,[0,0]),
+			face       : Face(0,0),
+			front_foot : Foot(-20,0,0,0,0),
+			front_leg  : Leg(0,0,-10,-10,false,[0,0]),
+			body       : Body(0,0),
+			front_arm  : Arm(0,5,0,0,false),
+			hair       : Hair(0,0,0),
+			beard      : Beard(0,0),
+			restore    : ctx.restore()
+		}
+
+		var rev_step_7 = {
+			save       : ctx.save(),
+			size       : ctx.setTransform(-c.size/100,0,0,c.size/100,1300+c.size,(200-c.size)*4),
+			back_arm   : Arm(20,-5,7,0,true),
+			back_foot  : Foot(35,-4,0,0,0),
+			back_leg   : Leg(0,0,20,10,true,[-5,-5]),
+			face       : Face(0,0),
+			front_foot : Foot(-50,0,-8,0,0),
+			front_leg  : Leg(0,0,-30,-20,false,[0,0]),
+			body       : Body(0,0),
+			front_arm  : Arm(-15,30,-15,0,false),
+			hair       : Hair(0,0,0),
+			beard      : Beard(0,0),
+			restore    : ctx.restore()
+		}
+
+		var rev_step_8 = {
+			save       : ctx.save(),
+			size       : ctx.setTransform(-c.size/100,0,0,c.size/100,1500+c.size,(200-c.size)*4),
+			back_arm   : Arm(25,-10,10,0,true),
+			back_foot  : Foot(-100,75,0,0,-25),
+			back_leg   : Leg(0,0,20,30,true,[10,-10]),
+			face       : Face(0,0),
+			front_foot : Foot(170,0,0,-7,35),
+			front_leg  : Leg(0,-8,-35,-30,false,[-10,10]),
+			body       : Body(0,0),
+			front_arm  : Arm(-20,47,-25,0,false),
+			hair       : Hair(0,0,0),
+			beard      : Beard(0,0),
+			restore    : ctx.restore()
+		}
+
+		var rev_step_9 = {
+			save       : ctx.save(),
+			size       : ctx.setTransform(-c.size/100,0,0,c.size/100,1700+c.size,(200-c.size)*4),
+			back_arm   : Arm(35,-10,15,0,true),
+			back_foot  : Foot(15,0,0,0,0),
+			back_leg   : Leg(0,0,10,5,true,[0,0]),
+			face       : Face(0,5),
+			front_foot : Foot(170,-10,0,0,35),
+			front_leg  : Leg(0,0,-25,-50,false,[-30,-10]),
+			body       : Body(0,5),
+			front_arm  : Arm(-20,51,-25,0,false),
+			hair       : Hair(0,5,0),
+			beard      : Beard(0,5),
+			restore    : ctx.restore()
+		}
+
+		var rev_step_10 = {
+			save       : ctx.save(),
+			size       : ctx.setTransform(-c.size/100,0,0,c.size/100,1900+c.size,(200-c.size)*4),
+			back_arm   : Arm(25,-5,10,0,true),
+			back_foot  : Foot(0,0,0,0,0),
+			back_leg   : Leg(0,0,0,0,true,[0,0]),
+			face       : Face(0,5),
+			front_foot : Foot(180,-5,0,0,35),
+			front_leg  : Leg(0,0,-15,-50,false,[-30,-10]),
+			body       : Body(0,5),
+			front_arm  : Arm(-15,35,-15,0,false),
+			hair       : Hair(0,5,0),
+			beard      : Beard(0,5),
+			restore    : ctx.restore()
+		}
+
+		
+
+
+
 
 
 		

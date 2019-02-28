@@ -191,7 +191,7 @@ function Player (x,y,direction,talk) {
 	this.x = x;
     this.y = y;
     this.direction = direction;
-    this.texture = new Bitmap('./assets/walking-three.png',2000,800);
+    this.texture = new Bitmap('./assets/player-char.png',2000,800);
     this.sprite = [0,200,400,600,800,1000,1200,1400,1600,1800];
     this.seg = 0;
     this.converse = false;
@@ -1013,7 +1013,7 @@ Camera.prototype.drawAI = function (x,y,array,location) {
 				if (pos(0,0)==3 || pos(0,0)==4) hundred = -100
 				return ((canvas.height*((Math.abs(hundred + vAI.x))%1))*negpos) + ch;
 			}			
-			this.ctx.drawImage(texture.image,array[i].sprite[Math.floor(array[i].seg)],direction,200,400,(canvas.width/2.5)+((array[i].x-x)*(canvas.width)),canvas.height/2.3+this.viewHeight+AI_height(array[i]),canvas.width/6,canvas.height/1.9);
+			this.ctx.drawImage(texture.image,array[i].sprite[Math.floor(array[i].seg)],direction,200,400,(canvas.width/2.5)+((array[i].x-x)*(canvas.width)),canvas.height/3+this.viewHeight+AI_height(array[i]),canvas.width/5,canvas.height/1.6);
 			if (array[i].speech_bubble && array[i].y == player.y) this.speech_bubble((canvas.width/2.5)+((array[i].x-x)*(canvas.width)),array[i].speech_bubble);
 		};
 	};
