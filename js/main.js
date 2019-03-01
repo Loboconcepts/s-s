@@ -242,7 +242,7 @@ Player.prototype.walk = function(distance) {
 	if (this.player_lock) {
 		if (canvas.width/2.5 + (canvas.width)*(this.x-this.player_lock) > 1 && canvas.width/2.5 + (canvas.width)*(this.x-this.player_lock)< (canvas.width)-(canvas.width/6)) {
 			this.x+=distance;
-			this.seg+=Math.abs(distance*20);
+			this.seg+=Math.abs(distance*25);
 			if (this.seg >= 10) this.seg = 0;
 			if (this.hold) this.hold=false;
 		}
@@ -256,7 +256,7 @@ Player.prototype.walk = function(distance) {
 	else {
 		if (this.x > 1.5 && this.x < (mansion.length+.5)) {
 			this.x+=distance;
-			this.seg+=Math.abs(distance*20);
+			this.seg+=Math.abs(distance*25);
 			if (this.seg >= 10) this.seg = 0;
 			if (this.hold) this.hold=false;
 		}
@@ -380,7 +380,6 @@ Player.prototype.reset = function(whatConvo) {
 
 function AI (x,y,direction,texture,persona,logic,suspicion) {
 	this.x = x;
-	this.x = x;
     this.y = y;
     this.direction = direction;
     this.texture = texture;
@@ -418,7 +417,7 @@ AI.prototype.walk = function(x_distance,UPorDOWN) {
 
 		if (this.x > 1.5 && this.x < (mansion.length+.5)) {
 			this.x+=distance;
-			this.seg+=Math.abs(distance*20);
+			this.seg+=Math.abs(distance*30);
 			if (this.seg >= 10) this.seg = 0;
 		}
 		else if (this.x <= 1.5 && distance > 0) {
@@ -1014,7 +1013,7 @@ Camera.prototype.drawAI = function (x,y,array,location) {
 				return ((canvas.height*((Math.abs(hundred + vAI.x))%1))*negpos) + ch;
 			}			
 			this.ctx.drawImage(texture.image,array[i].sprite[Math.floor(array[i].seg)],direction,200,400,(canvas.width/2.5)+((array[i].x-x)*(canvas.width)),canvas.height/3+this.viewHeight+AI_height(array[i]),canvas.width/5,canvas.height/1.6);
-			if (array[i].speech_bubble && array[i].y == player.y) this.speech_bubble((canvas.width/2.5)+((array[i].x-x)*(canvas.width)),array[i].speech_bubble);
+			if (array[i].speech_bubble && array[i].y == player.y) this.speech_bubble((canvas.width/2.5)+((array[i].x-x)*(canvas.width)),array[i].speech_bubble,array[i].persona.inches,AI_height(array[i]));
 		};
 	};
 };
@@ -1032,13 +1031,13 @@ Camera.prototype.drawFrontObjects = function (x,y,location) {
 
 };
 
-Camera.prototype.speech_bubble = function(x,speech) {
+Camera.prototype.speech_bubble = function(x,speech,inches,worldHeight) {
 	let center = x+canvas.width/12;
 
 	this.ctx.save();
 	this.ctx.strokeStyle = "#000000"
 	this.ctx.lineWidth = 2;
-	this.ctx.strokeRect(center,canvas.height/2.8,2,canvas.height/14)
+	this.ctx.strokeRect(center,canvas.height-((canvas.height/2.6)*((inches*.01)*2))+this.viewHeight+worldHeight,2,canvas.height/14)
 	this.ctx.restore();
 
 	this.ctx.save();
@@ -1046,9 +1045,9 @@ Camera.prototype.speech_bubble = function(x,speech) {
 	this.ctx.font = this.width/25 + 'px Monaco';
 	this.ctx.lineWidth = 4;
 	this.ctx.strokeStyle = "#000000"
-	this.ctx.strokeText(speech,center,canvas.height/3)
+	this.ctx.strokeText(speech,center,canvas.height-((canvas.height/2.5)*((inches*.01)*2))+this.viewHeight+worldHeight)
 	this.ctx.fillStyle = "#ffffff"
-	this.ctx.fillText(speech,center,canvas.height/3)
+	this.ctx.fillText(speech,center,canvas.height-((canvas.height/2.5)*((inches*.01)*2))+this.viewHeight+worldHeight)
 	this.ctx.restore();
 
 

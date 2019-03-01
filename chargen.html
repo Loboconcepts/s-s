@@ -43,7 +43,7 @@
 
 
 
-		var c = {
+		var cdog = {
 			size : 87, // height in inches divided by 80 (6'8") in inches.
 			skin : [225, 161, 139,1],
 			hair : {
@@ -75,7 +75,7 @@
 			}
 		}
 
-		var oldmanc = {
+		var cold = {
 			size : 90, // height in inches divided by 80 (6'8") in inches.
 			skin : [135, 101, 69,1],
 			hair : {
@@ -107,7 +107,7 @@
 			}
 		}
 
-		var womanc = {
+		var c = {
 			size : 78, // height in inches divided by 80 (6'8") in inches.
 			skin : [205, 141, 119,1],
 			hair : {
@@ -672,6 +672,7 @@
 		var dataURL = canvas.toDataURL();
 		var animate = new Image();
 		animate.src = dataURL;
+		console.log(dataURL)
 
 		
 		var animation = document.getElementById("animation");
