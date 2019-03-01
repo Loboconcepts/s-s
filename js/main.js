@@ -1035,27 +1035,21 @@ Camera.prototype.speech_bubble = function(x,speech,inches,worldHeight) {
 	let center = x+canvas.width/12;
 
 	this.ctx.save();
-	this.ctx.strokeStyle = "#000000"
+	this.ctx.strokeStyle = "#000000";
 	this.ctx.lineWidth = 2;
-	this.ctx.strokeRect(center,canvas.height-((canvas.height/2.6)*((inches*.01)*2))+this.viewHeight+worldHeight,2,canvas.height/14)
+	this.ctx.strokeRect(center,canvas.height-((canvas.height/2.6)*((inches*.01)*2))+this.viewHeight+worldHeight,2,canvas.height/14);
 	this.ctx.restore();
 
 	this.ctx.save();
-	this.ctx.textAlign = "center"
+	this.ctx.textAlign = "center";
 	this.ctx.font = this.width/25 + 'px Monaco';
 	this.ctx.lineWidth = 4;
-	this.ctx.strokeStyle = "#000000"
-	this.ctx.strokeText(speech,center,canvas.height-((canvas.height/2.5)*((inches*.01)*2))+this.viewHeight+worldHeight)
-	this.ctx.fillStyle = "#ffffff"
-	this.ctx.fillText(speech,center,canvas.height-((canvas.height/2.5)*((inches*.01)*2))+this.viewHeight+worldHeight)
+	this.ctx.strokeStyle = "#000000";
+	this.ctx.strokeText(speech,center,canvas.height-((canvas.height/2.5)*((inches*.01)*2))+this.viewHeight+worldHeight);
+	this.ctx.fillStyle = "#ffffff";
+	this.ctx.fillText(speech,center,canvas.height-((canvas.height/2.5)*((inches*.01)*2))+this.viewHeight+worldHeight);
 	this.ctx.restore();
 
-
-	
-
-	// this.ctx.moveTo(x,canvas.height/3+10)
-	// this.ctx.lineTo(x,(canvas.height/3)+10)
-	// this.ctx.stroke();
 
 }
 
