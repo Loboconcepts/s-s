@@ -12,13 +12,13 @@
 			
 		}
 		div {
-			width:2000px;
-			background-color: rgba(255,235,205,.8);
+			width:100%;
+			/*background-color: rgba(255,235,205,.8);*/
 			
 		}
 		canvas {
 			margin: 0;
-			background-color: rgba(255,255,255,0);
+			
 			/*width:100%;*/
 			/*image-rendering: -moz-crisp-edges;
 			image-rendering: -webkit-crisp-edges;
@@ -29,10 +29,38 @@
 </head>
 <body>
 	<div>
+		<canvas id="face" width="400" height="400"></canvas>
+	<h1 id="mainName"></h1>
+    <div class="infoBox">
+      <p id="secondaryName"></p>
+      <div style="margin:0 auto;text-align: center;">
+        
+      </div>
+      <table>
+        <tbody>
+          <tr id="bornTd">
+          </tr>
+          <tr id="occupTd">
+          </tr>
+          <tr id="nationalityTd">
+          </tr>
+          <tr id="originTd">
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="copyBox">
+      <p id="mainCopy"></p>
+      <h2>Background</h2>
+      <p id="backgroundInfo"></p>
+      <h2>Persona</h2>
+      <p id="personaInfo"></p>
 	<canvas id="canvas" width="2000" height="800"></canvas></div>
 
 	<br>
 	<canvas id="animation" width="200" height="400"></canvas>
+	
+    </div>
 
 	<script type="text/javascript">
 		var canvas = document.getElementById("canvas");
@@ -43,101 +71,590 @@
 
 
 
-		var cdog = {
-			size : 87, // height in inches divided by 80 (6'8") in inches.
-			skin : [225, 161, 139,1],
-			hair : {
-				color     : [250,250,150],
-				back      : 30,
-				sideburns : 30,
-				middle    : 30,
-				max       : 10
-			},
-			beard : {
-				sideburns : 0,
-				chops     : 0,
-				chin      : 10
-			},
-			torso : {
-				chest     : 20,
-				stomach   : 40,
-				build     : 0, // higher for more feminine
-				posture   : 70, // lower the better shape
-				waist     : 0, // higher for more curves
-				back      : 0,
-				arms      : 4
-			},
-			clothes : {
-				pants     : [49,29, 26],
-				shirt     : [140, 180, 140],
-				sleeves   : [140, 140, 180],
-				shoes     : [68, 56, 52]
-			}
-		}
+	
+		
 
-		var cold = {
-			size : 90, // height in inches divided by 80 (6'8") in inches.
-			skin : [135, 101, 69,1],
-			hair : {
-				color     : [150,150,150],
-				back      : 30,
-				sideburns : 30,
-				middle    : 0,
-				max       : 0
-			},
-			beard : {
-				sideburns : 10,
-				chops     : 25,
-				chin      : 10
-			},
-			torso : {
-				chest     : 20,
-				stomach   : 20,
-				build     : 0, // higher for more feminine
-				posture   : 70, // lower the better shape
-				waist     : 0, // higher for more curves
-				back      : 0,
-				arms      : 4
-			},
-			clothes : {
-				pants     : [89,89,116],
-				shirt     : [40, 40, 80],
-				sleeves   : [40, 40, 80],
-				shoes     : [68, 56, 52]
-			}
-		}
+		
 
-		var c = {
-			size : 78, // height in inches divided by 80 (6'8") in inches.
-			skin : [205, 141, 119,1],
-			hair : {
-				color     : [81,45,42],
-				back      : 70,
-				sideburns : 70,
-				middle    : 30,
-				max       : 10
-			},
-			beard : {
-				sideburns : 0,
-				chops     : 0,
-				chin      : 0
-			},
-			torso : {
-				chest     : 40,
-				stomach   : 10,
-				build     : 25,
-				posture   : 0,
-				waist     : 30,
-				back      : 20,
-				arms      : 0
-			},
-			clothes : {
-				pants     : [39,49,106],
-				shirt     : [231, 146, 152],
-				sleeves   : [205, 141, 119,1],
-				shoes     : [68, 56, 52]
-			}
+
+		// https://obfuscator.io/
+
+// https://obfuscator.io/
+
+var gender = null;
+var charactersArray = [];
+const monthNames = ["January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
+];
+
+function character(gender,firstName,lastName,birthday,job,ethnicity,goal,appearance,hobby,hometown,school,major,voice,personality,superlative,querk) {
+	this.gender = gender;
+	this.firstName = firstName;
+	this.lastName = lastName;
+	this.birthday = birthday;
+	this.job = job;
+	this.ethnicity = ethnicity;
+	this.goal = goal;
+	this.appearance = appearance;
+	this.hobby = hobby;
+	this.hometown = hometown;
+	this.school = school;
+	this.major = major;
+	this.voice = voice;
+	this.personality = personality;
+	this.superlative = superlative;
+	this.querk = querk;
+}
+
+var W = H = 200;
+var face = document.getElementById("face");
+face.width = 200;
+face.height = 200;
+face.style.position = "relative";
+
+var ctx3 = face.getContext("2d");
+
+var maleNames = ['Noah','Liam','William','Mason','James','Benjamin','Jacob','Michael','Elijah','Ethan','Alexander','Oliver','Daniel','Lucas','Matthew','Aiden','Jackson','Logan','David','Joseph','Samuel','Henry','Owen','Sebastian','Gabriel','Carter','Jayden','John','Luke','Anthony','Isaac','Dylan','Wyatt','Andrew','Joshua','Christopher','Grayson','Jack','Julian','Ryan','Jaxon','Levi','Nathan','Caleb','Hunter','Christian','Isaiah','Thomas','Aaron','Lincoln','Charles','Eli','Landon','Connor','Josiah','Jonathan','Cameron','Jeremiah','Mateo','Adrian','Hudson','Robert','Nicholas','Brayden','Nolan','Easton','Jordan','Colton','Evan','Angel','Asher','Dominic','Austin','Leo','Adam','Jace','Jose','Ian','Cooper','Gavin','Carson','Jaxson','Theodore','Jason','Ezra','Chase','Parker','Xavier','Kevin','Zachary','Tyler','Ayden','Elias','Bryson','Leonardo','Greyson','Sawyer','Roman','Brandon','Bentley','Kayden','Ryder','Nathaniel','Vincent','Miles','Santiago','Harrison','Tristan','Declan','Cole','Maxwell','Luis','Justin','Everett','Micah','Axel','Wesley','Max','Silas','Weston','Ezekiel','Juan','Damian','Camden','George','Braxton','Blake','Jameson','Diego','Carlos','Ivan','Kingston','Ashton','Jesus','Brody','Emmett','Abel','Jayce','Maverick','Bennett','Giovanni','Eric','Maddox','Kaiden','Kai','Bryce','Alex','Calvin','Ryker','Jonah','Luca','King','Timothy','Alan','Brantley','Malachi','Emmanuel','Abraham','Antonio','Richard','Jude','Miguel','Edward','Victor','Amir','Joel','Steven','Matteo','Hayden','Patrick','Grant','Preston','Tucker','Jesse','Finn','Oscar','Kaleb','Gael','Graham','Elliot','Alejandro','Rowan','Marcus','Jeremy','Zayden','Karter','Beau','Bryan','Maximus','Aidan','Avery','Elliott','August','Nicolas','Mark','Colin','Waylon','Bradley','Kyle','Kaden','Xander','Caden','Paxton','Brian','Dean','Paul','Peter','Kenneth','Jasper','Lorenzo','Zane','Zion','Beckett','River','Jax','Andres','Dawson','Messiah','Jaden','Rhett','Brady','Lukas','Omar','Jorge','Riley','Derek','Charlie','Emiliano','Griffin','Myles','Brooks','Israel','Sean','Judah','Iker','Javier','Erick','Tanner','Corbin','Adriel','Jase','Jake','Simon','Cayden','Knox','Tobias','Felix','Milo','Jayceon','Gunner','Francisco','Kameron','Cash','Remington','Reid','Cody','Martin','Andre','Rylan','Maximiliano','Zander','Archer','Barrett','Killian','Stephen','Clayton','Thiago','Spencer','Amari','Josue','Holden','Emilio','Arthur','Chance','Eduardo','Leon','Travis','Ricardo','Damien','Manuel','Gage','Keegan','Titus','Raymond','Kyrie','Nash','Finley','Fernando','Louis','Peyton','Rafael','Phoenix','Jaiden','Lane','Dallas','Emerson','Cristian','Collin','Kyler','Devin','Jeffrey','Walter','Anderson','Cesar','Mario','Donovan','Seth','Garrett','Enzo','Conner','Legend','Caiden','Beckham','Jett','Ronan','Troy','Karson','Edwin','Hector','Cohen','Ali','Trevor','Conor','Orion','Shane','Andy','Marco','Walker','Angelo','Quinn','Dalton','Sergio','Ace','Tyson','Johnny','Dominick','Colt','Johnathan','Gideon','Julius','Cruz','Edgar','Prince','Dante','Marshall','Ellis','Joaquin','Major','Arlo','Alexis','Reed','Muhammad','Frank','Theo','Shawn','Erik','Grady','Nehemiah','Daxton','Atticus','Gregory','Matias','Bodhi','Emanuel','Jensen','Kash','Romeo','Desmond','Solomon','Allen','Jaylen','Leonel','Roberto','Pedro','Kason','Fabian','Clark','Dakota','Abram','Noel','Kayson','Malik','Odin','Jared','Warren','Kendrick','Rory','Jonas','Adan','Ibrahim','Trenton','Finnegan','Landen','Adonis','Jay','Ruben','Drew','Gunnar','Ismael','Jaxton','Kane','Hendrix','Atlas','Pablo','Zaiden','Wade','Russell','Cade','Sullivan','Malcolm','Kade','Harvey','Princeton','Skyler','Corey','Esteban','Leland','Derrick','Ari','Kamden','Zayn','Porter','Franklin','Raiden','Braylon','Ronald','Cyrus','Benson','Malakai','Hugo','Marcos','Maximilian','Hayes','Philip','Lawson','Phillip','Bruce','Braylen','Zachariah','Damon','Dexter','Enrique','Aden','Lennox','Drake','Khalil','Tate','Zayne','Milan','Brock','Brendan','Armando','Gerardo','Jamison','Rocco','Nasir','Augustus','Sterling','Dillon','Royal','Royce','Moses','Jaime','Johan','Scott','Chandler','Raul','Remy','Cason','Luka','Mohamed','Deacon','Winston','Albert','Pierce','Taylor','Nikolai','Bowen','Danny','Francis','Brycen','Jayson','Moises','Keith','Hank','Quentin','Kasen','Donald','Julio','Davis','Alec','Kolton','Lawrence','Rhys','Kian','Nico','Matthias','Kellan','Mathias','Ariel','Justice','Braden','Rodrigo','Ryland','Leonidas','Jerry','Ronin','Alijah','Kobe','Lewis','Dennis','Luciano','Ahmed','Frederick','Darius','Arjun','Dax','Asa','Nixon','Ezequiel','Eden','Tony','Landyn','Emmitt','Mathew','Kyson','Otto','Saul','Uriel','Colby','Dustin','Omari','Raphael','Brennan','Callen','Keaton','Arturo','Isaias','Roy','Kieran','Ty','Dorian','Cannon','Marvin','Cullen','Sage','Uriah','Darren','Cayson','Aarav','Case','Izaiah','Armani','Gustavo','Jimmy','Alberto','Duke','Rayan','Chris','Casey','Roland','Moshe','Curtis','Mauricio','Alonzo','Yusuf','Nikolas','Soren','Hamza','Jasiah','Alfredo','Devon','Jalen','Raylan','Edison','Jamari','Oakley','Samson','Lionel','Reece','Sam','Quincy','Jakob','Apollo','Kingsley','Ahmad','Bryant','Alvin','Trey','Mohammed','Conrad','Mitchell','Salvador','Quinton','Bo','Mohammad','Elian','Gianni','Lennon','Leonard','Douglas','Cassius','Ricky','Carl','Gary','Larry','Colten','Ramon','Kellen','Korbin','Wilson','Kylan','Santino','Niko','Issac','Jagger','Lance','Joe','Julien','Orlando','Jefferson','Memphis','Crosby','Mekhi','Nelson','Lucian','Ayaan','Nathanael','Neil','Makai','Finnley','Rex','Forrest','Layton','Randy','Boston','Tristen','Tatum','Brayan','Sylas','Thaddeus','Trent','Morgan','Roger','Abdullah','Casen','Maurice','Sincere','Titan','Kyree','Talon','Fletcher','Langston','Eddie','Briggs','Noe','Kamari','Rowen','Zeke','Aldo','Kaison','Valentino','Vihaan','Alden','Terry','Bruno','Canaan','Lee','Byron','Kohen','Reese','Braydon','Madden','Deandre','Flynn','Harley','Hezekiah','Amos','Harry','Zain','Alessandro','Stanley','Lucca','Branson','Ernesto','Joziah','Leandro','Ares','Marc','Blaine','Joey','Jon','Yosef','Carmelo','Franco','Jamal','Mack','Kristian','Dane','Lachlan','Callum','Graysen','Kye','Ben','Aryan','Gannon','London','Kareem','Stetson','Kristopher','Tomas','Ford','Bronson','Enoch','Baylor','Kaysen','Axton','Jaxen','Rodney','Dominik','Emery','Layne','Wilder','Jamir','Tripp','Kelvin','Vicente','Augustine','Brett','Callan','Clay','Crew','Brecken','Jacoby','Abdiel','Allan','Maxton','Melvin','Rayden','Terrance','Demetrius','Rohan','Wayne','Yahir','Arian','Fox','Brentley','Ray','Zechariah','Cain','Guillermo','Otis','Tommy','Alonso','Dariel','Jedidiah','Maximo','Cory','Grey','Reyansh','Skylar','Marcelo','Castiel','Kase','Toby','Bobby','Jadiel','Marcel','Lochlan','Jeffery','Zackary','Fisher','Yousef','Aron','Chaim','Felipe','Axl','Anakin','Brodie','Dash','Anson','Maison','Zaire','Samir','Damari','Elisha','Davion','Eugene','Hassan','Kannon','Azariah','Clyde','Harper','Nickolas','Boone','Magnus','Coen','Kole','Willie','Chad','Xzavier','Duncan','Harold','Houston','Landry','Trace','Alvaro','Ameer','Junior','Kamdyn','Vincenzo','Gerald','Marlon','Payton','Jamie','Kamryn','Camdyn','Anders','Aydin','Bentlee','Reginald','Jaziel','Benton','Bodie','Misael','Westin','Will','Channing','Harlan','Kody','Kolten','Thatcher','Valentin','Henrik','Keenan','Terrence','Denver','Emory','Jerome','Jermaine','Cairo','Sonny','Mayson','Alfred','Cristiano','Darian','Eliseo','Maxim','Stefan','Hugh','Santana','Javion','Leighton','Miller','Riaan','Rogelio','Rudy','Blaze','Bridger','Darwin','Markus','Ronnie','Shepherd','Vaughn','Billy','Marley','Huxley','Rey','Keagan','Draven','Shiloh','Brysen','Giovani','Alistair','Brixton','Heath','Kalel','Reuben','Ridge','Adrien','Rene','Sutton','Zyaire','Ephraim','Neymar','Vance','Zavier','Jessie','Dangelo','Dayton','Emmet','Ishaan','Zaid','Camron','Jordy','Kenny','Micheal','Shaun','Alexzander','Howard','Kylo','Eason','Blaise','Craig','Hakeem','Karim','Jabari','Jairo','Khalid','Turner','Van','Westley','Braiden','Cedric','Darrell','Louie','Mustafa','Yehuda','Justus','Salvatore','Alfonso','Kendall','Konnor','Lamar','Gibson','Ignacio','Koda','Leroy','Terrell','Tristian','Achilles','Jericho','Ramiro','Yahya','Rolando','Vivaan','Dario','Jair','Ulises','Judson','Kashton','Tadeo','Marquis','Avi','Dimitri','Dwayne','Musa','Ahmir','Gordon','Ira','Seamus','Kolby','Brantlee','Javon','Rocky','Urijah','Brayson','Mikael','Santos','Gilbert','Greysen','Lyric','Coleman','Dominique','Foster','Gauge','Harris','Kymani','Leif','Agustin','Keanu','Konner','Brent','Immanuel','Benicio','Ernest','Merrick','Yisroel','Amare','Jad','Lyle','Creed','Krish','Maddux','Camilo','Giancarlo','Jamarion','Steve','Anton','Jamar','Jeremias','Ralph','Wesson','Bode','Braeden','Brenden','Eliezer','Davian','Gus','Jonathon'];
+var femaleNames = ['Emma','Olivia','Ava','Sophia','Isabella','Mia','Charlotte','Abigail','Emily','Harper','Amelia','Evelyn','Elizabeth','Sofia','Madison','Avery','Ella','Scarlett','Grace','Chloe','Victoria','Riley','Aria','Lily','Aubrey','Zoey','Penelope','Lillian','Addison','Layla','Natalie','Camila','Hannah','Brooklyn','Zoe','Nora','Leah','Savannah','Audrey','Claire','Eleanor','Skylar','Ellie','Samantha','Stella','Paisley','Violet','Mila','Allison','Alexa','Anna','Hazel','Aaliyah','Ariana','Lucy','Caroline','Sarah','Genesis','Kennedy','Sadie','Gabriella','Madelyn','Adeline','Maya','Autumn','Aurora','Piper','Hailey','Arianna','Kaylee','Ruby','Serenity','Eva','Naomi','Nevaeh','Alice','Luna','Bella','Quinn','Lydia','Peyton','Melanie','Kylie','Aubree','Mackenzie','Kinsley','Cora','Julia','Taylor','Katherine','Madeline','Gianna','Eliana','Elena','Vivian','Willow','Reagan','Brianna','Clara','Faith','Ashley','Emilia','Isabelle','Annabelle','Rylee','Valentina','Everly','Hadley','Sophie','Alexandra','Natalia','Ivy','Maria','Josephine','Delilah','Bailey','Jade','Ximena','Alexis','Alyssa','Brielle','Jasmine','Liliana','Adalynn','Khloe','Isla','Mary','Andrea','Kayla','Emery','London','Kimberly','Morgan','Lauren','Sydney','Nova','Trinity','Lyla','Margaret','Ariel','Adalyn','Athena','Lilly','Melody','Isabel','Jordyn','Jocelyn','Eden','Paige','Teagan','Valeria','Sara','Norah','Rose','Aliyah','Mckenzie','Molly','Raelynn','Leilani','Valerie','Emerson','Juliana','Nicole','Laila','Makayla','Elise','Mariah','Mya','Arya','Ryleigh','Adaline','Brooke','Rachel','Eliza','Angelina','Amy','Reese','Alina','Cecilia','Londyn','Gracie','Payton','Esther','Alaina','Charlie','Iris','Arabella','Genevieve','Finley','Daisy','Harmony','Anastasia','Kendall','Daniela','Catherine','Adelyn','Vanessa','Brooklynn','Juliette','Julianna','Presley','Summer','Destiny','Amaya','Hayden','Alana','Rebecca','Michelle','Eloise','Lila','Fiona','Callie','Lucia','Angela','Marley','Adriana','Parker','Alexandria','Giselle','Alivia','Alayna','Brynlee','Ana','Harley','Gabrielle','Dakota','Georgia','Juliet','Tessa','Leila','Kate','Jayla','Jessica','Lola','Stephanie','Sienna','Josie','Daleyza','Rowan','Evangeline','Hope','Maggie','Camille','Makenzie','Vivienne','Sawyer','Gemma','Joanna','Noelle','Elliana','Mckenna','Gabriela','Kinley','Rosalie','Brynn','Amiyah','Melissa','Adelaide','Malia','Ayla','Izabella','Delaney','Cali','Journey','Maci','Elaina','Sloane','June','Diana','Blakely','Aniyah','Olive','Jennifer','Paris','Miranda','Lena','Jacqueline','Paislee','Jane','Raegan','Lyric','Lilliana','Adelynn','Lucille','Selena','River','Annie','Cassidy','Jordan','Thea','Mariana','Amina','Miriam','Haven','Remi','Charlee','Blake','Lilah','Ruth','Amara','Kali','Kylee','Arielle','Emersyn','Alessandra','Fatima','Talia','Vera','Nina','Ariah','Allie','Addilyn','Keira','Catalina','Raelyn','Phoebe','Lexi','Zara','Makenna','Ember','Leia','Rylie','Angel','Haley','Madilyn','Kaitlyn','Heaven','Nyla','Amanda','Freya','Journee','Daniella','Danielle','Kenzie','Ariella','Lia','Brinley','Maddison','Shelby','Elsie','Kamila','Camilla','Alison','Ainsley','Ada','Laura','Kendra','Kayleigh','Adrianna','Madeleine','Joy','Juniper','Chelsea','Sage','Erin','Felicity','Gracelyn','Nadia','Skyler','Briella','Aspen','Myla','Heidi','Katie','Zuri','Jenna','Kyla','Kaia','Kira','Sabrina','Gracelynn','Gia','Amira','Alexia','Amber','Cadence','Esmeralda','Katelyn','Scarlet','Kamryn','Alicia','Miracle','Kelsey','Logan','Kiara','Bianca','Kaydence','Alondra','Evelynn','Christina','Lana','Aviana','Dahlia','Dylan','Anaya','Ashlyn','Jada','Kathryn','Jimena','Elle','Gwendolyn','April','Carmen','Mikayla','Annalise','Maeve','Camryn','Helen','Daphne','Braelynn','Carly','Cheyenne','Leslie','Veronica','Nylah','Kennedi','Skye','Evie','Averie','Harlow','Allyson','Carolina','Tatum','Francesca','Aylin','Ashlynn','Sierra','Mckinley','Leighton','Maliyah','Annabella','Megan','Margot','Luciana','Mallory','Millie','Regina','Nia','Rosemary','Saylor','Abby','Briana','Phoenix','Viviana','Alejandra','Frances','Jayleen','Serena','Lorelei','Zariah','Ariyah','Jazmin','Avianna','Carter','Marlee','Eve','Aleah','Remington','Amari','Bethany','Fernanda','Malaysia','Willa','Liana','Ryan','Addyson','Yaretzi','Colette','Macie','Selah','Nayeli','Madelynn','Michaela','Priscilla','Janelle','Samara','Justice','Itzel','Emely','Lennon','Aubrie','Julie','Kyleigh','Sarai','Braelyn','Alani','Lacey','Edith','Elisa','Macy','Marilyn','Baylee','Karina','Raven','Celeste','Adelina','Matilda','Kara','Jamie','Charleigh','Aisha','Kassidy','Hattie','Karen','Sylvia','Winter','Aleena','Angelica','Magnolia','Cataleya','Danna','Henley','Mabel','Kelly','Brylee','Jazlyn','Virginia','Helena','Jillian','Madilynn','Blair','Galilea','Kensley','Wren','Bristol','Emmalyn','Holly','Lauryn','Cameron','Hanna','Meredith','Royalty','Sasha','Lilith','Jazmine','Alayah','Madisyn','Cecelia','Renata','Lainey','Liberty','Brittany','Savanna','Imani','Kyra','Mira','Mariam','Tenley','Aitana','Gloria','Maryam','Giuliana','Skyla','Anne','Johanna','Myra','Charley','Tiffany','Beatrice','Karla','Cynthia','Janiyah','Melany','Alanna','Lilian','Demi','Pearl','Jaylah','Maia','Cassandra','Jolene','Crystal','Everleigh','Maisie','Anahi','Elianna','Hallie','Ivanna','Oakley','Ophelia','Emelia','Mae','Marie','Rebekah','Azalea','Haylee','Bailee','Anika','Monica','Kimber','Sloan','Jayda','Anya','Bridget','Kailey','Julissa','Marissa','Leona','Aileen','Addisyn','Kaliyah','Coraline','Dayana','Kaylie','Celine','Jaliyah','Elaine','Lillie','Melina','Jaelyn','Shiloh','Jemma','Madalyn','Addilynn','Alaia','Mikaela','Adley','Saige','Angie','Dallas','Braylee','Elsa','Emmy','Hayley','Siena','Lorelai','Miah','Royal','Tiana','Elliot','Kori','Greta','Charli','Elliott','Julieta','Alena','Rory','Harlee','Rosa','Ivory','Guadalupe','Jessie','Laurel','Annika','Clarissa','Karsyn','Collins','Kenia','Milani','Alia','Chanel','Dorothy','Armani','Emory','Ellen','Irene','Adele','Jaelynn','Myah','Hadassah','Jayde','Lilyana','Malaya','Kenna','Amelie','Reyna','Teresa','Angelique','Linda','Nathalie','Kora','Zahra','Aurelia','Kalani','Rayna','Jolie','Sutton','Aniya','Jessa','Laylah','Esme','Keyla','Ariya','Elisabeth','Marina','Mara','Meadow','Aliza','Zelda','Lea','Elyse','Monroe','Penny','Lilianna','Lylah','Liv','Scarlette','Kadence','Ansley','Emilee','Perla','Annabel','Alaya','Milena','Karter','Avah','Amirah','Leyla','Livia','Chaya','Wynter','Jaycee','Lailah','Amani','Milana','Lennox','Remy','Zariyah','Clare','Hadlee','Kiera','Rosie','Alma','Kaelyn','Eileen','Jayden','Martha','Noa','Christine','Ariadne','Natasha','Emerie','Tatiana','Joselyn','Joyce','Salma','Amiya','Audrina','Kinslee','Jaylene','Analia','Erika','Lexie','Mina','Patricia','Dulce','Poppy','Aubrielle','Clementine','Lara','Amaris','Milan','Aliana','Kailani','Kaylani','Maleah','Belen','Simone','Whitney','Elora','Claudia','Gwen','Rylan','Antonella','Khaleesi','Arely','Princess','Kenley','Itzayana','Karlee','Paulina','Laney','Bria','Chana','Kynlee','Astrid','Giovanna','Lindsey','Sky','Aryanna','Ayleen','Azariah','Joelle','Nala','Tori','Noemi','Breanna','Emmeline','Mavis','Amalia','Mercy','Tinley','Averi','Aiyana','Alyson','Corinne','Leanna','Madalynn','Briar','Jaylee','Kailyn','Kassandra','Kaylin','Nataly','Amia','Yareli','Cara','Taliyah','Thalia','Carolyn','Estrella','Montserrat','Zaylee','Anabelle','Deborah','Frida','Zaria','Kairi','Katalina','Nola','Erica','Isabela','Jazlynn','Paula','Faye','Louisa','Alessia','Courtney','Reign','Ryann','Stevie','Heavenly','Lisa','Roselyn','Raina','Adrienne','Celia','Estelle','Marianna','Brenda','Kathleen','Paola','Hunter','Ellis','Hana','Lina','Raquel','Aliya','Iliana','Kallie','Emmalynn','Naya','Reina','Wendy','Landry','Barbara','Casey','Karlie','Kiana','Rivka','Kenya','Aya','Carla','Dalary','Jaylynn','Sariah','Andi','Romina','Dana','Danica','Ingrid','Kehlani','Zaniyah','Alannah','Avalynn','Evalyn','Sandra','Veda','Hadleigh','Paityn','Abril','Ciara','Holland','Lillianna','Kai','Bryleigh','Emilie','Carlee','Judith','Kristina','Janessa','Annalee','Zoie','Maliah','Bonnie','Emmaline','Louise','Kaylynn','Monserrat','Nancy','Noor','Vada','Aubriella','Maxine','Nathalia','Tegan','Aranza','Emmie','Brenna','Estella','Ellianna','Kailee','Ailani','Caylee','Zainab','Zendaya','Jana','Julianne','Ellison','Sariyah','Lizbeth','Susan','Alyvia','Jewel','Marjorie','Marleigh','Nathaly','Sharon','Yamileth','Zion','Mariyah','Lyra','Belle','Yasmin','Kaiya','Maren','Marisol','Vienna','Calliope','Hailee','Rayne','Tabitha','Anabella','Blaire','Giana','Milania','Paloma','Amya','Novalee','Harleigh','Ramona','Rhea','Aadhya','Miya','Desiree','Frankie','Sylvie','Jasmin','Moriah','Rosalyn','Kaya','Joslyn','Tinsley','Farrah','Aislinn','Halle','Madyson','Micah','Arden','Bexley','Ari','Aubri','Ayana','Cherish','Davina','Anniston','Riya','Adilynn','Ally','Amayah','Harmoni','Heather','Saoirse','Azaria','Alisha','Nalani','Maylee','Shayla','Briley','Elin','Lilia','Ann','Antonia','Aryana','Chandler','Esperanza','Lilyanna','Alianna','Luz','Meilani'];
+var lastNames = ['Abbott','Acevedo','Acosta','Adams','Adkins','Aguilar','Aguirre','Albert','Alexander','Alford','Allen','Allison','Alston','Alvarado','Alvarez','Anderson','Andrews','Anthony','Armstrong','Arnold','Ashley','Atkins','Atkinson','Austin','Avery','Avila','Ayala','Ayers','Bailey','Baird','Baker','Baldwin','Ball','Ballard','Banks','Barber','Barker','Barlow','Barnes','Barnett','Barr','Barrera','Barrett','Barron','Barry','Bartlett','Barton','Bass','Bates','Battle','Bauer','Baxter','Beach','Bean','Beard','Beasley','Beck','Becker','Bell','Bender','Benjamin','Bennett','Benson','Bentley','Benton','Berg','Berger','Bernard','Berry','Best','Bird','Bishop','Black','Blackburn','Blackwell','Blair','Blake','Blanchard','Blankenship','Blevins','Bolton','Bond','Bonner','Booker','Boone','Booth','Bowen','Bowers','Bowman','Boyd','Boyer','Boyle','Bradford','Bradley','Bradshaw','Brady','Branch','Bray','Brennan','Brewer','Bridges','Briggs','Bright','Britt','Brock','Brooks','Brown','Browning','Bruce','Bryan','Bryant','Buchanan','Buck','Buckley','Buckner','Bullock','Burch','Burgess','Burke','Burks','Burnett','Burns','Burris','Burt','Burton','Bush','Butler','Byers','Byrd','Cabrera','Cain','Calderon','Caldwell','Calhoun','Callahan','Camacho','Cameron','Campbell','Campos','Cannon','Cantrell','Cantu','Cardenas','Carey','Carlson','Carney','Carpenter','Carr','Carrillo','Carroll','Carson','Carter','Carver','Case','Casey','Cash','Castaneda','Castillo','Castro','Cervantes','Chambers','Chan','Chandler','Chaney','Chang','Chapman','Charles','Chase','Chavez','Chen','Cherry','Christensen','Christian','Church','Clark','Clarke','Clay','Clayton','Clements','Clemons','Cleveland','Cline','Cobb','Cochran','Coffey','Cohen','Cole','Coleman','Collier','Collins','Colon','Combs','Compton','Conley','Conner','Conrad','Contreras','Conway','Cook','Cooke','Cooley','Cooper','Copeland','Cortez','Cote','Cotton','Cox','Craft','Craig','Crane','Crawford','Crosby','Cross','Cruz','Cummings','Cunningham','Curry','Curtis','Dale','Dalton','Daniel','Daniels','Daugherty','Davenport','David','Davidson','Davis','Dawson','Day','Dean','Decker','Dejesus','Delacruz','Delaney','Deleon','Delgado','Dennis','Diaz','Dickerson','Dickson','Dillard','Dillon','Dixon','Dodson','Dominguez','Donaldson','Donovan','Dorsey','Dotson','Douglas','Downs','Doyle','Drake','Dudley','Duffy','Duke','Duncan','Dunlap','Dunn','Duran','Durham','Dyer','Eaton','Edwards','Elliott','Ellis','Ellison','Emerson','England','English','Erickson','Espinoza','Estes','Estrada','Evans','Everett','Ewing','Farley','Farmer','Farrell','Faulkner','Ferguson','Fernandez','Ferrell','Fields','Figueroa','Finch','Finley','Fischer','Fisher','Fitzgerald','Fitzpatrick','Fleming','Fletcher','Flores','Flowers','Floyd','Flynn','Foley','Forbes','Ford','Foreman','Foster','Fowler','Fox','Francis','Franco','Frank','Franklin','Franks','Frazier','Frederick','Freeman','French','Frost','Fry','Frye','Fuentes','Fuller','Fulton','Gaines','Gallagher','Gallegos','Galloway','Gamble','Garcia','Gardner','Garner','Garrett','Garrison','Garza','Gates','Gay','Gentry','George','Gibbs','Gibson','Gilbert','Giles','Gill','Gillespie','Gilliam','Gilmore','Glass','Glenn','Glover','Goff','Golden','Gomez','Gonzales','Gonzalez','Good','Goodman','Goodwin','Gordon','Gould','Graham','Grant','Graves','Gray','Green','Greene','Greer','Gregory','Griffin','Griffith','Grimes','Gross','Guerra','Guerrero','Guthrie','Gutierrez','Guy','Guzman','Hahn','Hale','Haley','Hall','Hamilton','Hammond','Hampton','Hancock','Haney','Hansen','Hanson','Hardin','Harding','Hardy','Harmon','Harper','Harrell','Harrington','Harris','Harrison','Hart','Hartman','Harvey','Hatfield','Hawkins','Hayden','Hayes','Haynes','Hays','Head','Heath','Hebert','Henderson','Hendricks','Hendrix','Henry','Hensley','Henson','Herman','Hernandez','Herrera','Herring','Hess','Hester','Hewitt','Hickman','Hicks','Higgins','Hill','Hines','Hinton','Hobbs','Hodge','Hodges','Hoffman','Hogan','Holcomb','Holden','Holder','Holland','Holloway','Holman','Holmes','Holt','Hood','Hooper','Hoover','Hopkins','Hopper','Horn','Horne','Horton','House','Houston','Howard','Howe','Howell','Hubbard','Huber','Hudson','Huff','Huffman','Hughes','Hull','Humphrey','Hunt','Hunter','Hurley','Hurst','Hutchinson','Hyde','Ingram','Irwin','Jackson','Jacobs','Jacobson','James','Jarvis','Jefferson','Jenkins','Jennings','Jensen','Jimenez','Johns','Johnson','Johnston','Jones','Jordan','Joseph','Joyce','Joyner','Juarez','Justice','Kane','Kaufman','Keith','Keller','Kelley','Kelly','Kemp','Kennedy','Kent','Kerr','Key','Kidd','Kim','King','Kinney','Kirby','Kirk','Kirkland','Klein','Kline','Knapp','Knight','Knowles','Knox','Koch','Kramer','Lamb','Lambert','Lancaster','Landry','Lane','Lang','Langley','Lara','Larsen','Larson','Lawrence','Lawson','Le','Leach','Leblanc','Lee','Leon','Leonard','Lester','Levine','Levy','Lewis','Lindsay','Lindsey','Little','Livingston','Lloyd','Logan','Long','Lopez','Lott','Love','Lowe','Lowery','Lucas','Luna','Lynch','Lynn','Lyons','MacDonald','Macias','Mack','Madden','Maddox','Maldonado','Malone','Mann','Manning','Marks','Marquez','Marsh','Marshall','Martin','Martinez','Mason','Massey','Mathews','Mathis','Matthews','Maxwell','May','Mayer','Maynard','Mayo','Mays','Mcbride','McCall','McCarthy','McCarty','McClain','McClure','McConnell','McCormick','McCoy','McCray','McCullough','McDaniel','McDonald','McDowell','McFadden','McFarland','Mcgee','Mcgowan','Mcguire','Mcintosh','Mcintyre','McKay','McKee','Mckenzie','McKinney','McKnight','McLaughlin','McLean','McLeod','McMahon','McMillan','McNeil','McPherson','Meadows','Medina','Mejia','Melendez','Melton','Mendez','Mendoza','Mercado','Mercer','Merrill','Merritt','Meyer','Meyers','Michael','Middleton','Miles','Miller','Mills','Miranda','Mitchell','Molina','Monroe','Montgomery','Montoya','Moody','Moon','Mooney','Moore','Morales','Moran','Moreno','Morgan','Morin','Morris','Morrison','Morrow','Morse','Morton','Moses','Mosley','Moss','Mueller','Mullen','Mullins','Munoz','Murphy','Murray','Myers','Nash','Navarro','Neal','Nelson','Newman','Newton','Nguyen','Nichols','Nicholson','Nielsen','Nieves','Nixon','Noble','Noel','Nolan','Norman','Norris','Norton','Nunez','Obrien','Ochoa','O\'connor','Odom','Odonnell','Oliver','Olsen','Olson','Oneal','Oneil','Oneill','Orr','Ortega','Ortiz','Osborn','Osborne','Owen','Owens','Pace','Pacheco','Padilla','Page','Palmer','Park','Parker','Parks','Parrish','Parsons','Pate','Patel','Patrick','Patterson','Patton','Paul','Payne','Pearson','Peck','Pena','Pennington','Perez','Perkins','Perry','Peters','Petersen','Peterson','Petty','Phelps','Phillips','Pickett','Pierce','Pittman','Pitts','Pollard','Poole','Pope','Porter','Potter','Potts','Powell','Powers','Pratt','Preston','Price','Prince','Pruitt','Puckett','Pugh','Quinn','Ramirez','Ramos','Ramsey','Randall','Randolph','Rasmussen','Ratliff','Ray','Raymond','Reed','Reese','Reeves','Reid','Reilly','Reyes','Reynolds','Rhodes','Rice','Rich','Richard','Richards','Richardson','Richmond','Riddle','Riggs','Riley','Rios','Rivas','Rivera','Rivers','Roach','Robbins','Roberson','Roberts','Robertson','Robinson','Robles','Rocha','Rodgers','Rodriguez','Rodriquez','Rogers','Rojas','Rollins','Roman','Romero','Rosa','Rosales','Rosario','Rose','Ross','Roth','Rowe','Rowland','Roy','Ruiz','Rush','Russell','Russo','Rutledge','Ryan','Salas','Salazar','Salinas','Sampson','Sanchez','Sanders','Sandoval','Sanford','Santana','Santiago','Santos','Sargent','Saunders','Savage','Sawyer','Schmidt','Schneider','Schroeder','Schultz','Schwartz','Scott','Sears','Sellers','Serrano','Sexton','Shaffer','Shannon','Sharp','Sharpe','Shaw','Shelton','Shepard','Shepherd','Sheppard','Sherman','Shields','Short','Silva','Simmons','Simon','Simpson','Sims','Singleton','Skinner','Slater','Sloan','Small','Smith','Snider','Snow','Snyder','Solis','Solomon','Sosa','Soto','Sparks','Spears','Spence','Spencer','Stafford','Stanley','Stanton','Stark','Steele','Stein','Stephens','Stephenson','Stevens','Stevenson','Stewart','Stokes','Stone','Stout','Strickland','Strong','Stuart','Suarez','Sullivan','Summers','Sutton','Swanson','Sweeney','Sweet','Sykes','Talley','Tanner','Tate','Taylor','Terrell','Terry','Thomas','Thompson','Thornton','Tillman','Todd','Torres','Townsend','Tran','Travis','Trevino','Trujillo','Tucker','Turner','Tyler','Tyson','Underwood','Valdez','Valencia','Valentine','Valenzuela','Vance','Vang','Vargas','Vasquez','Vaughan','Vaughn','Vazquez','Vega','Velasquez','Velazquez','Velez','Villarreal','Vincent','Vinson','Wade','Wagner','Walker','Wall','Wallace','Waller','Walls','Walsh','Walter','Walters','Walton','Ward','Ware','Warner','Warren','Washington','Waters','Watkins','Watson','Watts','Weaver','Webb','Weber','Webster','Weeks','Weiss','Welch','Wells','West','Wheeler','Whitaker','White','Whitehead','Whitfield','Whitley','Whitney','Wiggins','Wilcox','Wilder','Wiley','Wilkerson','Wilkins','Wilkinson','William','Williams','Williamson','Willis','Wilson','Winters','Wise','Witt','Wolf','Wolfe','Wong','Wood','Woodard','Woods','Woodward','Wooten','Workman','Wright','Wyatt','Wynn','Yang','Yates','York','Young','Zamora','Zimmerman'];
+var goals = ["Find a more interesting life","Find a thrilling life","Abandon their ideology","Answer a call to adventure","Apologize","Appease a god","Appease the gods","Avenge a family member","Avenge a friend","Avoid a person","Avoid failure","Avoid responsibilities","Be a better person","Be a hero","Be a master in their field","Be able to eat","Be accepted by society","Be admired","Be amused","Be better than their rival","Be forgiven","Be in control","Be left alone","Be loved","Be redeemed","Be remembered","Be respected","Be self-sufficient","Be somebody else","Be strong","Be the best they can be","Become a leader","Become anonymous","Become famous","Become godly","Become powerful","Become the strongest","Belong somewhere","Better themself","Break a habit","Break their addiction","Build their own home","Cause mayhem","Change a law","Change the future","Change the past","Clear a family member's name","Clear a friend's name","Clear their name","Complete a collection","Conquer their fear","Consume everything","Create a safe world","Create a utopia","Create a work of art","Cure a strange disease","Destroy corruption","Destroy evil","Discover a new planet","Do nothing","Do the impossible","Do the right thing","Eliminate evil","End a war","End the suffering of all","End the conflict","End the suffering of a family member","End the suffering of a friend","Entertain others","Escape a bad situation","Escape death","Escape from their current life","Escape their destiny","Establish their own country","Experience a new culture","Experience something new","Explore the oceans","Explore the unexplored","Feel like they is worth something","Fight for their homeland","Find a cure","Find a dream job","Find a job","Find a legendary creature","Find a lost friend","Find a lost lover","Find a new creative outlet","Find a new home","Find a new passion","Find a purpose","Find a purpose in life","Find beauty","Find excitement","Find inspiration","Find love","Find out a secret","Find out the fate of a family member","Find out the fate of a friend","Find out their true identity","Find peace within","Find romance","Find their muse","Find true love","Fix a mistake","Follow orders","Forget their past","Forgive somebody","Free the animals","Fulfill a destiny","Gain the approval of somebody","Gain what somebody else has","Get away from their past","Get rich","Go on an adventure","Have a passionate relationship","Have fun","Have justice done","Have more and more","Have their work recognized","Have what others have","Have what they can never have","Have what they can't have","Lead a rebellion","Lift a curse","Live","Live a quiet life","Live dangerously","Live forever","Live in peace","Make a difference","Make a sacrifice for the greater good","Make a scientific breakthrough","Make friends","Make people smile","Make sure justice prevails","More power","Never be hurt again","No longer be afraid","No longer be bored","Overcome a death sentence","Overcome a disability","Overcome mockery from the past","Overcome stress","Overthrow the government","Protect a family member","Protect a friend","Protect nature","Protect the innocent","Protect the peace","Protect the planet","Protect their business","Protect their family","Protect their home","Protect their honor","Prove a theory","Prove them wrong","Reach perfection","Reach the promised lands","Reconcile with a person","Redeem somebody","Regain their honor","Remain hidden","Repay a debt","Repay a life debt","Resolve their guilt","Restart the world","Retrieve a lost item","Retrieve a stolen item","Reunite with a family member","Reunite with a lost friend","Get Revenge","Rid the world of evil","Rule the city","Run for the borders","Satisfy their curiosity","Save Christmas","Save a deity","See others suffer","See the gods pay for their crimes","See the world","Solve a mystery","Solve an ancient mystery","Spread chaos","Spread joy","Spread their ideology","Stand out from the crowd","Start a business","Start a family","Start a new world","Stop a criminal","Take a new direction in life","Thwart destiny","To fit in","Travel back into the past","Travel in space","Travel into the future","Uncover a secret plot","Win a competition","Win a game","Write a book",'Neither look nor feel fat','Eat whatever they wants without gaining weight','Hold a political conversation','Learn to dance without looking stupid','Be attractive while aging','Be the life of the party, at least once','Have the confidence to go after it','Visit every continent','Speak a foreign language fluently','Learn how to take professional photographs','Go scuba diving, cliff diving, or skydiving','Live in a beautiful, serene place','Volunteer in a disaster zone','Go to a major sports championship, like Wimbledon','Pilot a plane','Spend New Year’s in New York City','Have at least one true best friend','Feel relief from social judgment','Reconcile with their enemy','Be remembered in a positive way after death','Make a difference in someone else\'s life','Feel important to others','Feel centered','Live each day without regret','Quiet self-limiting thoughts','Reach a fabled level of success','Become untouchable','Create a positive work/life balance','Be more productive with each minute of the day','Be recognized as talented or even brilliant','Publish a book','Make enough money to care for their aging parents','Write a screenplay that gets picked up as a movie','Start every morning with a leisurely cup of coffee instead of a rushed, chugged one','Travel the country in an RV','Have satisfying, regular sex','Not be afraid of intimacy','Have many children and grandchildren','Stay married to the same person','Find meaningful work','Find the best piece of pie, ever','Grow old without losing their mind or control of their body','Recover from their painful and debilitating disease','Not die from their painful and debilitating disease','Have plenty of energy to enjoy each day','Age gracefully, without wrinkles and without going bald','Find a way to enjoy exercise','Finish a marathon or an ironman triathlon','Appear on the Oprah Winfrey Show','Write a best selling book','Make one million dollars in one year','Golf 18 holes under 90','Run a 10k race','Run 14 miles in less than 3 hours','Meet a U.S. president while he/she is still in office','Build or buy their dream house','Own a vacation home in Hawaii','Own their own pool table','Assemble a good art collection','Own a Mercedes or Lexus','Speak in 30 or more countries','Give a university commencement address','Publish 100 books','Speak at the Million Dollar Roundtable','Produce a TV infomercial','Write a children\'s book','Complete NLP training','Produce a PBS program','Have $3,000,000 net','Sell $20,000 worth of books and tapes at a live event in one','Sell 1,000,000 audio albums','Learn to speak Spanish fluently','Appear in a movie','Learn to paint with oils','Publish a poem','Master 5 magic tricks','Learn to sing and play 10 popular songs on the guitar','Give a speech or conduct a seminar in all 50 states','Appear on the cover of a magazine','Get paid $10,000 for a single talk','Keynote an NSA conference','Win over a $1000 in a casino','Give a talk to an audience of 10,000 people','Learn how to take world-class photographs','Bench press 200 pounds','Run a mile under 6 minutes','Do a fire-walk','Conduct a training for a professional athletic team','Have a syndicated newspaper column','Participate in an Olympic distance triathlon','Finish a half Ironman triathlon','Finish a full Ironman triathlon','Finish in the top 5% in a half marathon','Learn Muay Thai boxing','Get down to single digit body fat %','Get six-pack abs','Do 100 days of consecutive running','Train for a marathon in 4 Weeks','Do yoga for 40 days in a row','Generate $1000 from online','Generate monthly recurring passive income','Have zero personal debt','Become location independent','Become financially independent','Have $10,000+ in savings','Make a long-term gold investment (10K)','Invest in the stock market (10K)','Build a six-figure business (100K)','Diversify income from at least five sources','Graduate from an international university','Speak English fluently','Become an international public speaker','Publish monthly blog posts for a year','Speak conversational Spanish','Publish a short eBook guide','Write and launch an email series','Interview 100 inspirational people','Create an online course','Write a full-length book','Volunteer at a hospital','Learn and perform Reiki','Participate in a 10-day Vipassana meditation retreat','Help a business in a developing country','Help a family in need in a developing country','Offer pro-bono life and business coaching','Make 20+ donations in a year','Help building a school in a developing country','Achieve 60 days of meditation','30 days of helping others','Become an IT manager','Become a Business Development Manager','Become a General Manager','Become a Corporate Director','Become an Internet Marketing consultant','Become a business owner','Become a Web Developer','Become a business coach','Become a software entrepreneur','Become a Startup Advisor','52 weeks of socializing','Have a long-term loving relationship','Share a house with great friends','Spend 60 nights out in 60 days','Have yearly family visits','World travel with friends','World travel with my parents','World travel with a partner','World travel with my sisters','30-days of expressing gratitude to friends and family','Travel through Southeast Asia','Travel in the South Pacific','Travel across North America','Travel across Europe','Travel throughout Australia','Travel in Central America','Travel in South America','Travel in North Africa','Travel to the Caribbean','Travel in Eastern Europe','Take a motorcycle trip','Go on a kayaking trip','Go trekking in the highest mountains','Sail a small boat','Travel by a 4WD','Surf around the world','Go on a sailing trip','Go diving','Learn to rock climb','Go cross country skiing','Become a resident of Australia','Become an Australian citizen','Live in the U.S.','Drink water first thing in the morning for a year','Be an early riser for a year','Give up coffee for a year','Give up Alcoholic spirits for a year','Be a vegetarian for a year','Do a 7-day detox fasting','Juice for 20 days','Paint a picture','Create a Youtube clip','Be featured on a Podcast','Write 365 days of motivational thoughts','Dance Salsa for 30 days','Learn to play and preform with a tribal drum','Appear on stage','Compose an electronic song'];
+var colleges = ['Williams College','Amherst College','Swarthmore College','Wellesley College','Bowdoin College','Pomona College','Middlebury College','Carleton College','Claremont McKenna College','Haverford College','Davidson College','Vassar College','United States Naval Academy','Washington and Lee University','Colby College','Hamilton College','Harvey Mudd College','Wesleyan University','Bates College','Grinnell College','Smith College','Colgate University','Oberlin College','Macalester College','Scripps College','United States Military Academy','Bryn Mawr College','Colorado College','United States Air Force Academy','Kenyon College','University of Richmond','Barnard College','Bucknell University','College of the Holy Cross','Lafayette College','Pitzer College','Dickinson College','Franklin and Marshall College','Skidmore College','Whitman College','Mount Holyoke College','Soka University of America','Union College','Occidental College','Bard College','Centre College','Connecticut College','Sewanee-University of the South','Trinity College','Gettysburg College','Denison University','DePauw University','Furman University','Rhodes College','St. Olaf College','St. John\'s College','St. Lawrence University','Wheaton College','Lawrence University','Sarah Lawrence College','Beloit College','Hobart and William Smith Colleges','Wabash College','Gustavus Adolphus College','Kalamazoo College','Muhlenberg College','Virginia Military Institute','Willamette University','Berea College','College of Wooster','Hillsdale College','Wheaton College','Agnes Scott College','Earlham College','Illinois Wesleyan University','St. John\'s University (MN)','Lewis & Clark College','Reed College','Thomas Aquinas College','Wofford College','Allegheny College','Hendrix College','Knox College','Spelman College','Transylvania University','University of Puget Sound','New College of Florida','Southwestern University','Austin College','Bennington College','College of St. Benedict','Luther College','Millsaps College','St. John\'s College','St. Mary\'s College of Maryland','St. Mary\'s College','Washington and Jefferson College','Westmont College','Albion College','College of the Atlantic','Drew University','Hope College','Ohio Wesleyan University','St. Michael\'s College','Augustana College','Cornell College','Goucher College','Hampden-Sydney College','Juniata College','Stonehill College','Washington College','Hollins University','Hanover College','Ripon College','Siena College','Calvin College','Susquehanna University','Sweet Briar College','Westminster College','Coe College','Lake Forest College','St. Anselm College','St. Norbert College','Birmingham-Southern College','Eckerd College','Linfield College','Presbyterian College','Randolph-Macon College','Berry College','Concordia College-Moorhead','Goshen College','McDaniel College','Moravian College','Morehouse College','Randolph College','Roanoke College','Wesleyan College','Whittier College','Alma College','Central College','Gordon College','Grove City College','Houghton College','Principia College','Simpson College','University of Minnesota-Morris','Wittenberg University','Centenary College of Louisiana','Hiram College','Nebraska Wesleyan University','Oglethorpe University','Salem College','St. Vincent College','Wells College','University of Oxford','University of Cambridge','Imperial College London','University College London','University of Edinburgh','University of Manchester','King\'s College London','University of Bristol','London School of Hygiene & Tropical Medicine','University of Glasgow','University of Birmingham','University of Leeds','University of Southampton','University of Sheffield','University of Liverpool','University of Nottingham','Queen Mary University of London','University of Warwick','Cardiff University','Durham University','Newcastle University','University of St Andrews','Lancaster University','University of Aberdeen','University of Exeter','University of Leicester','University of York','University of East Anglia','University of Sussex','University of Reading','Queen\'s University Belfast','London School of Economics and Political Science','University of Dundee','University of Bath','Brunel University','University of Surrey','Loughborough University','University of Strathclyde','Princeton University','Harvard University','Yale University','Columbia University','Stanford University','University of Chicago','Massachusetts Institute of Technology','Duke University','University of Pennsylvania','California Institute of Technology','Dartmouth College','Johns Hopkins University','Northwestern University','Washington University in St. Louis','Cornell University','Brown University','University of Notre Dame','Vanderbilt University','Rice University','University of California-Berkeley','Emory University','Georgetown University','University of California-Los Angeles','University of Virginia','Carnegie Mellon University','University of Southern California','Tufts University','Wake Forest University','University of Michigan-Ann Arbor','University of North Carolina-Chapel Hill','Boston College','New York University','College of William and Mary','University of Rochester','Brandeis University','Georgia Institute of Technology','University of California-San Diego','Case Western Reserve University','University of California-Davis','Lehigh University','University of California-Santa Barbara','Boston University','Northeastern University','Rensselaer Polytechnic Institute','University of California-Irvine','University of Illinois-Urbana Champaign','University of Wisconsin-Madison','Pennsylvania State University','University of Florida','University of Miami','University of Washington','Yeshiva University','University of Texas-Austin','George Washington University','Ohio State University','Pepperdine University','Tulane University','Fordham University','Southern Methodist Unviersity','Syracuse University','University of Connecticut','Brigham Young University-Provo','Clemson University','Purdue University-West Lafayette','University of Georgia','University of Maryland at College Park','University of Pittsburgh','Texas A&M University-College Station','Worcester Polytechnic Institute','Rutgers-New Brunswick','American University','Baylor University','University of Iowa','University of Minnesota-Twin Cities','Virginia Tech','Clark University','Indiana University-Bloomington','Marquette University','Miami University-Oxford (Ohio)','Stevens Institute of Technology','SUNY College of Environmental Science and Forestry','Texas Christian University','University of Delaware','University of Massachusetts-Amherst','Michigan State University','University of California-Santa Cruz','University of Vermont','Binghamton University-SUNY','Colorado School of Mines','Stony Brook-State University of New York','University of Alabama','University of Colorado-Boulder','University of Denver','University of Tulsa','Drexel University','Florida State University','North Carolina State University-Raleigh','University of San Diego','St. Louis University','University of Missouri','University of Nebraska-Lincoln','University of New Hampshire','Auburn University','University at Buffalo-SUNY','University of Dayton','Iowa State University','Loyola University Chicago','University of Kansas','University of Oklahoma','University of Oregon','University of San Francisco','University of Tennessee','University of California-Riverside','University of South Carolina','University of St. Thomas','Catholic University of America','Duquesne University','Illinois Institute of Technology','Michigan Technological University','University of the Pacific','Clarkson University','Colorado State University','DePaul University','Temple University','University of Arizona','Rutgers-Newark','Seton Hall University','University at Albany-SUNY','Arizona State University','Louisiana State University-Baton Rouge','Ohio University','University of Cincinnati','University of Kentucky','University of Utah','Hofstra University','New School','University of Arkansas','George Mason University','Missouri University of Science and Technology','Oregon State University','Washington State University','Illinois State University','Kansas State University','St. John Fisher College','Howard University','Oklahoma State University','St. John\'s University (NY)','University of Texas-Dallas','Adelphi University','New Jersey Institute of Technology','San Diego State University','University of Alabama-Birmingham','University of Illinois-Chicago','University of Maryland Baltimore County','University of Mississippi'];
+var jobs = ['Accountant','Actor','Acupuncturist','Administrator','Advertising executive','Air traffic controller','Aircraft engineer','Anesthesiologist','Animal breeder','Anthropologist','Antique dealer','Archaeologist','Architect','Archivist','Aromatherapist','Art critic','Art dealer','Art historian','Artist','Assembly line worker','Astrologer','Astronomer','Au pair','Auctioneer','Auditor','Author','Baggage handler','Bailiff','Baker','Bank clerk','Bank manager','Bar staff','Barber','Barrister','Beauty therapist','Blacksmith','Boat builder','Bodyguard','Book-keeper','Bookmaker','Brewer','Bricklayer','Broadcaster','Builder','Building labourer','Bus driver','Business consultant','Business owner','Butcher','Butler','Cabin crew','Cabinet maker','Camera operator','Car dealer','Car wash attendant','Care assistant','Career criminal','Careers advisor','Caretaker','Carpenter','Carpet fitter','Cartoonist','Cashier','Casual worker','Caterer','Chauffeur','Chef','Chemist','Childcare worker','Babysitter','Children\'s entertainer','Chimney sweep','Podiatrist','Chiropractor','Choreographer','Circus worker','Civil servant','Clairvoyant','Cleaner','Clergyman','Cleric','Clerical assistant','Clockmaker','Coastguard','Comedian','Community worker','Company director','Composer','Computer analyst','Computer engineer','Computer programmer','Conservationist','Construction worker','Cook','Coroner','Costume designer','Counsellor','Councillor','Courier','Craftsperson','Crane driver','Crematorium worker','Croupier','Crown prosecutor','Curator','Customs officer','Dancer','Data processor','Debt collector','Decorator','Delivery driver','Dental hygienist','Dentistental nurse','Dentist','Designer','Dietician','Diplomat','Director','Disc jockey','Diver','Doctor','Domestic staff','Doorman','Dressmaker','Driving instructor','Drug dealer','Economist','Editor','Electrician','Engineer','Estate agent','Events organiser','Factory worker','Fairground worker','Farmer','Farm worker','Fashion designer','Film director','Financial advisor','Firefighter','Fitness instructor','Flower arranger','Flying instructor','Footballer','Fork-lift driver','Foster parent','Fundraiser','Funeral director','Gamekeeper','Garden designer','Gardener','Gas fitter','Genealogist','Grave digger','Groom','Hairdresser','Handyman','Healthcare assistant','Health visitor','Heating engineer','Herbalist','Historian','Homeopath','Homemaker','Home-worker','Horticulturalist','Housekeeper','Hypnotherapist','Illustrator','Immigration officer','Independent means','Insurance consultant','Interior designer','Interpreter','Inventor','IT consultant','Jewellery maker','Jockey','Journalist','Judge','Kennel worker','Laboratory technician','Laborer','Landowner','Landscape gardener','Lap dancer','Lawyer','Leaflet distributor','Lecturer','Legal secretary','Librarian','Lifeguard','Lift engineer','Lighthouse keeper','Literary agent','Local govt worker','Lock keeper','Locksmith','Lorry driver','Machinist','Magician','Magistrate','Make-up artist','Management consultant','Managing director','Manicurist','Market trader','Marketing director','Massage therapist','Mathematician','Medical student','Merchant navy personnel','Meteorologist','Meter reader','Midwife','Miner','Minister','Missionary','Model','Moneylender','Mortician','Musician','Nun','Nurse','Occupational therapist','Oil rig crew','Optician','Osteopath','Paramedic','Park-keeper','Park ranger','Party planner','Pathologist','Pawnbroker','Pest controller','Pharmacist','Photographer','Physiotherapist','Pickpocket','Picture framer','Pilot','Plasterer','Plumber','Police officer','Politician','Pop star','Porter','Postal delivery worker','Preacher','Priest','Printer','Prison officer','Private investigator','Probation officer','Producer','Professor','Property developer','Prostitute','Psychiatrist','Psychologist','Publican','Publisher','Racing driver','Radio presenter','Receptionist','Garbage collector','Reporter','Researcher','Road sweeper','Roofer','Sailor','Salesperson','Scaffolder','School crossing warden','School meals supervisor','Scientist','Sculptor','Secretary','Security guard','Ship builder','Singer','Shoemaker','Shop assistant','Social worker','Software consultant','Soldier','Solicitor','Song writer','Special constable','Speech therapist','Sports coach','Sportsperson','Stockbroker','Street entertainer','Student','Surgeon','Surveyor','Tailor','Tarot Reader','Tattooist','Tax inspector','Taxi driver','Teacher','Teaching assistant','Telephonist','Telesales person','Television presenter','Toilet attendant','Tour guide','Traffic warden','Train driver','Travel agent','Typist','Undertaker','Who is currently Unemployed','Veterinary surgeon','Waiting staff','Window cleaner'];
+var cityState = ['New York, New York','Los Angeles, California','Chicago, Illinois','Houston, Texas','Phoenix, Arizona','Philadelphia, Pennsylvania','San Antonio, Texas','San Diego, California','Dallas, Texas','San Jose, California','Austin, Texas','Jacksonville, Florida','San Francisco, California','Columbus, Ohio','Indianapolis, Indiana','Fort Worth, Texas','Charlotte, North Carolina','Seattle, Washington','Denver, Colorado','El Paso, Texas','Washington, District of Columbia','Boston, Massachusetts','Detroit, Michigan','Nashville-Davidson, Tennessee','Memphis, Tennessee','Portland, Oregon','Oklahoma City, Oklahoma','Las Vegas, Nevada','Louisville, Kentucky','Baltimore, Maryland','Milwaukee, Wisconsin','Albuquerque, New Mexico','Tucson, Arizona','Fresno, California','Sacramento, California','Mesa, Arizona','Kansas City, Missouri','Atlanta, Georgia','Long Beach, California','Colorado Springs, Colorado','Raleigh, North Carolina','Miami, Florida','Virginia Beach, Virginia','Omaha, Nebraska','Oakland, California','Minneapolis, Minnesota','Tulsa, Oklahoma','Arlington, Texas','New Orleans, Louisiana','Wichita, Kansas','Cleveland, Ohio','Tampa, Florida','Bakersfield, California','Aurora, Colorado','Honolulu, Hawaii','Anaheim, California','Santa Ana, California','Corpus Christi, Texas','Riverside, California','Lexington-Fayette, Kentucky','St. Louis, Missouri','Stockton, California','Pittsburgh, Pennsylvania','St. Paul, Minnesota','Cincinnati, Ohio','Anchorage, Alaska','Henderson, Nevada','Greensboro, North Carolina','Plano, Texas','Newark, New Jersey','Lincoln, Nebraska','Toledo, Ohio','Orlando, Florida','Chula Vista, California','Irvine, California','Fort Wayne, Indiana','Jersey City, New Jersey','Durham, North Carolina','St. Petersburg, Florida','Laredo, Texas','Buffalo, New York','Madison, Wisconsin','Lubbock, Texas','Chandler, Arizona','Scottsdale, Arizona','Glendale, Arizona','Reno, Nevada','Norfolk, Virginia','Winston-Salem, North Carolina','North Las Vegas, Nevada','Irving, Texas','Chesapeake, Virginia','Gilbert, Arizona','Hialeah, Florida','Garland, Texas','Fremont, California','Baton Rouge, Louisiana','Richmond, Virginia','Boise City, Idaho','San Bernardino, California','Spokane, Washington','Des Moines, Iowa','Modesto, California','Birmingham, Alabama','Tacoma, Washington','Fontana, California','Rochester, New York','Oxnard, California','Moreno Valley, California','Fayetteville, North Carolina','Aurora, Illinois','Glendale, California','Yonkers, New York','Huntington Beach, California','Montgomery, Alabama','Amarillo, Texas','Little Rock, Arkansas','Akron, Ohio','Columbus, Georgia','Augusta-Richmond County, Georgia','Grand Rapids, Michigan','Shreveport, Louisiana','Salt Lake City, Utah','Huntsville, Alabama','Mobile, Alabama','Tallahassee, Florida','Grand Prairie, Texas','Overland Park, Kansas','Knoxville, Tennessee','Port St. Lucie, Florida','Worcester, Massachusetts','Brownsville, Texas','Tempe, Arizona','Santa Clarita, California','Newport News, Virginia','Cape Coral, Florida','Providence, Rhode Island','Fort Lauderdale, Florida','Chattanooga, Tennessee','Rancho Cucamonga, California','Oceanside, California','Santa Rosa, California','Garden Grove, California','Vancouver, Washington','Sioux Falls, South Dakota','Ontario, California','McKinney, Texas','Elk Grove, California','Jackson, Mississippi','Pembroke Pines, Florida','Salem, Oregon','Springfield, Missouri','Corona, California','Eugene, Oregon','Fort Collins, Colorado','Peoria, Arizona','Frisco, Texas','Cary, North Carolina','Lancaster, California','Hayward, California','Palmdale, California','Salinas, California','Alexandria, Virginia','Lakewood, Colorado','Springfield, Massachusetts','Pasadena, Texas','Sunnyvale, California','Macon-Bibb County, Georgia','Pomona, California','Hollywood, Florida','Kansas City, Kansas','Escondido, California','Clarksville, Tennessee','Joliet, Illinois','Rockford, Illinois','Torrance, California','Naperville, Illinois','Paterson, New Jersey','Savannah, Georgia','Bridgeport, Connecticut','Mesquite, Texas','Killeen, Texas','Syracuse, New York','McAllen, Texas','Pasadena, California','Bellevue, Washington','Fullerton, California','Orange, California','Dayton, Ohio','Miramar, Florida','Thornton, Colorado','West Valley City, Utah','Olathe, Kansas','Hampton, Virginia','Warren, Michigan','Midland, Texas','Waco, Texas','Charleston, South Carolina','Columbia, South Carolina','Denton, Texas','Carrollton, Texas','Surprise, Arizona','Roseville, California','Sterling Heights, Michigan','Murfreesboro, Tennessee','Gainesville, Florida','Cedar Rapids, Iowa','Visalia, California','Coral Springs, Florida','New Haven, Connecticut','Stamford, Connecticut','Thousand Oaks, California','Concord, California','Elizabeth, New Jersey','Lafayette, Louisiana','Kent, Washington','Topeka, Kansas','Simi Valley, California','Santa Clara, California','Athens-Clarke County, Georgia','Hartford, Connecticut','Victorville, California','Abilene, Texas','Norman, Oklahoma','Vallejo, California','Berkeley, California','Round Rock, Texas','Ann Arbor, Michigan','Fargo, North Dakota','Columbia, Missouri','Allentown, Pennsylvania','Evansville, Indiana','Beaumont, Texas','Odessa, Texas','Wilmington, North Carolina','Arvada, Colorado','Independence, Missouri','Provo, Utah','Lansing, Michigan','El Monte, California','Springfield, Illinois','Fairfield, California','Clearwater, Florida','Peoria, Illinois','Rochester, Minnesota','Carlsbad, California','Westminster, Colorado','West Jordan, Utah','Pearland, Texas','Richardson, Texas','Downey, California','Miami Gardens, Florida','Temecula, California','Costa Mesa, California','College Station, Texas','Elgin, Illinois','Murrieta, California','Gresham, Oregon','High Point, North Carolina','Antioch, California','Inglewood, California','Cambridge, Massachusetts','Lowell, Massachusetts','Manchester, New Hampshire','Billings, Montana','Pueblo, Colorado','Palm Bay, Florida','Centennial, Colorado','Richmond, California','San Buenaventura (Ventura), California','Pompano Beach, Florida','North Charleston, South Carolina','Everett, Washington','Waterbury, Connecticut','West Palm Beach, Florida','Boulder, Colorado','West Covina, California','Broken Arrow, Oklahoma','Clovis, California','Daly City, California','Lakeland, Florida','Santa Maria, California','Norwalk, California','Sandy Springs, Georgia','Hillsboro, Oregon','Green Bay, Wisconsin','Tyler, Texas','Wichita Falls, Texas','Lewisville, Texas','Burbank, California','Greeley, Colorado','San Mateo, California','El Cajon, California','Jurupa Valley, California','Rialto, California','Davenport, Iowa','League City, Texas','Davie, Florida','Las Cruces, New Mexico','South Bend, Indiana','Vista, California','Renton, Washington','San Angelo, Texas','Roanoke, Virginia','Kenosha, Wisconsin','Tuscaloosa, Alabama','Allen, Texas','Erie, Pennsylvania','Sparks, Nevada','Vacaville, California','Albany, New York','Beaverton, Oregon','Compton, California','Orem, Utah','Flint, Michigan','Federal Way, Washington','Mission Viejo, California','Spokane Valley, Washington','Boca Raton, Florida','Lee\'s Summit, Missouri','Rio Rancho, New Mexico','Sandy, Utah','Brockton, Massachusetts','Meridian, Idaho','South Gate, California','Lawrence, Kansas','San Marcos, California','Portsmouth, Virginia','New Bedford, Massachusetts','Yuma, Arizona','Lawton, Oklahoma','Roswell, Georgia','Dearborn, Michigan','Livonia, Michigan','Yakima, Washington','Sunrise, Florida','Hesperia, California','Quincy, Massachusetts','Longmont, Colorado','Carson, California','Plantation, Florida','Lynn, Massachusetts','Santa Monica, California','Santa Barbara, California','Miami Beach, Florida','Redding, California','Chico, California','Westminster, California','Greenville, North Carolina','Nampa, Idaho','Edmond, Oklahoma','Bend, Oregon','Carmel, Indiana','San Leandro, California','Fishers, Indiana','Deltona, Florida','Concord, North Carolina','Tracy, California','Suffolk, Virginia','Asheville, North Carolina','Livermore, California','Newton, Massachusetts','Fall River, Massachusetts','Menifee, California','Indio, California','Norwalk, Connecticut','Waukegan, Illinois','Sugar Land, Texas','Fort Smith, Arkansas','Hawthorne, California','Nashua, New Hampshire','Chino, California','Kirkland, Washington','Edinburg, Texas','Reading, Pennsylvania','Bellingham, Washington','Citrus Heights, California','Whittier, California','Ogden, Utah','Newport Beach, California','Champaign, Illinois','Duluth, Minnesota','O\'Fallon, Missouri','Clifton, New Jersey','Alhambra, California','Bloomington, Minnesota','Palm Coast, Florida','Danbury, Connecticut','Hoover, Alabama','Redwood City, California','Bloomington, Indiana','Hemet, California','Mount Pleasant, South Carolina','Trenton, New Jersey','Santa Fe, New Mexico','Johns Creek, Georgia','Fayetteville, Arkansas','Troy, Michigan','Mission, Texas','Bryan, Texas','Lake Forest, California','Buena Park, California','Largo, Florida','Cicero, Illinois','Avondale, Arizona','Sioux City, Iowa','Merced, California','St. George, Utah','Conroe, Texas','Pleasanton, California','Longview, Texas','Medford, Oregon','Warwick, Rhode Island','Westland, Michigan','Somerville, Massachusetts','Melbourne, Florida','Lakewood, California','Farmington Hills, Michigan','Cranston, Rhode Island','Kennewick, Washington','Mountain View, California','Napa, California','Tustin, California','Lynchburg, Virginia','Lawrence, Massachusetts','Deerfield Beach, Florida','Brooklyn Park, Minnesota','New Rochelle, New York','Parma, Ohio','Alameda, California','Chino Hills, California','Springdale, Arkansas','Bloomington, Illinois','Bellflower, California','Racine, Wisconsin','Milpitas, California','Auburn, Washington','Pharr, Texas','Scranton, Pennsylvania','Folsom, California','Goodyear, Arizona','Plymouth, Minnesota','Fort Myers, Florida','Hammond, Indiana','Manteca, California','Loveland, Colorado','Lake Charles, Louisiana','Upland, California','St. Joseph, Missouri','Baldwin Park, California','Gary, Indiana','Perris, California','Baytown, Texas','Kalamazoo, Michigan','Layton, Utah','San Ramon, California','Boynton Beach, Florida','Wyoming, Michigan','Gastonia, North Carolina','Arlington Heights, Illinois','Union City, California','Bethlehem, Pennsylvania','Evanston, Illinois','Jonesboro, Arkansas','Franklin, Tennessee','Missouri City, Texas','Bolingbrook, Illinois','Schaumburg, Illinois','Camden, New Jersey','Iowa City, Iowa','Warner Robins, Georgia','Appleton, Wisconsin','Rapid City, South Dakota','New Braunfels, Texas','Albany, Georgia','Temple, Texas','Flower Mound, Texas','Rochester Hills, Michigan','Southfield, Michigan','Rock Hill, South Carolina','Turlock, California','Decatur, Illinois','New Britain, Connecticut','Apple Valley, California','Bismarck, North Dakota','Missoula, Montana','Waukesha, Wisconsin','Rancho Cordova, California','Gulfport, Mississippi','Lafayette, Indiana','Lauderhill, Florida','Flagstaff, Arizona','Wilmington, Delaware','Pawtucket, Rhode Island','Canton, Ohio','Redlands, California','Lynwood, California','Pittsburg, California','Passaic, New Jersey','Pasco, Washington','Frederick, Maryland','Weston, Florida','North Richland Hills, Texas','Maple Grove, Minnesota','Kissimmee, Florida','Union City, New Jersey','St. Charles, Missouri','Walnut Creek, California','South Jordan, Utah','Muncie, Indiana','Cedar Park, Texas','Woodbury, Minnesota','Palatine, Illinois','Bossier City, Louisiana','Dothan, Alabama','Mount Vernon, New York','Eau Claire, Wisconsin','Yorba Linda, California','Davis, California','Homestead, Florida','Waterloo, Iowa','Redondo Beach, California','Jacksonville, North Carolina','Gaithersburg, Maryland','Victoria, Texas','St. Cloud, Minnesota','Marysville, Washington','Greenville, South Carolina','Delray Beach, Florida','Camarillo, California','Georgetown, Texas','Kenner, Louisiana','Palo Alto, California','Jackson, Tennessee','South San Francisco, California','Rockville, Maryland','Portland, Maine','Yuba City, California','Johnson City, Tennessee','Daytona Beach, Florida','Oshkosh, Wisconsin','Broomfield, Colorado','Eagan, Minnesota','North Little Rock, Arkansas','Bayonne, New Jersey','Ames, Iowa','Mansfield, Texas','Harlingen, Texas','Alpharetta, Georgia','Laguna Niguel, California','San Clemente, California','Conway, Arkansas','Bowling Green, Kentucky','Tamarac, Florida','Shawnee, Kansas','Rogers, Arkansas','Schenectady, New York','East Orange, New Jersey','Lodi, California','Buckeye, Arizona','West Des Moines, Iowa','Santa Cruz, California','Madera, California','Youngstown, Ohio','North Port, Florida','Skokie, Illinois','Lake Elsinore, California','Janesville, Wisconsin','Cheyenne, Wyoming','Eden Prairie, Minnesota','Wellington, Florida','Jupiter, Florida','Sammamish, Washington','Lorain, Ohio','Pico Rivera, California','Montebello, California','Encinitas, California','Auburn, Alabama','Waltham, Massachusetts','Blaine, Minnesota','Haverhill, Massachusetts','Rocklin, California','Tulare, California','Council Bluffs, Iowa','Redmond, Washington','Coon Rapids, Minnesota','North Miami, Florida','Hamilton, Ohio','Rowlett, Texas','San Marcos, Texas','Lakeville, Minnesota','Springfield, Oregon','Grand Junction, Colorado','La Habra, California','Moore, Oklahoma','Burnsville, Minnesota','Taylor, Michigan','Eastvale, California','National City, California','Lehi, Utah','Port Orange, Florida','Monterey Park, California','Marietta, Georgia','Terre Haute, Indiana','Malden, Massachusetts','Lakewood, Washington','Utica, New York','Cupertino, California','Brentwood, California','Petaluma, California','Vineland, New Jersey','Taylorsville, Utah','Idaho Falls, Idaho','Noblesville, Indiana','Bristol, Connecticut','West Allis, Wisconsin','Gardena, California','La Mesa, California','St. Clair Shores, Michigan','Pontiac, Michigan','Meriden, Connecticut','Dublin, California','Coconut Creek, Florida','Casper, Wyoming','Owensboro, Kentucky','Ocala, Florida','Chapel Hill, North Carolina','Pflugerville, Texas','Lancaster, Pennsylvania','Novi, Michigan','Great Falls, Montana','Springfield, Ohio','Woodland, California','Royal Oak, Michigan','Porterville, California','San Rafael, California','Huntington Park, California','Orland Park, Illinois','Ankeny, Iowa','Bartlett, Tennessee','Sanford, Florida','Dubuque, Iowa','Arcadia, California','Bowie, Maryland','White Plains, New York','Des Plaines, Illinois','Doral, Florida','Margate, Florida','Santee, California','Kokomo, Indiana','Castle Rock, Colorado','Grand Forks, North Dakota','Midwest City, Oklahoma','St. Peters, Missouri','Medford, Massachusetts','Corvallis, Oregon','Hendersonville, Tennessee','New Brunswick, New Jersey','Taunton, Massachusetts','Tinley Park, Illinois','Diamond Bar, California','Smyrna, Georgia','Sarasota, Florida','Greenwood, Indiana','Fountain Valley, California','Valdosta, Georgia','Oak Lawn, Illinois','Novato, California','Chicopee, Massachusetts','Weymouth Town, Massachusetts','Dearborn Heights, Michigan','Berwyn, Illinois','Bradenton, Florida','Hempstead, New York','Hanford, California','Rocky Mount, North Carolina','Port Arthur, Texas','Shoreline, Washington','Kettering, Ohio','Anderson, Indiana','Decatur, Alabama','Gilroy, California','Richland, Washington','Manhattan, Kansas','Highland, California','Paramount, California','Commerce City, Colorado','Huntersville, North Carolina','Euless, Texas','Pocatello, Idaho','Carson City, Nevada','Colton, California','Casa Grande, Arizona','West Haven, Connecticut','Rosemead, California','Blue Springs, Missouri','Hoboken, New Jersey','Normal, Illinois','Bonita Springs, Florida','Mount Prospect, Illinois','Cathedral City, California'];
+var majors = ['Accounting','Actuarial Science','Advertising','Agriculture','Agricultural and Biological Engineering','Agricultural Business Management','Agriculture Economics','Animal Bioscience','Animal Sciences','Anthropology','Applied Mathematics','Archaeology','Architectural Engineering','Architecture','Art History','Studio Art','Art Education','Biobehavioral Health','Biochemistry','Bioengineering','Biology','Biophysics','Biotechnology','Business Administration and Management','Business Logistics','Chemical Engineering','Chemistry','Civil Engineering','Computer Engineering','Computer Science','Crime, Law, and Justice','Dance','Earth Sciences','Economics','Electrical Engineering','Elementary and Kindergarten Education','Engineering Science','English','Environmental Systems Engineering','Environmental Sciences','Environmental Resource Management','Film and Video','Finance','Food Science','Forest Science','Forest Technology','General Science','Geography','Geosciences','Graphic Design and Photography','Health and Physical Education','Health Policy and Administration','History','Horticulture','Hotel, Restaurant, and Institutional Management','Human Development and Family Studies','Individual and Family Studies','Industrial Engineering','Information Sciences and Technology','Journalism','Kinesiology','Landscape Architecture','Law Enforcement and Correction','Marine Biology','Marketing','Mathematics','Mechanical Engineering','Media Studies','Meteorology','Microbiology','Mineral Economics','Modern Languages','Music Education','Nuclear Engineering','Nursing','Nutrition','Philosophy','Physics','Physiology','Political Science','Pre-medicine','Psychology','Public Relations','Real Estate','Recreation and Parks','Rehabilitation Services','Religious Studies','Secondary Education','Sociology','Social Work','Special Education','Speech Communication','Speech Pathology','Statistics','Telecommunications','Theater','Wildlife and Fishery Science','Wildlife Technology','Women\'s Studies'];
+var ethnicities = ['German','African American','Mexican','Irish','English','American','Italian','Polish','French','Scottish','Puerto Rican','Norwegian','Dutch','Swedish','Chinese','Asian Indian','Scotch-Irish','Russian','West Indian','Filipino','Native American','Asian American'];
+var hobbies = ['3D printing','Acting','Amateur radio','Aquascaping','Baking','Baton twirling','Board games','Book restoration','Cabaret','Calligraphy','Candle making','Coffee roasting','Coloring','Computer programming','Cooking','Cosplaying','Couponing','Creative writing','Crocheting','Cross-stitch','Crossword puzzles','Cryptography','Dance','Digital arts','Do it yourself','Drama','Drawing','Electronics','Embroidery','Fantasy sports','Fashion','Fishkeeping','Flower arranging','Foreign language learning','Gaming (tabletop games and role-playing games)','Genealogy','Glassblowing','Gunsmithing','Herp keeping','Homebrewing','Hydroponics','Ice skating','Jewelry making','Jigsaw puzzles','Juggling','Knife making','Knitting','Kombucha brewing','Lace making','Lapidary','Leather crafting','Lego building','Listening to music','Machining','Macrame','Magic','Metalworking','Model building','Origami','Painting','Pet','Philately','Photography','Playing musical instruments','Poi','Pottery','Puzzles','Quilling','Quilting','Reading','Scrapbooking','Sculpting','Sewing','Singing','Sketching','Soapmaking','Stand-up comedy','Table tennis','Taxidermy','Video gaming','Watching movies','Watching television','Video Game Creation','Whittling','Wood carving','Woodworking','Worldbuilding','Writing','Yo-yoing','Yoga','Air sports','Archery','Astronomy','BASE jumping','Baseball','Basketball','Beekeeping','Bird watching','Blacksmithing','Board sports','Bodybuilding','Brazilian jiu-jitsu','Camping','Canyoning','Dowsing','Driving','Fishing','Flag football','Flying','Flying disc','Foraging','Freestyle football','Gardening','Geocaching','Ghost hunting','Graffiti','Handball','High-power rocketry','Hiking','Hooping','Horseback riding','Hunting','Inline skating','Jogging','Kayaking','Kite flying','Kitesurfing','LARPing','Letterboxing','Longboarding','Martial arts','Metal detecting','Motor sports','Mountain biking','Mountaineering','Mycology','Netball','Nordic skating','Orienteering','Paintball','Parkour','Photography','Polo','Powerlifting','Rafting','Rappelling','Road biking','Rock climbing','Roller skating','Rugby','Running','Sailing','Sand art','Scouting','Scuba diving','Sculling or rowing','Shooting','Shopping','Skateboarding','Skiing','Skimboarding','Skydiving','Slacklining','Snowboarding','Stone skipping','Sun bathing','Surfing','Swimming','Taekwondo','Tai chi','Topiary','Travel','Urban exploration','Vacation','Vehicle restoration','Walking','Antiquities','Auto audiophilia','Flower collecting and pressing','Fossil hunting','Insect collecting','Magnet fishing','Metal detecting','Mineral collecting','Rock balancing','Sea glass collecting','Seashell collecting','Stone collecting','Action figure collecting','Antiquing','Art collecting','Book collecting','Card collecting','Coin collecting','Comic book collecting','Deltiology (postcard collecting)','Die-cast toy','Element collecting','Movie and movie memorabilia collecting','Record collecting','Shoes, dress','Stamp collecting','Video game collecting','Vintage cars','Animal fancy','Badminton','Baton twirling','Billiards','Bowling','Boxing','Bridge','Cheerleading','Chess','Color guard','Curling','Dancing','Darts','Debate','ESports','Fencing','Go','Gymnastics','Ice skating','Kabaddi','Laser tag','Longboarding','Mahjong','Marbles','Martial arts','Poker','Slot car racing','Speedcubing','Sport stacking','Table football','Volleyball','Weightlifting','Wrestling','Airsoft','American football','Archery','Association football','Australian rules football','Auto racing','Baseball','Beach volleyball','Breakdancing','Climbing','Cricket','Cycling','Disc golf','Dog sport','Equestrianism','Exhibition drill','Field hockey','Figure skating','Fishing','Footbag','Golfing','Handball','Horseback riding','Ice hockey','Judo','Jukskei','Kart racing','Knife throwing','Lacrosse','Longboarding','Marching band','Model aircraft','Racquetball','Radio-controlled car racing','Roller derby','Rugby league football','Sculling or rowing','Shooting sport','Skateboarding','Speed skating','Squash','Surfing','Swimming','Table tennis','Tennis','Tennis polo','Tour skating','Triathlon','Ultimate frisbee','Volleyball','Water polo','Fishkeeping','Learning','Microscopy','Reading','Shortwave listening','Videophilia','Aircraft spotting','Amateur astronomy','Astrology','Birdwatching','Bus spotting','Geocaching','Gongoozling','Herping','Hiking','Backpacking','Meteorology','Photography','Satellite watching','Trainspotting','Traveling','Whale watching'];
+var emotions = ['Absorbed','Abhorrence','Acceptance','Admiration','Adoration','Adrift','Aching','Affection','Afraid','Agitated','Agony','Aggravated','Alarm','Alert','Alienated','Alive','Alone','Amazed','Amused','Anger','Angst','Animated','Animosity','Animus','Annoyed','Antagonistic','Anticipation','Antipathy','Antsy','Anxiety','Apathetic','Apologetic','Appalled','Appreciative','Apprehensive','Ardor','Arousal','Astonishment','Astounded','Attachment','Attraction','Aversion','Awe','Awkward','Baffled','Bashful','Befuddled','Bemused','Betrayed','Bewildered','Bitter','Blessed','Bliss','Blithe','Blue','Bold','Bonhomie','Boredom','Bothered','Bouncy','Brave','Breathless','Brooding','Bubbly','Buoyant','Burning','Calm','Captivated','Carefree','Caring','Cautious','Certain','Chagrin','Challenged','Chary','Cheerful','Choked','Choleric','Clueless','Cocky','Cold','Collected','Comfortable','Commiseration','Committed','Compassionate','Complacent','Complaisance','Composed','Compunction','Confused','Courage','Concerned','Confident','Conflicted','Consternation','Contemplative','Contempt','Contentment','Contrition','Cordial','Cowardly','Crafty','Cranky','Craving','Crestfallen','Cross','Cruel','Crummy','Crushed','Curious','Cynical','Defeated','Dejection','Delectation','Delighted','Delirious','Denial','Derisive','Desire','Desolation','Despair','Despondent','Detached','Determined','Detestation','Devastated','Devotion','Disappointed','Disbelief','Disdain','Disgruntled','Disgust','Disillusioned','Disinterested','Dismay','Distaste','Distracted','Distress','Disturbed','Doleful','Dopey','Doubtful','Down','Downcast','Drained','Dread','Dubious','Dumbfounded','Eager','Earnest','Ease','Ebullient','Ecstatic','Edgy','Elated','Embarrassment','Empathic','Empty','Enchantment','Energetic','Engrossed','Enjoyment','Enlightenment','Enmity','Entertainment','Enthralled','Enthusiasm','Envy','Euphoria','Exasperated','Excitement','Excluded','Exhausted','Exhilaration','Expectant','Exuberant','Fanatical','Fascinated','Fatigued','Feisty','Felicitous','Fervor','Flabbergasted','Floored','Fondness','Foolish','Foreboding','Fortunate','Frazzled','Free','Fretful','Frightened','Frustrated','Fulfilled','Furious','Genial','Giddy','Glad','Gleeful','Gloomy','Goofy','Gratified','Grateful','Greedy','Grief','Groggy','Grudging','Guarded','Guilt','Gung-ho','Gusto','Hankering','Happy','Harassed','Hatred','Heartache','Heartbroken','Helpless','Hesitant','Hollow','Homesick','Hopeful','Horrified','Hostile','Humiliated','Humored','Hurt','Hyper','Hysterical','Impatient','Incensed','Indifferent','Indignant','Infatuated','Inferior','Inspired','Intense','Interested','Intimacy','Intimidated','Intoxicated','Intrigued','Introspective','Invigorated','Irascible','Ire','Irritated','Isolated','Jaded','Jealous','Jittery','Jocular','Jocund','Jolly','Jovial','Joy','Jubilant','Jumpy','Keen','Lazy','Left out','Lethargic','Liberation','Lighthearted','Liking','Listless','Lively','Lonely','Longing','Lost','Love','Lucky','Lust','Mad','Meditative','Melancholic','Mellow','Merry','Miffed','Mirth','Mischievous','Miserable','Mollified','Mortified','Motivated','Mournful','Moved','Mystified','Nasty','Nauseous','Needy','Nervous','Neutral','Nonplussed','Nostalgic','Numb','Obsessed','Offended','Optimistic','Outrage','Overwhelmed','Pacified','Pain','Panic','Paranoid','Passion','Pathetic','Peaceful','Peevish','Pensive','Perky','Perplexed','Perturbed','Pessimistic','Petrified','Petty','Petulant','Phlegmatic','Pity','Playful','Pleasure','Positive','Possessive','Powerful','Powerless','Preoccupied','Protective','Proud','Psyched','Pumped','Puzzled','Quizzical','Rage','Rapture','Rattled','Reassured','Receptive','Reflective','Regret','Relaxed','Relief','Relish','Reluctance','Remorse','Repugnance','Resentment','Resignation','Restless','RevoltedSad','Sanguine','Satisfied','Scandalized','Scorn','Secure','Self-Conscious','Selfish','Sensual','Sensitive','Serendipitous','Serene','Settled','Shaken','Shame','Sheepish','Shock','Shy','Sick','Silly','Sincere','Skeptical','Sluggish','Smug','Snappy','Solemn','Solicitous','Somber','Sore','Sorrow','Sorry','Sour','Speechless','Spiteful','Sprightly','Stirred','Stressed','Strong','Stung','Stunned','Stupefied','Submissive','Succor','Suffering','Suffocated','Sullen','Sunny','Superior','Sure','Surprised','Startled','Sympathy','Tenderness','Tense','Terror','Testy','Tetchy','Thankful','Thirst','Thoughtful','Thrill','Timid','Tired','Titillation','Tormented','Torn','Touched','Traumatized','Tranquil','Triumphant','Troubled','Trust','Twitchy','Upbeat','Upset','Uptight','Vehement','Vexation','Vigilant','Vindication','Vindictive','Warmth','Wary','Weak','Weary','Welcome','Woe','Wonder','Woozy','Worry','Wrath','Wretched','Yearning'];
+var voices = ['appealing','breathy','brittle','croaky','dead','disembodied','flat','fruity','grating','gravelly','gruff','guttural','high-pitched','hoarse','honeyed','husky','low','matter-of-fact','modulated','monotonous','nasal','orotund','penetrating','plummy','quiet','raucous','ringing','rough','shrill','silvery','singsong','small','smoky','soft-spoken','sotto voce','stentorian','strangled','strident','taut','thick','thickly','thin','throaty','tight','toneless','tremulous','wheezy','wobbly','booming','quavering','sexy','strong','whiny','airy','abrasive','acidic','adenoidal','animated','anxious','authoritative','barbed','barely audible','baritone','barking','bass','big','blasé','bombastic','bored','boyish','bitter','bland','bleak','blunt','brash','braying','breezy','bright','brisk','broken','bubbly','burbling','calm','caustic','casual','cheery/cheerful','childish','chirping','choked','clear','clipped','cloying','coarse','cold','cool','complacent','contented','contralto','cracked','creaky','croaking','crisp','crooning','curt','cultured','cynical','deep','emotionless','discordant','dispirited','drawling','dreamy','dry','dulcet','dull','earnest','easy','falsetto','faint','feathery','feeble','firm','fierce','forceful','fretful','gentle','girlish','glum','goofy','grave','grim','growling','hard','harsh','hateful','hearty','hesitant','hissing','hushed','immense','indifferent','insinuating','intense','ironic','jubilant','lazy','lifeless','light','lilting','lively','loud','loving','low-pitched','mellifluous','melodious','mild','mocking','muffled','musical','muted','nasty','neutral','nonchalant','obsequious','oily','piercing','piping','polished','querulous','quiet','ragged','rasping','raw','reedy','refined','resonant','roaring','robust','rumbling','saccharine','sarcastic','savage','scornful','scratchy','screeching','serene','severe','shaky','sharp','sibilant','silken','silly','sincere','sleek','sluggish','slurring','sly','smarmy','smooth','snide','soft','solid','somber','sonorous','soothing','soprano','sour','spaced-out','stark','steely','stiff','stout','strained','stony','suave','suggestive','surly','squeaky','squealing','sugary','sweet','sympathetic','tart','teasing','thunderous','tender','tense','trembling','trilling','uncertain','unctuous','unsteady','velvet','warm','wavering','weak','weary','wistful'];
+var personalities = ['accessible','organized','proactive','goal-driven','ambitious','competitive','happy','sad','warm','cold','kind','mean','bright','dumb','delightful','perky','optimistic','pessimistic','loving','an old soul','thoughtful','artistic','creative','charismatic','charming','compelling','intense','mysterious','chatty','talkative','classy','elegant','stylish','skillful','practical','realistic','sensible','easygoing','laid-back','relaxed','calm','anxious','gregarious','social','friendly','the life of the party','industrious','a hard-worker','lazy','diligent','larger-than-life','impressive','dynamic','sympathetic','a good listener','thick-skinned','sensitive','critical','unassuming','arrogant','cocky','humble','eccentric','wild','strange','bizarre','outre','modest','nonconcentric','magnetic','serene','tranquil','meek','mild','flamboyant','aureate','florid','chic','voguish','smart','brilliant','eclectic','fashionable','clever','flexible','athletic','amazing','ancient','angelic','angry','animated','aloof','annoying','abnormal','abominable','antagonistic','approachable','bad','barmy','bashful','sleepy','dopey','beguiled','belligerent','blithe','boastful','blunt','blue','bold','bossy','brave','buoyant','breathtaking','calculated','callous','capable','caring','challenging','churlish','clean','clumsy','clownish','compassionate','cordial','complex','coy','cranky','creepy','crass','cruel','cute','dainty','daring','dark','deep','dependent','desperate','devout','deplorable','depressed','dirty','different','disciplined','dodgy','doddery','domineering','drab','dramaitc','drowsy','drunk','edgy','educated','egotistical','egregious','electric','emotional','enchanting','energetic','euphoric','erudite','evil','empty','soulless','fanatical','fancy','faultless','fearful','fearless','fearsome','fervid','fetching','fiendish','fiery','fine','flirtatious','formidable','foxy','foul','fussy','filthy','gifted','gallant','gentle','genuine','gleaming','glum','goofy','graceful','gorgeous','greedy','grumpy','grouchy','guarded','guillible','gutsy','glamorous','glowing','handsome','harsh','hateful','healthy','heartless','heroic','helpful','hilarious','homely','horny','horrible','hot','hostile','hotheaded','hypercritical','hysterical','hardy','high','idiotic','imaginative','immaculate','immature','immodest','patient','impatient','important','impulsive','independent','incompetent','infantile','intellectual','jealous','jittery','jocular','jolly','jovial','joyful','jubilant','jumpy','juvenile','kindhearted','lame','laughable','learned','leery','lamentable','likeable','lethargic','lively','lithe','listless','lonesome','loyal','logical','loathsome','lucky','lanky','mad','magnanimous','magnificent','majestic','manipulative','marvelous','mature','measured','mediocre','merry','memorable','messy','methodical','meticulous','mettlesome','mingy','mirthful','misanthropic','mischievous','miserable','moody','moral','moronic','morose','musical','motivated','naive','narcissistic','nasty','naughty','nervous','neat','nefarious','negative','nice','noble','nonchalant','normal','nosey','oafish','obedient','obnoxious','obscene','obsessive','obstinate','odious','offensive','okay','opinionated','ostentatious','otiose','outgoing','outrageous','outspoken','oldish','ordinary','panicky','particular','pasty','passive','patriotic','patronizing','peaceful','peculiar','pensive','peevish','peppy','perfect','perplexing','persistent','persnickety','personable','pesky','petulant','phenominal','picky','pitiful','placid','plain','pleasant','plucky','poignant','poised','polite','pompous','popular','powerful','petty','pretty','proud','prudent','pure','puzzling','queer','quiet','quaint','quick','radiant','radical','rash','real','rebellious','reckless','refined','religious','repulsive','restless','rigid','reverent','rude','rueful','ruthless','raw','ridiculous','sadistic','saintly','sanguine','sarcastic','sassy','saucy','savage','scared','scarred','scary','scattered','skeptical','scruffy','seductive','selfish','seedy','selfless','senile','serious','sharp','shrewd','shy','sickly','simple','sincere','sinful','skanky','sloppy','sly','slow','smooth','snarky','snazzy','sneaky','snide','snobbish','sociable','sociopathic','soft','solid','somber','spunky','spiteful','spontaneous','random','stable','static','staunch','steadfast','stormy','stout','stubborn','studious','stunning','stupid','sullen','successful','sunny','supercilious','superficial','surly','sweet','tactful','tactless','talented','tantalizing','tedious','tender','tense','terrible','terrifying','testy','thrifty','thrilling','thriving','tidy','timid','tired','tough','tremendous','trouble','troubled','trustworthy','turbulent','traditional','ugly','unhappy','unique','upbeat','uproarous','upsetting','upstanding','useful','useless','vague','vain','valiant','valorous','vehement','vengeful','verbose','versatile','vexing','vigilant','vicious','vile','villainous','vindictive','virtuous','vivacious','vivid','volcanic','voracious','vulgar','vulnerable','valuable','venerable','vernal','vibrant','voluptuous','wack','wacky','warmhearted','wary','watchful','weary','whiny','wholesome','wicked','wily','wise','witty','wonderful','wordy','wasteful','wrong','weak','worthless','youthful','zany','zealous'];
+var superlatives = ['Best Wheels','Best Celebrity Look-Alike','Best Couple','Best Dancer','Best Dressed','Best Entertainer','Best Eyes','Best Friends','Best Hair','Best Laugh','Best Legs','Best Movie-Quoter','Best Nickname','Best Personality','Best Sense of Humor','Best Shoulder To Cry On','Best Smile','Best Sneeze','Best Sportsmanship','Biggest Class Clown','Biggest Dreamer','Biggest Drama','Biggest Early Bird','Biggest Flirt','Biggest Gossip','Biggest Life Of The Party','Biggest Night Owl','Biggest Over-Achiever','Biggest Prankster','Biggest Teacher\'s Pet','Biggest Techie','Loudest','Most Affectionate','Most Artistic','Most Athletic','Most Attractive','Most Caring','Most Changed','Most Clumsy','Most Creative','Most Daring','Most Dependable','Most Economical','Most Extroverted','Most Forgetful','Most Friendly','Most Funny','Most Inspirational','Most Intelligent','Most Introverted','Most Involved','Most Liked By Parents','Most Likely To Be Caught Sleeping In Class','Most Likely To Be Caught Texting','Most Likely To Become An Actor','Most Likely To Become A Politician','Most Likely To Become A Pro Athlete','Most Likely To Become A Pro Musician','Most Likely To Become A Reality TV Star','Most Likely To Become A Teacher','Most Likely To Become Famous','Most Likely To Become President','Most Likely To Be ID\'d When They\'re 30','Most Likely To Be Late To Own Wedding','Most Likely To Break A World Record','Most Likely To Cheer You Up','Most Likely To Crash On Your Couch','Most Likely To Cure A Disease','Most Likely To Get Married First','Most Likely To Get Out Of Here','Most Likely To Have 10 Kids','Most Likely To Invent Something','Most Likely To Make Millions','Most Likely To Move Out Of The Country','Most Likely To Never Be Single','Most Likely To Never Look Old','Most Likely To Not Change At All','Most Likely To Put Foot In Mouth','Most Likely To Shock Everyone At Reunion','Most Likely To Star On Broadway','Most Likely To Stay in Hometown','Most Likely To Succeed','Most Likely To Win A Grammy','Most Likely To Win American Idol','Most Likely To Win A Nobel Prize','Most Likely To Win An Olympic Medal','Most Likely To Win The Lottery','Most Musical','Most Opinionated','Most Organized','Most Original','Most Outgoing','Most Outspoken','Most Photogenic','Most Retro','Most Spirit','Most Talented','Most Talkative','Most Tardies','Most Trustworthy','Most Unforgettable','Most Unique','Safest Driver','Worst Case Of Senoritis','Worst Driver','Quietest'];
+var querks = ['carries a large coin which he or she is always rolling over his or her knuckles','sniffles habitually','regularly looks up at the sky to check the position of the moon and comments on it','regularly looks up at the sky to check the position of the sun and comments on it','always knows the direction he or she is traveling in','corrects people when they use colloquial speech','is never seen without a baseball cap or stocking cap','whistles a song at random time and refuses to stop','ends declarative sentences with in interrogative inflection','can only hear out of one ear','fidgets incessantly and is always touching his or her face or head','dots his or her i\'s with a smiley face or heart','is unable to digest proteins correctly and gets very ill if too much protein rich food is consumed','compulsively interrupts people telling stories','makes up random lies about unimportant things for no reason','rescues stray animals','gets physically angry when people mispronounce a certain word','when stressed or lying, speaks from the corner of his or her mouth','sweats profusely even when resting','is a know-it-all','uses mundane items as toys','cannot drink anything with ice in it','doesn\'t wash his or her hands after using the bathroom','always tidies up the table and resets the condiments when dining out','only drinks from plastic or paper cups and cannot stand the feel of glass in his or her hand','draws random doodles on any piece of paper in front of him or her','wears only new socks','has several hidden body piercings or tattoos','always stands with his or her hands behind his or her back','doesn\'t eat green things','strongly dislikes the sound of chewing so hums a quiet song while eating','has the ability to speak in a cartoon-like voice which sounds nothing like his or her real voice','is compulsively thrifty','is always at least ten minutes early to any meeting or appointment','can calculate the total of any items put in a shopping cart and tax to within $0.05','submits to the ideas and suggestions of others without thinking of his or her own needs','readily puts him or herself in the way of danger without careful consideration','always has change in his or her pocket to give to beggars or homeless.','is always trying to recruit people to his or her beliefs.','constantly quotes favorite movies and can usually identify the movie that a quote may come from','overly honest person, always telling the truth even to his or her own detriment','takes stupid bets for small amounts of money','is double jointed','writes with left hand, but does everything else right-handed','can only see out of one eye','is susceptible to malapropisms or spoonerisms','can tie a cherry stem with his or her tongue','always gets a sunburn','can\'t stay clean','cracks his or her neck all the time','has a limp','has a noticeable birthmark','has a noticeable burn scar','has a noticeable scar from a weapon','has a noticeable tattoo','has a piercing','has a bushy mustache','has hairy arms','has allergies','incessantly cracks his or her knuckles','is exclusively left-handed','is gassy','looks just like another character, or a famous figure of the day','puts hand on someone else\'s arm when talking','sneezes extra loud','coughs extra loud','squints a lot','thrives in cold weather, hates warm weather','thrives in hot weather, hates cold weather','urinates frequently','walks as if he or she is afraid of being followed','talks in the third person','uses big words to impress listeners','wears too much jewelry','is always seen chewing gum','is always carrying a book, or multiple','never seen with his or her hair tied up','sneezes when nervous','unhealthy obsession with a certain food','serious grammar Nazi','good with computers, technology, etc.','always wears a cartoon character shirt','twitches when nervous','snorts when laughing','paces back and forth when thinking','is able to hack computers','uses large words that not many people understand','uses acronyms for everything','has an unhealthy collection of stuffed animals','is obsessed with cleaning and personal hygiene','mumbles constantly','gets annoyed easily','is constantly on social media','wears glasses but doesn\'t need them','never sleeps','afraid to eat in front of others','fears of bugs','has a watch, but carries it in his or her pocket','has a noticeable scar','is constantly seen drawing','is constantly seen reading','is constantly seen writing','always carries a notebook','is shy','hears voices','hallucinates','is a terrible liar','is needy','always knows what direction he or she is facing','has the entire Bible memorized','can read two pages of a book at once','has a photographic memory','is a musical prodigy','is afraid of fire','is afraid of heights','can\'t swim','is ambidextrous','is always hot','is always cold','keeps invisible pets','listens to music constantly','is arrogant','has to do everything twice','is paranoid','talks to plants','talks to animals','drinks tea constantly','has a terrible cough','prefers to skip','can\'t drive','breaks everything','types with one finger','is obsessed with symmetry','is terrible at math','dropped out of school','is optimistic','speaks with a high pitched voice when nervous','fidgets','falls asleep easy','is narcoleptic','handwriting is very small','likes to play with toys','is always stoned','wears a different wig everyday','cosplays constantly','is vegan','always wears pleather','is obsession with a period in history','is in a new relationship constantly','great dancer','doesn\'t know how to drive','never wears underwear','is a technophobe','is easy to impress','takes a selfie everyday','practices smiling','is manipulative','is a great salesperson','has to touch everything','is obsessed with a Christmas','always eats seafood','is a perfectionist','always has a toothpick in his or her mouth','is haunted by a ghost','is able to invent anything with limited supplies','is religious','is superstitious','rearranges furniture everyday','is class clown','constantly falls in love with the first person he or she sees','scares easily','forgets everything','always wakes up really late','daydreams constantly','always wears a dress or skirt','never talks or socializes','cross-dresses for fun','forgives easily','counts everything','strongly believes in Friday the 13th','unnecessarily carries a briefcase everywhere','texts constantly','hates children','goes to the gym everyday','is always on the phone','can\'t cook','believes in conspiracy theories','plays guitar','plays piano','plays drums','plays the saxophone','keeps his or her Christmas tree up all year around','always knows what phase the moon is in','mispronounces words','participates in live action roleplay','can\'t ride a bike','believes he or she can fix anything','belongs to an obscure subculture','learns dances from music videos','speaks in a monotone voice','refuses to celebrate his or her birthday or any holiday','always dresses formally','walks around naked at home','eats the same meals at the same time, everyday','overthinks situations','treats people terribly','rocks on heels every time they stand','sweats profusely','lies about dumb things','hangs out in clubs or bars every night','wears clothes with the tags still on them','can spell any word','knows useless facts about landmarks, celebrities, the human body, etc.','grosses people out for fun','always mistakes people for other people','can\'t remember names of people they know well','acts very strange around his or her crush','makes a list for everything and anything','gets extremely offended when anyone uses foul language','still lives at home with his or her parents','constantly makes animal noises','laughs at things that aren\'t considered funny','never uses proper punctuation','hasn\'t read a book in over 10 years'];
+var skinColors = ['#FFDFC4','#F0D5BE','#EECEB3','#E1B899','#E5C298','#FFDCB2','#E5B887','#E5A073','#E79E6D','#DB9065','#CE967C','#C67856','#BA6C49','#A57257','#F0C8C9','#DDA8A0','#B97C6D','#A8756C','#AD6452','#5C3836','#CB8442','#BD723C','#704139','#A3866A',];
+//http://www.collectedwebs.com/art/colors/hair/
+var hairColors = ['#090806','#2C222B','#71635A','#B7A69E','#D6C4C2','#CABFB1','#DCD0BA','#FFF5E1','#E6CEA8','#E5C8A8','#DEBC99','#B89778','#A56B46','#B55239','#8D4A43','#91553D','#533D32','#3B3024','#554838','#4E433F','#504444','#6A4E42','#A7856A','#977961',];
+var eyeColors = ['#181818','#906048','#784830','#000000','#601800','#f0f0f0','#7890d8','#c0d8f0','#607860','#a89060','#a8c0f0','#60a8d8','#d8f0a8','#483018','#786060','#90a8d8','#307890','#181848','#301878','#000030','#601818','#90d878','#78d8d8','#a8a878','#fffff0','#d8c078','#609078','#f0d890','#78c060','#f0ffff','#60a8a8','#d8a830','#d87848','#a8f0f0','#f0fff0','#903000','#4890a8'];
+
+// var variations = maleNames.length + femaleNames.length * lastNames.length * goals.length * colleges.length * jobs.length * cityState.length * majors.length * ethnicities.length * hobbies.length * emotions.length * voices.length * personalities.length * superlatives.length * querks.length;
+// document.querySelector("#variations").innerHTML = "Possible variations: " + scientificToDecimal(variations);
+
+
+
+function genderFun(genderChoice) {gender = genderChoice;};
+
+var genChoice = gender;
+var physicalAttributes = []
+
+function generateCharacter() {
+	
+
+	genChoice = gender;
+	if (gender == null) {genChoice = Math.floor(Math.random() * 2)};
+	var topheadWidth = 230 + Math.floor(Math.random() * 80);
+	var jawHeight = Math.floor(Math.random() * 255);
+	var jawWidth = 250 + Math.floor(Math.random() * 110);
+	var noseWidth = 40 + Math.floor(Math.random() * [80,40][genChoice]);
+	var noseHeight = 40 + Math.floor(Math.random() * 80);
+	var mouthArr = [150 + Math.floor(Math.random() * 50),150 + Math.floor(Math.random() * 70),150 + Math.floor(Math.random() * 50)]
+	var eyesSize = 150 + Math.floor(Math.random() * 50);
+	var hairWidth = topheadWidth + [Math.floor(Math.random() * 50),Math.floor(Math.random() * 150)][genChoice];
+	var neckWidth = 70 + Math.floor(Math.random() * [110,50][genChoice]);
+	var sexyness = 500 + Math.floor(Math.random() * 500);
+	var bodyWidth = 270 + Math.floor(Math.random() * [200,80][genChoice]);
+	var lookDirection = 70 + Math.floor(Math.random() * 80);
+	var hairLength = [200,400][genChoice] + Math.floor(Math.random() * [300,500][genChoice]);
+	var bangs = Math.floor(Math.random() * 300);
+	var bangsHeight = 300;
+	var hairPart = Math.floor(Math.random() * 220);
+	hairPart *= Math.floor(Math.random()*2) == 1 ? 1 : -1;
+	var eyeShadow = [5,8][genChoice];
+	var hairPuff = Math.max(topheadWidth,jawWidth) + Math.floor(Math.random() * 350);
+	var mouthOpen = 20 + Math.floor(Math.random() * 80);
+	var hairColor = hairColors[Math.floor(Math.random() * hairColors.length)];
+	var skinColor = skinColors[Math.floor(Math.random() * skinColors.length)];
+	var shirtColor = "rgb("+ Math.floor(Math.random() * 125) + "," + Math.floor(Math.random() * 125) + "," + Math.floor(Math.random() * 125) + ")";
+	var eyeColor = eyeColors[Math.floor(Math.random() * eyeColors.length)];
+	var lipColor = [skinColor,"#770000"][genChoice];
+	var hairHeight = 270 + Math.floor(Math.random() * 150);
+	var chinHeight = 300 + Math.floor(Math.random() * 100);
+	var chinWidth = 75 + Math.floor(Math.random() * 50);
+	var eyeHeight = Math.floor(Math.random() * 50);
+
+
+	physicalAttributes = {"topheadWidth":topheadWidth,"jawHeight":jawHeight,"jawWidth":jawWidth,"noseWidth":noseWidth,"noseHeight":noseHeight,"mouthArr":mouthArr,"eyesSize":eyesSize,"hairWidth":hairWidth,"neckWidth":neckWidth,"sexyness":sexyness,"bodyWidth":bodyWidth,"lookDirection":lookDirection,"hairLength":hairLength,"bangs":bangs,"bangsHeight":bangsHeight,"hairPart":hairPart,"eyeShadow":eyeShadow,"hairPuff":hairPuff,"mouthOpen":mouthOpen,"hairColor":hairColor,"skinColor":skinColor,"shirtColor":shirtColor,"eyeColor":eyeColor,"lipColor":lipColor,"hairHeight":hairHeight,"chinHeight":chinHeight,"chinWidth":chinWidth};
+	//
+	// Character Generator
+	//
+	charactersArray.push(new character(
+		["Male","Female"][genChoice],
+		[maleNames,femaleNames][genChoice][Math.floor(Math.random() * [maleNames,femaleNames][genChoice].length)],
+		lastNames[Math.floor(Math.random() * lastNames.length)],
+		randomDate(new Date(1970, 0, 1), new Date(2000, 0, 1)),
+		jobs[Math.floor(Math.random() * jobs.length)],
+		ethnicities[Math.floor(Math.random() * ethnicities.length)],
+		goals[Math.floor(Math.random() * goals.length)],
+		physicalAttributes,
+		hobbies[Math.floor(Math.random() * hobbies.length)],
+		cityState[Math.floor(Math.random() * cityState.length)],
+		colleges[Math.floor(Math.random() * colleges.length)],
+		majors[Math.floor(Math.random() * majors.length)],
+		voices[Math.floor(Math.random() * voices.length)],
+		[personalities[Math.floor(Math.random() * personalities.length)],personalities[Math.floor(Math.random() * personalities.length)]],
+		superlatives[Math.floor(Math.random() * superlatives.length)],
+		[querks[Math.floor(Math.random() * querks.length)],querks[Math.floor(Math.random() * querks.length)]]
+		));
+	// End Char Gen
+
+	fillCopy(charactersArray.length-1);
+	fillTable(charactersArray.length-1);
+	// drawFace();
+	ctx3.rect(0, 0, face.width, face.height);
+	ctx3.fillStyle = "rgb("+ Math.floor(Math.random() * 125) + "," + Math.floor(Math.random() * 125) + "," + Math.floor(Math.random() * 125) + ")";
+	ctx3.fill();
+	ctx3.save();
+	ctx3.translate(face.width/2, face.height/2);
+	ctx3.setTransform(.20,0,0,.20,100,100);
+
+	//hair
+	ctx3.beginPath();
+	ctx3.fillStyle = hairColor;
+	ctx3.strokeStyle="#000000";
+	ctx3.lineWidth=5;
+	ctx3.moveTo(-hairWidth, -hairHeight);
+	ctx3.bezierCurveTo(-hairPuff,hairLength,hairPuff,hairLength,hairWidth,-hairHeight);
+	ctx3.quadraticCurveTo(0,-600,-hairWidth,-hairHeight);
+    ctx3.fill();
+    ctx3.stroke();
+
+    //shirt/body
+    ctx3.beginPath();
+	ctx3.fillStyle = shirtColor;
+	ctx3.moveTo(0, 300);//leave this height for slouch
+	ctx3.quadraticCurveTo(-300,300,-bodyWidth,500);
+	ctx3.lineTo(bodyWidth,500);
+	ctx3.quadraticCurveTo(300,300,-0,300);
+    ctx3.fill();
+    ctx3.stroke();
+
+    //neck
+    ctx3.beginPath();
+	ctx3.fillStyle = skinColor;
+	ctx3.moveTo(-neckWidth, 0);
+	ctx3.lineTo(-neckWidth,350);
+	ctx3.quadraticCurveTo(0,sexyness,neckWidth,350);
+	ctx3.lineTo(neckWidth,0);
+    ctx3.fill();
+    ctx3.stroke();
+    
+
+	//outer face
+	ctx3.beginPath();
+	ctx3.moveTo(hairPart, -bangsHeight);
+	ctx3.quadraticCurveTo(-topheadWidth, -bangs,-topheadWidth, -100);
+	ctx3.quadraticCurveTo(-jawWidth, jawHeight, -chinWidth, 300);
+	ctx3.quadraticCurveTo(0, chinHeight, chinWidth, 300);
+	ctx3.quadraticCurveTo(jawWidth, jawHeight, topheadWidth, -100);
+	ctx3.quadraticCurveTo(topheadWidth, -bangs,hairPart, -bangsHeight);
+	// ctx3.bezierCurveTo(topheadWidth, -500, -topheadWidth, -500, -topheadWidth, -100);
+    ctx3.fill();
+    ctx3.stroke();
+    ctx3.clip();
+    //nose
+    ctx3.beginPath();
+	ctx3.moveTo(20, -100+eyeHeight);
+	ctx3.quadraticCurveTo(noseWidth, 0, noseWidth, noseHeight+eyeHeight);
+	ctx3.lineTo(0, noseHeight+eyeHeight);
+    ctx3.stroke();
+    //mouth
+    ctx3.beginPath();
+    ctx3.fillStyle = "#000000"
+    ctx3.strokeStyle=lipColor;
+	ctx3.lineWidth=5;
+	ctx3.moveTo(-100, mouthArr[0]);
+	ctx3.quadraticCurveTo(0, mouthArr[1], 100, mouthArr[2]);
+	ctx3.quadraticCurveTo(0, mouthArr[1]+mouthOpen, -100, mouthArr[0]);
+	ctx3.fill();
+    ctx3.stroke();
+
+    //eyebrows
+    ctx3.beginPath();
+    ctx3.strokeStyle=hairColor;
+    ctx3.lineWidth=15;
+    ctx3.moveTo(-eyesSize, -170+eyeHeight);
+    ctx3.quadraticCurveTo(-100,-200+eyeHeight,-50,-170+eyeHeight);
+    ctx3.moveTo(eyesSize, -170+eyeHeight);
+    ctx3.quadraticCurveTo(100,-200+eyeHeight,50,-170+eyeHeight);
+    ctx3.stroke();
+
+    //eye shadow
+    ctx3.beginPath();
+    ctx3.strokeStyle="#000000";
+    ctx3.lineWidth=5;
+	ctx3.moveTo(-eyesSize-eyeShadow, -100+eyeHeight-eyeShadow);
+	ctx3.quadraticCurveTo(-100-eyeShadow, -eyesSize+eyeHeight-eyeShadow, -50 + eyeShadow, -100+eyeHeight-eyeShadow);
+	ctx3.quadraticCurveTo(-80, -50+eyeHeight+eyeShadow, -eyesSize-eyeShadow, -100+eyeHeight+eyeShadow);
+	ctx3.moveTo(eyesSize+eyeShadow, -100+eyeHeight-eyeShadow);
+	ctx3.quadraticCurveTo(100+eyeShadow, -eyesSize+eyeHeight-eyeShadow, 50 - eyeShadow, -100+eyeHeight-eyeShadow);
+	ctx3.quadraticCurveTo(80, -50+eyeHeight + eyeShadow, eyesSize+eyeShadow, -100+eyeHeight+eyeShadow);
+	ctx3.fill();
+    //eyes
+    ctx3.fillStyle = "#ffffff"
+    ctx3.beginPath();
+	ctx3.moveTo(-eyesSize, -100+eyeHeight);
+	ctx3.quadraticCurveTo(-100, -eyesSize+eyeHeight, -50, -100+eyeHeight);
+	ctx3.quadraticCurveTo(-100, -50+eyeHeight, -eyesSize, -100+eyeHeight);
+	ctx3.moveTo(eyesSize, -100+eyeHeight);
+	ctx3.quadraticCurveTo(100, -eyesSize+eyeHeight, 50, -100+eyeHeight);
+	ctx3.quadraticCurveTo(100, -50+eyeHeight, eyesSize, -100+eyeHeight);
+	ctx3.fill();
+    // ctx3.stroke();
+    ctx3.clip();
+
+    //cornea
+    
+    ctx3.beginPath();
+    ctx3.fillStyle = eyeColor;
+    ctx3.arc(lookDirection-(160+(eyesSize/3)), -100+eyeHeight, 30, 0, Math.PI * 2, true);
+    ctx3.fill();
+    ctx3.stroke();
+
+    ctx3.beginPath();
+    ctx3.arc(lookDirection, -100+eyeHeight, 30, 0, Math.PI * 2, true);
+    ctx3.fill();
+    ctx3.stroke();
+    // ctx3.closePath();
+
+    ctx3.restore();
+}
+
+
+
+function lowercaseFirstLetter(string) {
+    return string.charAt(0).toLowerCase() + string.slice(1);
+}
+
+function fillCopy(current) {
+	
+	document.querySelector('#mainName').innerHTML = charactersArray[current].firstName + " " + charactersArray[current].lastName;
+	document.querySelector('#secondaryName').innerHTML = charactersArray[current].firstName + " " + charactersArray[current].lastName;
+	document.querySelector('#mainCopy').innerHTML = "<strong>" 
+	+ charactersArray[current].firstName 
+	+ " " 
+	+ charactersArray[current].lastName 
+	+ "</strong> (born " 
+	+ monthNames[charactersArray[current].birthday.getMonth()] 
+	+ " " 
+	+ charactersArray[current].birthday.getDate() 
+	+ ", " 
+	+ charactersArray[current].birthday.getFullYear() 
+	+ ") is" 
+	+ aOrAn(charactersArray[current].ethnicity[0]) 
+	+ charactersArray[current].ethnicity 
+	+ " <a href=\"https://en.wikipedia.org/wiki/" 
+	+ charactersArray[current].job.toLowerCase().replace(/ /g,'_') 
+	+ "\" target=\"_blank\">" 
+	+ charactersArray[current].job.toLowerCase() 
+	+ "</a>. "
+	+ [pronounDecider(current, "nominative") + " is best known for wanting to ",pronounDecider(current, "nominative") + " talks about " + pronounDecider(current, "possessive").toLowerCase() + " dream to "][Math.floor(Math.random() * 2)] 
+	+ lowercaseFirstLetter(charactersArray[current].goal.replace(/they/gi, pronounDecider(current, "nominative").toLowerCase()).replace(/ their| my/gi, " " + pronounDecider(current, "possessive").toLowerCase()).replace(/them/gi, pronounDecider(current, "oblique").toLowerCase())) 
+	+ ". "
+	+ ["Raised in ","Born in ","Moving from " + pronounDecider(current, "possessive").toLowerCase() + " hometown, ","Having grown up in "][Math.floor(Math.random() * 4)] 
+	+ "<a href=\"https://en.wikipedia.org/wiki/" + charactersArray[current].hometown.replace(/ /g,'_') 
+	+ "\" target=\"_blank\">" + charactersArray[current].hometown 
+	+ "</a>" 
+	+ ", " 
+	+ charactersArray[current].lastName 
+	+ [" served as a tutor of "," focused on ", " discovered a passion for "][Math.floor(Math.random() * 3)] 
+	+ "<a href=\"https://en.wikipedia.org/wiki/" 
+	+ charactersArray[current].hobby.toLowerCase().replace(/ /g,'_') 
+	+ "\" target=\"_blank\">" 
+	+ charactersArray[current].hobby.toLowerCase() 
+	+ "</a>" 
+	+ " at " 
+	+ pronounDecider(current, "possessive").toLowerCase() 
+	+ " alma mater, <a href=\"https://en.wikipedia.org/wiki/" 
+	+ charactersArray[current].school.replace(/ /g,'_') 
+	+ "\" target=\"_blank\">" 
+	+ charactersArray[current].school 
+	+ "</a>, where " 
+	+ pronounDecider(current, "nominative").toLowerCase() 
+	+ " majored in <a href=\"https://en.wikipedia.org/wiki/" 
+	+ charactersArray[current].major.replace(/ /g,'_') 
+	+ "\" target=\"_blank\">" 
+	+ charactersArray[current].major 
+	+ "</a>. ";
+
+	//Background info
+	document.querySelector('#backgroundInfo').innerHTML = charactersArray[current].lastName 
+	+ " is the " 
+	+ ["youngest ","oldest ","only ", "second ", "first "][Math.floor(Math.random() * 5)] 
+	+ ["son ", "daughter "][genChoice] + "of " + ["parents " + [maleNames,femaleNames][Math.floor(Math.random() * 2)][Math.floor(Math.random() * 500)] 
+	+ ", a former " 
+	+ jobs[Math.floor(Math.random() * jobs.length)].toLowerCase() 
+	+ ", and " 
+	+ [maleNames,femaleNames][Math.floor(Math.random() * 2)][Math.floor(Math.random() * 500)], "parent " 
+	+ [maleNames,femaleNames][Math.floor(Math.random() * 2)][Math.floor(Math.random() * 500)] 
+	+ ", a former " 
+	+ jobs[Math.floor(Math.random() * jobs.length)].toLowerCase()][Math.floor(Math.random() * 2)] 
+	+ ". "
+	+ pronounDecider(current, "nominative") 
+	+ [" is best friends with "," is friends with "," is close with "," is intertwined with former friend "," is enemy of former lover "," is rival of "][Math.floor(Math.random() * 6)]
+	+ [maleNames,femaleNames][Math.floor(Math.random() * 2)][Math.floor(Math.random() * 800)] 
+	+ " " 
+	+ lastNames[Math.floor(Math.random() * lastNames.length)]
+	+ [", who recently managed to ",", who has never been able to "][Math.floor(Math.random() * 2)]
+	+ lowercaseFirstLetter(goals[Math.floor(Math.random() * goals.length)])
+	+ ", which made "
+	+ charactersArray[current].lastName 
+	+ " feel "
+	+ [emotions[Math.floor(Math.random() * emotions.length)].toLowerCase() + " and " + emotions[Math.floor(Math.random() * emotions.length)].toLowerCase(),emotions[Math.floor(Math.random() * emotions.length)].toLowerCase()][Math.floor(Math.random()*2)]
+	+ ". ";
+
+	//Persona
+	document.querySelector('#personaInfo').innerHTML = charactersArray[current].lastName 
+	+ " has been described as having "
+	+ aOrAn(charactersArray[current].voice.toUpperCase()[0])
+	+ " <a href=\"https://en.wiktionary.org/wiki/"
+	+ charactersArray[current].voice.replace(/ /g,'_')
+	+ "\" target=\"_blank\">"
+	+ charactersArray[current].voice
+	+ "</a> voice. "
+	+ pronounDecider(current, "possessive")
+	+ [" friends have described "," family has described "," coworkers have described "," employees have described "][Math.floor(Math.random() * 4)]
+	+ pronounDecider(current, "oblique").toLowerCase()
+	+ " as <a href=\"https://en.wiktionary.org/wiki/"
+	+ charactersArray[current].personality[0].replace(/ /g,'_')
+	+ "\" target=\"_blank\">"
+	+ charactersArray[current].personality[0]
+	+ ["</a>, and ","</a>, but ","</a>, although ","</a>, however "][Math.floor(Math.random() * 4)]
+	+ pronounDecider(current, "possessive").toLowerCase()
+	+ [" enemies say ", " ex says ", " boss says ", " professors say ", " teachers say ","  "][Math.floor(Math.random() * 5)]
+	+ pronounDecider(current, "nominative").toLowerCase()
+	+ "\'s <a href=\"https://en.wiktionary.org/wiki/"
+	+ charactersArray[current].personality[1].replace(/ /g,'_')
+	+ "\" target=\"_blank\">"
+	+ charactersArray[current].personality[1]
+	+ "</a>. "
+	+ "In highschool, "
+	+ pronounDecider(current, "possessive").toLowerCase()
+	+ " yearbook superlative was "
+	+ charactersArray[current].superlative
+	+ ". "
+	+ pronounDecider(current, "nominative")
+	+ " "
+	+ charactersArray[current].querk[0].replace(/his or her/g,pronounDecider(current, "possessive").toLowerCase()).replace(/him or her/g,pronounDecider(current, "oblique").toLowerCase()).replace(/he or she/g,pronounDecider(current, "nominative").toLowerCase())
+	+ " and "
+	+ pronounDecider(current, "nominative").toLowerCase()
+	+ " "
+	+ charactersArray[current].querk[1].replace(/his or her/g,pronounDecider(current, "possessive").toLowerCase()).replace(/him or her/g,pronounDecider(current, "oblique").toLowerCase()).replace(/he or she/g,pronounDecider(current, "nominative").toLowerCase())
+	+ ". "
+
+}
+
+function fillTable(current) {
+	document.querySelector('#bornTd').innerHTML = "<th><strong>Age</strong></th><td>" + getAge(charactersArray[current].birthday) + "</td>";
+	document.querySelector('#occupTd').innerHTML = "<th><strong>Occupation</strong></th><td>" + charactersArray[current].job + "</td>";
+	document.querySelector('#nationalityTd').innerHTML = "<th><strong>Nationality</strong></th><td>" + charactersArray[current].ethnicity + "</td>";
+	document.querySelector('#originTd').innerHTML = "<th><strong>Origin</strong></th><td>" + charactersArray[current].hometown + "</td>";
+}
+
+function aOrAn(testWord) {if ("AEIOU".indexOf(testWord) < 0) {return " a "}else {return " an "};};
+
+function possessiveLastName(lastName) {if (lastName[lastName.length-1] == "s") {return lastName + "'";}else {return lastName + "'s";};};
+
+function pronounDecider(current, whichPronoun) {
+	if (charactersArray[current].gender == "Male") {
+		switch (whichPronoun) {
+			case "nominative":
+				return "He";
+				break;
+			case "oblique":
+				return "Him";
+				break;
+			case "possessive":
+				return "His";
+				break;
+			default: "Error";
 		}
+	}
+	if (charactersArray[current].gender == "Female") {
+		switch (whichPronoun) {
+			case "nominative":
+				return "She";
+				break;
+			case "oblique":
+				return "Her";
+				break;
+			case "possessive":
+				return "Her";
+				break;
+			default: "Error";
+		}
+	}
+}
+
+
+
+function getAge(dateString) {
+    var today = new Date();
+    var birthDate = new Date(dateString);
+    var age = today.getFullYear() - birthDate.getFullYear();
+    var m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+    }
+    return age;
+}
+
+
+
+function randomDate(start, end) {return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));}
+
+
+
+
+generateCharacter();
+
+function hexToRgb(hex) {
+    // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+    var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+    hex = hex.replace(shorthandRegex, function(m, r, g, b) {
+        return r + r + g + g + b + b;
+    });
+
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return [parseInt(result[1], 16),parseInt(result[2], 16),parseInt(result[3], 16)]
+    
+}
+
+var c_stop = {
+	size : 84, // height in inches divided by 80 (6'8") in inches.
+	skin : hexToRgb(physicalAttributes.skinColor),
+	hair : {
+		color     : hexToRgb(physicalAttributes.hairColor),
+		back      : 70,
+		sideburns : 70,
+		middle    : 10,
+		max       : Math.floor(physicalAttributes.bangs/10)
+	},
+	beard : {
+		sideburns : 0,
+		chops     : 0,
+		chin      : 0
+	},
+	torso : {
+		chest     : 40,
+		stomach   : 10,
+		build     : 25,
+		posture   : 0,
+		waist     : 30,
+		back      : 20,
+		arms      : 0
+	},
+	clothes : {
+		pants     : [39,49,106],
+		shirt     : [231, 146, 152],
+		sleeves   : [205, 141, 119,1],
+		shoes     : [68, 56, 52]
+	}
+}
+
+var c = {
+	size : 84, // height in inches divided by 80 (6'8") in inches.
+	skin : hexToRgb("#F0C8C9"),
+	hair : {
+		color     : hexToRgb("#B89778"),
+		back      : 60,
+		sideburns : 65,
+		middle    : 40,
+		max       : 20
+	},
+	beard : {
+		sideburns : 0,
+		chops     : 0,
+		chin      : 0
+	},
+	torso : {
+		chest     : 40,
+		stomach   : 0,
+		build     : 25,
+		posture   : 0,
+		waist     : 45,
+		back      : 20,
+		arms      : 1
+	},
+	clothes : {
+		pants     : [39,49,106],
+		shirt     : [27,11,124],
+		sleeves   : [27,11,124,1],
+		shoes     : [68, 56, 52]
+	}
+}
+
+	// var cdog = {
+	// 		size : 87, // height in inches divided by 80 (6'8") in inches.
+	// 		skin : [225, 161, 139,1],
+	// 		hair : {
+	// 			color     : [250,250,150],
+	// 			back      : 30,
+	// 			sideburns : 30,
+	// 			middle    : 30,
+	// 			max       : 10
+	// 		},
+	// 		beard : {
+	// 			sideburns : 0,
+	// 			chops     : 0,
+	// 			chin      : 10
+	// 		},
+	// 		torso : {
+	// 			chest     : 20,
+	// 			stomach   : 40,
+	// 			build     : 0, // higher for more feminine
+	// 			posture   : 70, // lower the better shape
+	// 			waist     : 0, // higher for more curves
+	// 			back      : 0,
+	// 			arms      : 4
+	// 		},
+	// 		clothes : {
+	// 			pants     : [49,29, 26],
+	// 			shirt     : [140, 180, 140],
+	// 			sleeves   : [140, 140, 180],
+	// 			shoes     : [68, 56, 52]
+	// 		}
+	// 	}
+
+	// 	var cold = {
+	// 		size : 90, // height in inches divided by 80 (6'8") in inches.
+	// 		skin : [135, 101, 69,1],
+	// 		hair : {
+	// 			color     : [150,150,150],
+	// 			back      : 30,
+	// 			sideburns : 30,
+	// 			middle    : 0,
+	// 			max       : 0
+	// 		},
+	// 		beard : {
+	// 			sideburns : 10,
+	// 			chops     : 25,
+	// 			chin      : 10
+	// 		},
+	// 		torso : {
+	// 			chest     : 20,
+	// 			stomach   : 20,
+	// 			build     : 0, // higher for more feminine
+	// 			posture   : 70, // lower the better shape
+	// 			waist     : 0, // higher for more curves
+	// 			back      : 0,
+	// 			arms      : 4
+	// 		},
+	// 		clothes : {
+	// 			pants     : [89,89,116],
+	// 			shirt     : [40, 40, 80],
+	// 			sleeves   : [40, 40, 80],
+	// 			shoes     : [68, 56, 52]
+	// 		}
+	// 	}
+
+		
 
 		
 
@@ -661,18 +1178,11 @@
 			restore    : ctx.restore()
 		}
 
-		
-
-
-
-
-
-		
 
 		var dataURL = canvas.toDataURL();
 		var animate = new Image();
 		animate.src = dataURL;
-		console.log(dataURL)
+		
 
 		
 		var animation = document.getElementById("animation");
@@ -690,12 +1200,7 @@
 			window.setTimeout(run,150);
 		}
 		window.setTimeout(run,150);
-		
-		
 
-		
-
-		
 	</script>
 
 </body>
