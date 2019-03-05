@@ -5,7 +5,7 @@ var state_CONVERSATION = 1;
 var state_PAUSED = 2;
 var state_GAMEOVER = 3;
 var gameState = state_EXPLORE;
-var time = [0,0,0];
+var time = [0,0,1];
 function time_keeper() {
 	time[0]++;
 	if (time[0]>=FPS) time[1]++,time[0]=0;
@@ -397,6 +397,7 @@ function AI (x,y,direction,texture,persona,logic,suspicion) {
     this.alive = true;
     this.fleeing = false;
     this.random = Math.floor(Math.random()*10);
+    this.moveSeg = false; //if true because actioning, go to second sprite row
 }
 
 // ######### PHYSICAL ACTIONS ##############
@@ -441,8 +442,10 @@ AI.prototype.walk = function(x_distance,UPorDOWN) {
 }
 
 AI.prototype.fall = function() {
+	this.moveSeg = true;
 	this.sprite = [0,800];
 	if(time[0]==0) this.seg++;
+	if(this.seg > 1) this.alive = false;
 	
 }
 
@@ -576,6 +579,7 @@ AI.prototype.kill = function() {
 			this.logic.purpose = "think";
 		}
 		else {
+			target.logic.purpose = "die";
 			camera.camera_lock = false;
 			camera.darkness = false;
 			target.walk_speed = player.walk_speed;
@@ -806,7 +810,7 @@ AI.prototype.die = function() {
 // ######### UPDATE ##########
 
 AI.prototype.update = function(logic, pos_in_array) {
-	if (!this.alive) console.log(this.persona.full_name + " is dead!"), AI_array.splice(pos_in_array,1);
+	if (!this.alive) console.log(this.persona.full_name + " is dead!"), AI_array.splice(pos_in_array,1),corpse_array.push(this);
 	if (time[0]==0) this.speech_bubble = false; // Reset function to make sure previous time activities don't overlap to next minute.
 	this[logic.act]();
 	this[logic.purpose]();
@@ -873,7 +877,7 @@ Camera.prototype.drawDialogueBox = function() {
 }
 
 Camera.prototype.drawLetters = function(dialogue,face,time) {
-	this.ctx.drawImage(face,1800,1000,200,200,4,4,canvas.width/5.1,canvas.width/5.1)
+	this.ctx.drawImage(face,1800,600,200,200,4,4,canvas.width/5.1,canvas.width/5.1)
 	this.text_speed_counter++;
 	this.ctx.font = this.width/22 + 'px Monaco';
 	this.ctx.fillStyle = "#ffffff";
@@ -946,12 +950,14 @@ Camera.prototype.render_EXPLORE = function(player, map) {
 		this.drawRoom(player.x,player.y, map.grid);
 	    this.drawAI(player.x,player.y, AI_array, map.grid);
 	    this.drawPlayer(player.x,player.direction,player.sprite,Math.floor(player.seg),map.grid);
+	    this.drawCorpses(player.x,player.y, corpse_array, map.grid);
 	    this.drawFrontObjects(player.x,player.y,map.grid);
 	}
 	else {
 		this.drawRoom(player.player_lock,player.y, map.grid);
 	    this.drawAI(player.player_lock,player.y, AI_array, map.grid);
 	    this.drawPlayer(player.player_lock,player.direction,player.sprite,Math.floor(player.seg),map.grid);
+	    this.drawCorpses(player.player_lock,player.y, corpse_array, map.grid)
 	    this.drawFrontObjects(player.x,player.y,map.grid);
 	}
 
@@ -1010,7 +1016,7 @@ Camera.prototype.drawAI = function (x,y,array,location) {
 	for (var i=0;i<array.length;i++) {
 		if (array[i].x < x+1 && array[i].x > x-1 && array[i].y <= y+1 && array[i].y >= y-1) {
 			var texture = array[i].texture;
-			var direction = (array[i].direction == 1) ? 0 : 400;
+			var spriteRow = (array[i].moveSeg) ? 400 : 0;
 			var AI_height = function(vAI) {
 				var ch = 0;
 				if (vAI.y==y-1) ch = -canvas.height;
@@ -1022,12 +1028,56 @@ Camera.prototype.drawAI = function (x,y,array,location) {
 				if (pos(0,0)==1 || pos(0,0)==3) negpos = -1;
 				if (pos(0,0)==3 || pos(0,0)==4) hundred = -100
 				return ((canvas.height*((Math.abs(hundred + vAI.x))%1))*negpos) + ch;
-			}			
-			this.ctx.drawImage(texture.image,array[i].sprite[Math.floor(array[i].seg)],direction,200,400,(canvas.width/2.5)+((array[i].x-x)*(canvas.width)),canvas.height/3+this.viewHeight+AI_height(array[i]),canvas.width/5,canvas.height/1.6);
+			}
+			if(array[i].direction==1) {
+				this.ctx.drawImage(texture.image,array[i].sprite[Math.floor(array[i].seg)],spriteRow,200,400,(canvas.width/2.5)+((array[i].x-x)*(canvas.width)),canvas.height/3+this.viewHeight+AI_height(array[i]),canvas.width/5,canvas.height/1.6);
+			}
+			else {
+				this.ctx.save();
+				this.ctx.scale(-1,1);
+				this.ctx.drawImage(texture.image,array[i].sprite[Math.floor(array[i].seg)],spriteRow,200,400,-((canvas.width/2.5)+((array[i].x-x)*(canvas.width)))-(canvas.width/5),canvas.height/3+this.viewHeight+AI_height(array[i]),canvas.width/5,canvas.height/1.6);
+				this.ctx.restore();
+			}
+			
 			if (array[i].speech_bubble && array[i].y == player.y) this.speech_bubble((canvas.width/2.5)+((array[i].x-x)*(canvas.width)),array[i].speech_bubble,array[i].persona.inches,AI_height(array[i]));
 		};
 	};
 };
+
+Camera.prototype.drawCorpses = function(x,y,array,location) {
+	var pos = function(horizontal, vertical) {
+		return location[(Math.floor(array[i].x)+(1*horizontal))+((array[i].y+vertical)*mansion.length)];
+	};
+	for (var i=0;i<array.length;i++) {
+		if (array[i].x < x+1 && array[i].x > x-1 && array[i].y <= y+1 && array[i].y >= y-1) {
+			var texture = array[i].texture;
+			var spriteRow = 400;
+			var AI_height = function(vAI) {
+				var ch = 0;
+				if (vAI.y==y-1) ch = -canvas.height;
+				if (vAI.y==y+1) ch = canvas.height;
+				if (vAI.y==y) ch = 0;
+				if (pos(0,0)!=1 && pos(0,0)!=2 && pos(0,0)!=3 && pos(0,0)!=4) return 0+ch;		
+				var negpos = 1;
+				var hundred = 0; // makes character ascend but also lowers their starting point
+				if (pos(0,0)==1 || pos(0,0)==3) negpos = -1;
+				if (pos(0,0)==3 || pos(0,0)==4) hundred = -100
+				return ((canvas.height*((Math.abs(hundred + vAI.x))%1))*negpos) + ch;
+			}
+			if(array[i].direction==1) {
+				this.ctx.drawImage(texture.image,1000,400,400,400,(canvas.width/2.5)+((array[i].x-x)*(canvas.width)),(canvas.height/2.7)+this.viewHeight+AI_height(array[i]),canvas.width/2.5,canvas.height/1.6);
+			}
+			else {
+				this.ctx.save();
+				this.ctx.scale(-1,1);
+				this.ctx.drawImage(texture.image,1000,400,400,400,-((canvas.width/2.5)+((array[i].x-x)*(canvas.width)))-(canvas.width/5),(canvas.height/2.7)+this.viewHeight+AI_height(array[i]),canvas.width/2.5,canvas.height/1.6);
+				this.ctx.restore();
+			}
+			
+			if (array[i].speech_bubble && array[i].y == player.y) this.speech_bubble((canvas.width/2.5)+((array[i].x-x)*(canvas.width)),array[i].speech_bubble,array[i].persona.inches,AI_height(array[i]));
+		};
+	};
+}
 
 Camera.prototype.drawFrontObjects = function (x,y,location) {
 	var pos = function(horizontal, vertical) {

@@ -76,7 +76,7 @@
 				},false]
 			}
 			
-		},{purpose:"die", act:"stand"},0);
+		},{purpose:"think", act:"stand"},0);
 
 		var dogingo_dogergie = new AI(2.3,1,1,new Bitmap('./assets/annalee-hawthorn.png',2000,1200),{
 			full_name: "Dogingo Dogerie",
@@ -126,6 +126,8 @@
 
 		var shepherd_cooper = new AI(4.8,1,1,new Bitmap("./assets/shepherd-cooper.png",2000,1200),{ full_name: "Shepherd Cooper", genre: "GUEST", inches: 89, conversation: { topic : "greeting", greeting: ["Howdy partner. How ya doing?",{ 0: "That's hot.", 1: "That's cold." },false], introduce : ["Hi. I'm Shepherd!", { 0: "Pleasure is all mine.", 1: "Pleasure is all mine." },false], blackout : ["What was that?", { 0: "", 1: "" },false] } },{purpose:"think", act:"stand"},0);
 
+		var dominik_bell = new AI(3.4,1,1,new Bitmap("./assets/dominik-bell.png",2000,800),{ full_name: "Dominik Bell", genre: "GUEST", inches: 90, conversation: { topic : "greeting", greeting: ["Howdy partner. How ya doing?",{ 0: "That's hot.", 1: "That's cold." },false], introduce : ["Hi. I'm Dominik!", { 0: "Pleasure is all mine.", 1: "Pleasure is all mine." },false], blackout : ["What was that?", { 0: "", 1: "" },false] } },{purpose:"think", act:"stand"},4);
+
 		var sunwell_sunflower = new AI(2.5,1,1,new Bitmap('./assets/annalee-hawthorn.png',2000,1200),{
 			full_name: "Sunwell Sunflower",
 			genre: "MURDERER",
@@ -149,7 +151,7 @@
 					1: ""
 				},false]
 			}
-		},{purpose:"think", act:"stand"},3);
+		},{purpose:"think", act:"stand"},1);
 
 		var perry_periscope = new AI(4.3,1,1,new Bitmap('./assets/perry-periscope.png',2000,1200),{
 			full_name: "Perry Periscope",
@@ -177,8 +179,9 @@
 		},{purpose:"think", act:"stand"},1);
 
 
-		var AI_array = [sunwell_sunflower,perry_periscope,cornelia_cornhowser,shepherd_cooper,ariah_keller];
-		var everyone_array = [player,sunwell_sunflower,perry_periscope,cornelia_cornhowser,shepherd_cooper,ariah_keller];
+		var AI_array = [sunwell_sunflower,perry_periscope,cornelia_cornhowser,shepherd_cooper,ariah_keller,dominik_bell];
+		var everyone_array = [player,sunwell_sunflower,perry_periscope,cornelia_cornhowser,shepherd_cooper,ariah_keller,dominik_bell];
+		var corpse_array = [];
 		
 		
 		// window.addEventListener("blur",function(ev) {if(gameState == state_EXPLORE)gameState = state_PAUSED}, true);
