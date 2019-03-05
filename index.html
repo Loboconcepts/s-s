@@ -122,6 +122,10 @@
 			
 		},{purpose:"think", act:"stand"},0);
 
+		var ariah_keller = new AI(4.8,1,1,new Bitmap("./assets/ariah-keller.png",2000,1200),{ full_name: "Ariah Keller", genre: "GUEST", inches: 81, conversation: { topic : "greeting", greeting: ["Howdy partner. How ya doing?",{ 0: "That's hot.", 1: "That's cold." },false], introduce : ["Hi. I'm Ariah!", { 0: "Pleasure is all mine.", 1: "Pleasure is all mine." },false], blackout : ["What was that?", { 0: "", 1: "" },false] } },{purpose:"think", act:"stand"},0);
+
+		var shepherd_cooper = new AI(4.8,1,1,new Bitmap("./assets/shepherd-cooper.png",2000,1200),{ full_name: "Shepherd Cooper", genre: "GUEST", inches: 89, conversation: { topic : "greeting", greeting: ["Howdy partner. How ya doing?",{ 0: "That's hot.", 1: "That's cold." },false], introduce : ["Hi. I'm Shepherd!", { 0: "Pleasure is all mine.", 1: "Pleasure is all mine." },false], blackout : ["What was that?", { 0: "", 1: "" },false] } },{purpose:"think", act:"stand"},0);
+
 		var sunwell_sunflower = new AI(2.5,1,1,new Bitmap('./assets/annalee-hawthorn.png',2000,1200),{
 			full_name: "Sunwell Sunflower",
 			genre: "MURDERER",
@@ -147,7 +151,7 @@
 			}
 		},{purpose:"think", act:"stand"},3);
 
-		var perry_periscope = new AI(4.3,1,1,new Bitmap('./assets/annalee-hawthorn.png',2000,1200),{
+		var perry_periscope = new AI(4.3,1,1,new Bitmap('./assets/perry-periscope.png',2000,1200),{
 			full_name: "Perry Periscope",
 			genre: "AGENT",
 			inches: 92,
@@ -173,8 +177,8 @@
 		},{purpose:"think", act:"stand"},1);
 
 
-		var AI_array = [sunwell_sunflower,perry_periscope,cornelia_cornhowser,dogingo_dogergie,fransesca_flamenco];
-		var everyone_array = [player,sunwell_sunflower,perry_periscope,cornelia_cornhowser,dogingo_dogergie,fransesca_flamenco];
+		var AI_array = [sunwell_sunflower,perry_periscope,cornelia_cornhowser,shepherd_cooper,ariah_keller];
+		var everyone_array = [player,sunwell_sunflower,perry_periscope,cornelia_cornhowser,shepherd_cooper,ariah_keller];
 		
 		
 		// window.addEventListener("blur",function(ev) {if(gameState == state_EXPLORE)gameState = state_PAUSED}, true);

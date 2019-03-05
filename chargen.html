@@ -55,6 +55,8 @@
       <p id="backgroundInfo"></p>
       <h2>Persona</h2>
       <p id="personaInfo"></p>
+      <h2>Code</h2>
+      <code id="code"></code>
 	<canvas id="canvas" width="2000" height="800"></canvas></div>
 
 	<br>
@@ -142,13 +144,15 @@ var eyeColors = ['#181818','#906048','#784830','#000000','#601800','#f0f0f0','#7
 function genderFun(genderChoice) {gender = genderChoice;};
 
 var genChoice = gender;
-var physicalAttributes = []
+var physicalAttributes = [];
+var characterHeight;
 
 function generateCharacter() {
 	
 
 	genChoice = gender;
 	if (gender == null) {genChoice = Math.floor(Math.random() * 2)};
+	characterHeight = (genChoice==0) ? 80 + Math.floor(Math.random()*20) : 70 + Math.floor(Math.random()*20);
 	var topheadWidth = 230 + Math.floor(Math.random() * 80);
 	var jawHeight = Math.floor(Math.random() * 255);
 	var jawWidth = 250 + Math.floor(Math.random() * 110);
@@ -332,6 +336,8 @@ function lowercaseFirstLetter(string) {
     return string.charAt(0).toLowerCase() + string.slice(1);
 }
 
+
+
 function fillCopy(current) {
 	
 	document.querySelector('#mainName').innerHTML = charactersArray[current].firstName + " " + charactersArray[current].lastName;
@@ -448,6 +454,10 @@ function fillCopy(current) {
 	+ charactersArray[current].querk[1].replace(/his or her/g,pronounDecider(current, "possessive").toLowerCase()).replace(/him or her/g,pronounDecider(current, "oblique").toLowerCase()).replace(/he or she/g,pronounDecider(current, "nominative").toLowerCase())
 	+ ". "
 
+	//Code
+	document.querySelector('#code').innerHTML = 'var ' + charactersArray[current].firstName.toLowerCase()+'_'+charactersArray[current].lastName.toLowerCase()+' = new AI(4.8,1,1,new Bitmap("./assets/' + charactersArray[current].firstName.toLowerCase()+'-'+charactersArray[current].lastName.toLowerCase()+'.png",2000,1200),{ full_name: "' + charactersArray[current].firstName+' '+charactersArray[current].lastName+'", genre: "GUEST", inches: '+characterHeight+', conversation: { topic : "greeting", greeting: ["Howdy partner. How ya doing?",{ 0: "That\'s hot.", 1: "That\'s cold." },false], introduce : ["Hi. I\'m '+ charactersArray[current].firstName+'!", { 0: "Pleasure is all mine.", 1: "Pleasure is all mine." },false], blackout : ["What was that?", { 0: "", 1: "" },false] } },{purpose:"think", act:"stand"},0);'
+
+
 }
 
 function fillTable(current) {
@@ -532,7 +542,7 @@ function getRGB(str){
 }
 
 var c = {
-	size : 84, // height in inches divided by 80 (6'8") in inches.
+	size : characterHeight, // height in inches divided by 80 (6'8") in inches.
 	skin : hexToRgb(physicalAttributes.skinColor),
 	hair : {
 		color     : hexToRgb(physicalAttributes.hairColor),
@@ -547,9 +557,9 @@ var c = {
 		chin      : 0
 	},
 	torso : {
-		chest     : (genChoice==0) ? 10+(physicalAttributes.neckWidth-70)/2 : 40+(physicalAttributes.neckWidth-70)/2,
+		chest     : (genChoice==0) ? 10+(physicalAttributes.neckWidth-70)/2 : 30+(physicalAttributes.neckWidth-70)/2,
 		stomach   : (genChoice==0) ? 20+(physicalAttributes.bodyWidth-300)/10 : 0+(physicalAttributes.bodyWidth-300)/5,
-		build     : (genChoice==0) ? 0 : 25,
+		build     : (genChoice==0) ? 0+(physicalAttributes.bodyWidth-300)/2 : 25,
 		posture   : (genChoice==0) ? 80 : 0,
 		waist     : (genChoice==0) ? 10 : 30,
 		back      : (genChoice==0) ? 0 : 30,
