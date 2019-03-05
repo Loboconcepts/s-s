@@ -526,16 +526,20 @@ function hexToRgb(hex) {
     
 }
 
+function getRGB(str){
+  var match = str.match(/rgba?\((\d{1,3}), ?(\d{1,3}), ?(\d{1,3})\)?(?:, ?(\d(?:\.\d?))\))?/);
+  return [match[1],match[2],match[3]];
+}
 
-var c_stop = {
+var c = {
 	size : 84, // height in inches divided by 80 (6'8") in inches.
 	skin : hexToRgb(physicalAttributes.skinColor),
 	hair : {
 		color     : hexToRgb(physicalAttributes.hairColor),
-		back      : 70,
-		sideburns : 70,
-		middle    : 10,
-		max       : Math.floor(physicalAttributes.bangs/10)
+		back      : Math.abs(-physicalAttributes.hairHeight-physicalAttributes.hairLength)/20,
+		sideburns : 10+physicalAttributes.hairPuff/10,
+		middle    : (physicalAttributes.hairPuff)/12,
+		max       : (600-physicalAttributes.hairHeight)/12
 	},
 	beard : {
 		sideburns : 0,
@@ -543,24 +547,24 @@ var c_stop = {
 		chin      : 0
 	},
 	torso : {
-		chest     : 40,
-		stomach   : 10,
-		build     : 25,
-		posture   : 0,
-		waist     : 30,
-		back      : 20,
-		arms      : 0
+		chest     : (genChoice==0) ? 10+(physicalAttributes.neckWidth-70)/2 : 40+(physicalAttributes.neckWidth-70)/2,
+		stomach   : (genChoice==0) ? 20+(physicalAttributes.bodyWidth-300)/10 : 0+(physicalAttributes.bodyWidth-300)/5,
+		build     : (genChoice==0) ? 0 : 25,
+		posture   : (genChoice==0) ? 80 : 0,
+		waist     : (genChoice==0) ? 10 : 30,
+		back      : (genChoice==0) ? 0 : 30,
+		arms      : (genChoice==0) ? 5 : 0
 	},
 	clothes : {
 		pants     : [39,49,106],
-		shirt     : [231, 146, 152],
-		sleeves   : [205, 141, 119,1],
+		shirt     : getRGB(physicalAttributes.shirtColor),
+		sleeves   : getRGB(physicalAttributes.shirtColor),
 		shoes     : [68, 56, 52]
 	}
 }
-
-var c = {
-	size : 84, // height in inches divided by 80 (6'8") in inches. 84
+// @@@
+var c_old = {
+	size : 89, // height in inches divided by 80 (6'8") in inches. 84
 	skin : hexToRgb("#F0C8C9"),
 	hair : {
 		color     : hexToRgb("#B89778"),
@@ -833,7 +837,8 @@ var c = {
 
 			ctx.restore();
 		}
-
+function draw() {
+		ctx.clearRect(0,0,2000,1200);
 		var step_1 = {
 			save       : ctx.save(),
 			size       : ctx.setTransform(c.size/100,0,0,c.size/100,100-c.size,(100-c.size)*4),
@@ -1251,7 +1256,7 @@ var c = {
 		var fall_3 = {
 			save       : ctx.save(),
 
-			size       : ctx.setTransform(c.size/100-.1,0,0,c.size/100,1500-c.size,(300-c.size)*4),
+			size       : ctx.setTransform(c.size/100-.1,0,0,c.size/100,1400,1065+(100-c.size)),
 			rotate     : ctx.rotate(90 * Math.PI / 180),
 			// back_arm   : Arm(40,5,0,10,true),
 			back_foot  : Foot(337,53,0,0,50),
@@ -1268,6 +1273,15 @@ var c = {
 			beard      : Beard(0,0),
 			restore    : ctx.restore()
 		}
+		window.setTimeout(function() {
+			ctx.drawImage(faceInCanvas,1800,1000);
+		},100)
+
+		dataURL = canvas.toDataURL();
+		animate.src = dataURL;
+	}
+
+	window.setTimeout(draw, 100)
 
 
 var faceInCanvasURL = face.toDataURL();
@@ -1277,9 +1291,9 @@ faceInCanvas.src = faceInCanvasURL;
 
 
 
-		var dataURL = canvas.toDataURL();
+		var dataURL;
 		var animate = new Image();
-		animate.src = dataURL;
+		
 		
 
 		
@@ -1294,12 +1308,14 @@ faceInCanvas.src = faceInCanvasURL;
 			ctx2.clearRect(0,0,200,400);
 			ctx2.drawImage(animate,(i*200),0,200,400,0,0,200,400);
 			
-			ctx.drawImage(faceInCanvas,1800,1000)
+			
 			i++
 			if (i==10) i=0;
 			window.setTimeout(run,150);
 		}
 		window.setTimeout(run,150);
+
+		
 
 
 		

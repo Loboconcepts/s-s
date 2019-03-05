@@ -847,7 +847,7 @@ function Camera(ctx) {
 
 Camera.prototype.render_CONVERSATION = function() {
 	if (!this.dialogueBox) this.drawDialogueBox(), this.dialogueBox=true;
-	if (this.AI_talk) this.drawLetters(player.converse.split(''),time);
+	if (this.AI_talk) this.drawLetters(player.converse.split(''),player.AI_focus.texture.image,time);
 	if (this.reply) {this.drawPlayerTalk(this.reply), this.dialogueBox=true};
 	
 }
@@ -862,13 +862,14 @@ Camera.prototype.drawDialogueBox = function() {
 	this.ctx.restore();
 }
 
-Camera.prototype.drawLetters = function(dialogue, time) {
+Camera.prototype.drawLetters = function(dialogue,face,time) {
+	this.ctx.drawImage(face,1800,1000,200,200,4,4,canvas.width/5.1,canvas.width/5.1)
 	this.text_speed_counter++;
 	this.ctx.font = this.width/22 + 'px Monaco';
 	this.ctx.fillStyle = "#ffffff";
 	function countAhead(d,w) {
 		var i=1;
-		var y = w.cursor;
+		var y = w.cursor+(canvas.width/5.1);
 		while (d[i+w.letter] != " " && d[i+w.letter]) {
 			y=y+canvas.width/30;
 			if (y > canvas.width-(canvas.width/10)) return true;
@@ -878,7 +879,7 @@ Camera.prototype.drawLetters = function(dialogue, time) {
 	};
 
 	if (this.words_counter.letter<dialogue.length && this.text_speed_counter >= this.text_speed) {
-		this.ctx.fillText(dialogue[this.words_counter.letter],this.words_counter.cursor,(this.words_counter.line*this.height/9))
+		this.ctx.fillText(dialogue[this.words_counter.letter],this.words_counter.cursor+(canvas.width/5.1),(this.words_counter.line*this.height/9))
 		this.words_counter.letter++;
 		this.text_speed_counter = 0;
 		this.words_counter.word++;
