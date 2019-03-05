@@ -128,6 +128,9 @@
 
 		var dominik_bell = new AI(3.4,1,1,new Bitmap("./assets/dominik-bell.png",2000,800),{ full_name: "Dominik Bell", genre: "GUEST", inches: 90, conversation: { topic : "greeting", greeting: ["Howdy partner. How ya doing?",{ 0: "That's hot.", 1: "That's cold." },false], introduce : ["Hi. I'm Dominik!", { 0: "Pleasure is all mine.", 1: "Pleasure is all mine." },false], blackout : ["What was that?", { 0: "", 1: "" },false] } },{purpose:"think", act:"stand"},4);
 
+		var annabelle_stuart = new AI(4.8,1,1,new Bitmap("./assets/annabelle-stuart.png",2000,800),{ full_name: "Annabelle Stuart", genre: "GUEST", inches: 78, conversation: { topic : "greeting", greeting: ["Howdy partner. How ya doing?",{ 0: "That's hot.", 1: "That's cold." },false], introduce : ["Hi. I'm annabelle!", { 0: "Pleasure is all mine.", 1: "Pleasure is all mine." },false], blackout : ["What was that?", { 0: "", 1: "" },false] } },{purpose:"think", act:"stand"},0);
+
+
 		var sunwell_sunflower = new AI(2.5,1,1,new Bitmap('./assets/annalee-hawthorn.png',2000,1200),{
 			full_name: "Sunwell Sunflower",
 			genre: "MURDERER",
@@ -179,8 +182,8 @@
 		},{purpose:"think", act:"stand"},1);
 
 
-		var AI_array = [sunwell_sunflower,perry_periscope,cornelia_cornhowser,shepherd_cooper,ariah_keller,dominik_bell];
-		var everyone_array = [player,sunwell_sunflower,perry_periscope,cornelia_cornhowser,shepherd_cooper,ariah_keller,dominik_bell];
+		var AI_array = [sunwell_sunflower,perry_periscope,annabelle_stuart,shepherd_cooper,ariah_keller,dominik_bell];
+		var everyone_array = [player,sunwell_sunflower,perry_periscope,annabelle_stuart,shepherd_cooper,ariah_keller,dominik_bell];
 		var corpse_array = [];
 		
 		
