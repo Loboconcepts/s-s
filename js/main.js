@@ -440,6 +440,12 @@ AI.prototype.walk = function(x_distance,UPorDOWN) {
 	}
 }
 
+AI.prototype.fall = function() {
+	this.sprite = [0,800];
+	if(time[0]==0) this.seg++;
+	
+}
+
 
 // ############ ACTIONS ###############
 
@@ -791,6 +797,10 @@ AI.prototype.survival = function() {
 
 AI.prototype.investigate = function() {
 
+}
+
+AI.prototype.die = function() {
+	this.logic.act = "fall";
 }
 
 // ######### UPDATE ##########
