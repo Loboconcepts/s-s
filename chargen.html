@@ -182,9 +182,11 @@ function generateCharacter() {
 	var chinHeight = 300 + Math.floor(Math.random() * 100);
 	var chinWidth = 75 + Math.floor(Math.random() * 50);
 	var eyeHeight = Math.floor(Math.random() * 50);
+	var hasBeard = (Math.floor(Math.random() * 2)==1 ? true : false);
+	var hasMustache = (Math.floor(Math.random() * 2)==1 ? true : false);
 
 
-	physicalAttributes = {"topheadWidth":topheadWidth,"jawHeight":jawHeight,"jawWidth":jawWidth,"noseWidth":noseWidth,"noseHeight":noseHeight,"mouthArr":mouthArr,"eyesSize":eyesSize,"hairWidth":hairWidth,"neckWidth":neckWidth,"sexyness":sexyness,"bodyWidth":bodyWidth,"lookDirection":lookDirection,"hairLength":hairLength,"bangs":bangs,"bangsHeight":bangsHeight,"hairPart":hairPart,"eyeShadow":eyeShadow,"hairPuff":hairPuff,"mouthOpen":mouthOpen,"hairColor":hairColor,"skinColor":skinColor,"shirtColor":shirtColor,"eyeColor":eyeColor,"lipColor":lipColor,"hairHeight":hairHeight,"chinHeight":chinHeight,"chinWidth":chinWidth};
+	physicalAttributes = {"topheadWidth":topheadWidth,"jawHeight":jawHeight,"jawWidth":jawWidth,"noseWidth":noseWidth,"noseHeight":noseHeight,"mouthArr":mouthArr,"eyesSize":eyesSize,"hairWidth":hairWidth,"neckWidth":neckWidth,"sexyness":sexyness,"bodyWidth":bodyWidth,"lookDirection":lookDirection,"hairLength":hairLength,"bangs":bangs,"bangsHeight":bangsHeight,"hairPart":hairPart,"eyeShadow":eyeShadow,"hairPuff":hairPuff,"mouthOpen":mouthOpen,"hairColor":hairColor,"skinColor":skinColor,"shirtColor":shirtColor,"eyeColor":eyeColor,"lipColor":lipColor,"hairHeight":hairHeight,"chinHeight":chinHeight,"chinWidth":chinWidth,"hasBeard":hasBeard,"hasMustache":hasMustache};
 	//
 	// Character Generator
 	//
@@ -262,6 +264,23 @@ function generateCharacter() {
     ctx3.fill();
     ctx3.stroke();
     ctx3.clip();
+    if(genChoice==0 && hasBeard) {
+    	//beard
+    	var beardHeight = 0
+    	ctx3.beginPath();
+    	ctx3.fillStyle = hairColor;
+		ctx3.strokeStyle="#000000";
+		ctx3.lineWidth=5;
+    	ctx3.moveTo(-(topheadWidth+chinWidth),beardHeight);
+    	ctx3.quadraticCurveTo(-(topheadWidth+chinWidth),chinHeight,0,chinHeight+30);
+    	ctx3.quadraticCurveTo((topheadWidth+chinWidth),chinHeight,(topheadWidth+chinWidth),beardHeight);
+    	
+    	ctx3.quadraticCurveTo(0,chinHeight,-(topheadWidth+chinWidth),beardHeight);
+    	ctx3.fill();
+    	ctx3.stroke();
+    	ctx3.closePath();
+    }
+
     //nose
     ctx3.beginPath();
 	ctx3.moveTo(20, -100+eyeHeight);
@@ -279,6 +298,24 @@ function generateCharacter() {
 	ctx3.fill();
     ctx3.stroke();
 
+    //facial hair
+    if(genChoice==0 && hasMustache) {
+
+    	//mustache
+    	var mustacheWidth = 150;
+    	ctx3.fillStyle = hairColor;
+		ctx3.strokeStyle="#000000";
+		ctx3.lineWidth=5;
+    	ctx3.beginPath();
+    	ctx3.moveTo(-mustacheWidth,mouthArr[0])
+    	ctx3.bezierCurveTo(0,noseHeight+eyeHeight,0,noseHeight+eyeHeight,mustacheWidth,mouthArr[0]);
+    	ctx3.lineTo(-mustacheWidth,mouthArr[0])
+    	ctx3.fill();
+    	ctx3.stroke();
+    	ctx3.closePath();
+
+    }
+
     //eyebrows
     ctx3.beginPath();
     ctx3.strokeStyle=hairColor;
@@ -291,6 +328,7 @@ function generateCharacter() {
 
     //eye shadow
     ctx3.beginPath();
+    ctx3.fillStyle = "#000000";
     ctx3.strokeStyle="#000000";
     ctx3.lineWidth=5;
 	ctx3.moveTo(-eyesSize-eyeShadow, -100+eyeHeight-eyeShadow);
