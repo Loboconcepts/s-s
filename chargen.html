@@ -184,9 +184,12 @@ function generateCharacter() {
 	var eyeHeight = Math.floor(Math.random() * 50);
 	var hasBeard = (Math.floor(Math.random() * 2)==1 ? true : false);
 	var hasMustache = (Math.floor(Math.random() * 2)==1 ? true : false);
+	var beardHeight = 0;
+	var beardWidth = 0;
+	if(genChoice==0 && hasBeard) beardHeight = Math.floor(Math.random()*50), beardWidth = Math.floor(Math.random()*50);;
 
 
-	physicalAttributes = {"topheadWidth":topheadWidth,"jawHeight":jawHeight,"jawWidth":jawWidth,"noseWidth":noseWidth,"noseHeight":noseHeight,"mouthArr":mouthArr,"eyesSize":eyesSize,"hairWidth":hairWidth,"neckWidth":neckWidth,"sexyness":sexyness,"bodyWidth":bodyWidth,"lookDirection":lookDirection,"hairLength":hairLength,"bangs":bangs,"bangsHeight":bangsHeight,"hairPart":hairPart,"eyeShadow":eyeShadow,"hairPuff":hairPuff,"mouthOpen":mouthOpen,"hairColor":hairColor,"skinColor":skinColor,"shirtColor":shirtColor,"eyeColor":eyeColor,"lipColor":lipColor,"hairHeight":hairHeight,"chinHeight":chinHeight,"chinWidth":chinWidth,"hasBeard":hasBeard,"hasMustache":hasMustache};
+	physicalAttributes = {"topheadWidth":topheadWidth,"jawHeight":jawHeight,"jawWidth":jawWidth,"noseWidth":noseWidth,"noseHeight":noseHeight,"mouthArr":mouthArr,"eyesSize":eyesSize,"hairWidth":hairWidth,"neckWidth":neckWidth,"sexyness":sexyness,"bodyWidth":bodyWidth,"lookDirection":lookDirection,"hairLength":hairLength,"bangs":bangs,"bangsHeight":bangsHeight,"hairPart":hairPart,"eyeShadow":eyeShadow,"hairPuff":hairPuff,"mouthOpen":mouthOpen,"hairColor":hairColor,"skinColor":skinColor,"shirtColor":shirtColor,"eyeColor":eyeColor,"lipColor":lipColor,"hairHeight":hairHeight,"chinHeight":chinHeight,"chinWidth":chinWidth,"hasBeard":hasBeard,"hasMustache":hasMustache,"beardHeight":beardHeight,"beardWidth":beardWidth};
 	//
 	// Character Generator
 	//
@@ -251,13 +254,14 @@ function generateCharacter() {
     ctx3.fill();
     ctx3.stroke();
     
+    
 
 	//outer face
 	ctx3.beginPath();
 	ctx3.moveTo(hairPart, -bangsHeight);
 	ctx3.quadraticCurveTo(-topheadWidth, -bangs,-topheadWidth, -100);
-	ctx3.quadraticCurveTo(-jawWidth, jawHeight, -chinWidth, 300);
-	ctx3.quadraticCurveTo(0, chinHeight, chinWidth, 300);
+	ctx3.quadraticCurveTo(-jawWidth, jawHeight, -(chinWidth+beardWidth), 300+beardHeight);
+	ctx3.quadraticCurveTo(0, chinHeight+beardHeight, chinWidth +beardWidth, 300+beardHeight);
 	ctx3.quadraticCurveTo(jawWidth, jawHeight, topheadWidth, -100);
 	ctx3.quadraticCurveTo(topheadWidth, -bangs,hairPart, -bangsHeight);
 	// ctx3.bezierCurveTo(topheadWidth, -500, -topheadWidth, -500, -topheadWidth, -100);
@@ -266,7 +270,7 @@ function generateCharacter() {
     ctx3.clip();
     if(genChoice==0 && hasBeard) {
     	//beard
-    	var beardHeight = 0
+    	
     	ctx3.beginPath();
     	ctx3.fillStyle = hairColor;
 		ctx3.strokeStyle="#000000";
@@ -590,13 +594,13 @@ var c = {
 		max       : (600-physicalAttributes.hairHeight)/12
 	},
 	beard : {
-		sideburns : 0,
-		chops     : 0,
-		chin      : 0
+		sideburns : physicalAttributes.beardWidth,
+		chops     : physicalAttributes.beardWidth,
+		chin      : physicalAttributes.beardHeight
 	},
 	torso : {
-		chest     : (genChoice==0) ? 10+(physicalAttributes.neckWidth-70)/2 : 30+(physicalAttributes.neckWidth-70)/2,
-		stomach   : (genChoice==0) ? 20+(physicalAttributes.bodyWidth-300)/10 : 0+(physicalAttributes.bodyWidth-300)/5,
+		chest     : (genChoice==0) ? 10+(physicalAttributes.neckWidth-70)/3 : 30+(physicalAttributes.neckWidth-70)/2,
+		stomach   : (genChoice==0) ? 10+(physicalAttributes.bodyWidth-300)/15 : 0+(physicalAttributes.bodyWidth-300)/5,
 		build     : (genChoice==0) ? 0+(physicalAttributes.bodyWidth-300)/2 : 25,
 		posture   : (genChoice==0) ? 80 : 0,
 		waist     : (genChoice==0) ? 10 : 30,
@@ -1275,9 +1279,10 @@ function draw() {
 			front_foot : Foot(0,0,0,0,0),
 			front_leg  : Leg(0,0,0,0,false,[0,0]),
 			body       : Body(0,0),
+			beard      : Beard(0,0),
 			front_arm  : Arm(50,195,-120,-15,false),
 			hair       : Hair(0,0,-2),
-			beard      : Beard(0,0),
+			
 			restore    : ctx.restore()
 		}
 
@@ -1297,7 +1302,7 @@ function draw() {
 			hair       : Hair(0,20,-2),
 			body       : Body(0,20),
 			front_arm  : Arm(-5,25,-10,0,false),
-			beard      : Beard(0,0),
+			beard      : Beard(0,20),
 			restore    : ctx.restore()
 		}
 
@@ -1317,7 +1322,6 @@ function draw() {
 			hair2      : Hair(-10,10,4),
 			hair2      : Hair(-10,20,4),
 			hair2      : Hair(-10,30,4),
-			beard      : Beard(0,0),
 			restore    : ctx.restore()
 		}
 		window.setTimeout(function() {

@@ -5,7 +5,7 @@ var state_CONVERSATION = 1;
 var state_PAUSED = 2;
 var state_GAMEOVER = 3;
 var gameState = state_EXPLORE;
-var time = [0,0,1];
+var time = [0,0,0];
 function time_keeper() {
 	time[0]++;
 	if (time[0]>=FPS) time[1]++,time[0]=0;
@@ -810,7 +810,7 @@ AI.prototype.die = function() {
 // ######### UPDATE ##########
 
 AI.prototype.update = function(logic, pos_in_array) {
-	if (!this.alive) console.log(this.persona.full_name + " is dead!"), AI_array.splice(pos_in_array,1),corpse_array.push(this);
+	if (!this.alive) console.log(this.persona.full_name + " is dead!"), AI_array.splice(pos_in_array,1),corpse_array.push(this),everyone_array.splice(pos_in_array,1);
 	if (time[0]==0) this.speech_bubble = false; // Reset function to make sure previous time activities don't overlap to next minute.
 	this[logic.act]();
 	this[logic.purpose]();
