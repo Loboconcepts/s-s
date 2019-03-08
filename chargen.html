@@ -513,8 +513,29 @@ function fillCopy(current) {
 	+ charactersArray[current].querk[1].replace(/his or her/g,pronounDecider(current, "possessive").toLowerCase()).replace(/him or her/g,pronounDecider(current, "oblique").toLowerCase()).replace(/he or she/g,pronounDecider(current, "nominative").toLowerCase())
 	+ ". "
 
+	var conversation_peices =  {
+		greetings : ['Hi','Yo','Hey','Howdy','Hello','Greetings','Hi-ya','Sup','What\'s up','Good morrow'],
+		nick_names : ['friend','partner','guy','pal','there','dude','buddy','bud','chap','fellow','kid','amigo','bro','chum','mate'],
+		greet_question : ['How are you?','How\'s it going?','How ya doing?','How\'s it hanging?','How goes it?','How do you do?','How have you been?','How\'s everything?'],
+		reply_good : ['Awesome','Exceptional','Fantastic','Good','Marvelous','Terrific','Tremendous','Wonderful','Aces','Fab','Out of sight','Super','Super-duper','Nice'],
+		reply_bad : []
+	}
+
+	function rn(multiple) {
+		return Math.floor(Math.random() * multiple);
+	}
+	
+
 	//Code
-	document.querySelector('#code').innerHTML = 'var ' + charactersArray[current].firstName.toLowerCase()+'_'+charactersArray[current].lastName.toLowerCase()+' = new AI(4.8,1,1,new Bitmap("./assets/characters/' + charactersArray[current].firstName.toLowerCase()+'-'+charactersArray[current].lastName.toLowerCase()+'.png",2000,800),{ full_name: "' + charactersArray[current].firstName+' '+charactersArray[current].lastName+'", genre: "GUEST", inches: '+characterHeight+', conversation: { topic : "greeting", greeting: ["Howdy partner. How ya doing?",{ 0: "That\'s hot.", 1: "That\'s cold." },false], introduce : ["Hi. I\'m '+ charactersArray[current].firstName+'!", { 0: "Pleasure is all mine.", 1: "Pleasure is all mine." },false], blackout : ["What was that?", { 0: "", 1: "" },false] } },{purpose:"think", act:"stand"},0);'
+	document.querySelector('#code').innerHTML = 'var ' + charactersArray[current].firstName.toLowerCase()+'_'+charactersArray[current].lastName.toLowerCase()
+	+' = new AI('+(Math.floor(Math.random()*5)+1)+',1,1,new Bitmap("./assets/characters/' 
+	+ charactersArray[current].firstName.toLowerCase()+'-'+charactersArray[current].lastName.toLowerCase()+'.png",2000,800),{ full_name: "' + charactersArray[current].firstName+' '+charactersArray[current].lastName
+	+'", genre: "GUEST", inches: '+characterHeight
+	+', conversation: { topic : "greeting", greeting: ["'
+	+ conversation_peices.greetings[rn(conversation_peices.greetings.length)] + ' ' 
+	+ conversation_peices.nick_names[rn(conversation_peices.nick_names.length)] + ['. ','! ','. '][rn(3)]
+	+ conversation_peices.greet_question[rn(conversation_peices.greet_question.length)] 
+	+'",{ 0: "That\'s hot.", 1: "That\'s cold." },false], introduce : ["Hi. I\'m '+ charactersArray[current].firstName+'!", { 0: "Pleasure is all mine.", 1: "Pleasure is all mine." },false], blackout : ["What was that?", { 0: "", 1: "" },false] } },{purpose:"think", act:"stand"},0);'
 
 
 }

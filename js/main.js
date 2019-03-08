@@ -729,6 +729,10 @@ AI.prototype.go_to_location = function(dest_x,dest_y,endFacing) {
 	// ensure AI does not stand on top of other AI
 }
 
+AI.prototype.nearby_items() {
+	// add all items here too.
+}
+
 AI.prototype.pace = function() {
 	if (!this.walking) this.walking;
 	if ((time[1]+this.random)%6==0) {
@@ -789,6 +793,51 @@ AI.prototype.think = function() {
 	else if (this.logic.act != "being_spoken_to") this.logic.act = "pace";
 };
 
+AI.prototype.think_2 = function() {
+	// standard think items
+	if(this.engaged) this.engaged = false;
+	if(time[0]==0) this.time_count++;
+	// overrides from other characters
+	if (this.logic.act == "being_spoken_to") this.time_count = 0, this.logic.purpose = "socialize";
+	// think tree
+	if (this.time_count >= 3+this.random) { // character has waited 3+ seconds, to slow down action
+		if (this.available_conversation_partners()==true) { // character has available conversation partners
+			
+		}
+		else { //character does NOT have available conversation partners
+			switch (this.persona.conversation.topic) {
+				case "greeting" :
+				break;
+				case "introduce" :
+				break;
+				case "job" :
+				break;
+				case "family" :
+				break;
+				case "greeting" :
+				break;
+				case "greeting" :
+				break;
+				case "greeting" :
+				break;
+				case "greeting" :
+				break;
+				case "greeting" :
+				break;
+
+			}
+
+		} 
+	}
+	else { // character has NOT yet waited 3+ seconds
+
+	}
+	
+
+
+
+};
+
 AI.prototype.murder = function() {
 	if (!this.my_target) this.logic.act = "target_suspicion";
 	if (this.my_target.alive) this.logic.act = "hunt";
@@ -805,6 +854,8 @@ AI.prototype.investigate = function() {
 }
 
 AI.prototype.die = function() {
+	this.my_target = false;
+	this.speech_bubble = false;
 	this.logic.act = "fall";
 }
 
