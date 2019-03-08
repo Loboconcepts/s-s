@@ -640,7 +640,7 @@ AI.prototype.being_spoken_to = function() {
 
 		this.walking = true;
 		this.engaged = false;
-		if (this.my_target.persona.genre != "GUEST") this.suspicion += 1;
+		// if (this.my_target) if (this.my_target.persona.genre != "GUEST") this.suspicion += 1;
 		this.my_target = false;
 
 	}
@@ -763,6 +763,7 @@ AI.prototype.socialize = function() {
 	if (!this.my_target) this.logic.act = "target_closest";
 	if (this.my_target && Math.abs(this.x - this.my_target.x) > .1) this.engaged = false;
 	if (this.my_target && this.my_target != player) {
+		if (!this.my_target.being_spoken_to) this.logic.act = "find_target";
 		if ((this.my_target.logic.act != "speak" && this.my_target.logic.act != "being_spoken_to") && !this.engaged) this.logic.act = "find_target";
 		if (this.my_target.engaged && this.logic.act != "being_spoken_to") this.logic.act = "waiting_to_talk";
 		if (this.engaged && (this.my_target.logic.act != "speak" && this.my_target.logic.act != "being_spoken_to")) this.logic.act = "speak";
@@ -771,7 +772,7 @@ AI.prototype.socialize = function() {
 		if (!this.my_target.being_spoken_to) this.logic.act = "find_target";
 		if (this.my_target.being_spoken_to) this.logic.act = "waiting_to_talk";
 		if (this.engaged) this.logic.act = "speak";
-	}
+	};
 };
 
 AI.prototype.think = function() {
