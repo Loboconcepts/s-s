@@ -807,8 +807,10 @@ AI.prototype.think_2 = function() {
 		else { //character does NOT have available conversation partners
 			switch (this.persona.conversation.topic) {
 				case "greeting" :
+				this.persona.conversation.topic = "introduce";
 				break;
 				case "introduce" :
+				this.persona.conversation.topic = "job";
 				break;
 				case "job" :
 				break;
