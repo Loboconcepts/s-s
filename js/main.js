@@ -729,8 +729,8 @@ AI.prototype.go_to_location = function(dest_x,dest_y,endFacing) {
 	// ensure AI does not stand on top of other AI
 }
 
-AI.prototype.nearby_items() {
-	// add all items here too.
+AI.prototype.what_is_nearby = function() {
+	console.log("nearby") // add all items here too.
 }
 
 AI.prototype.pace = function() {
