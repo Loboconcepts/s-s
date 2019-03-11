@@ -76,21 +76,11 @@ function logic_GAMEOVER() {
 function TIME_EVENTS(player, camera, AI_array) {
     if (time[2]==1 && time[1]==30 && time[0]==0) {
     	camera.darkness = true;
-    	for (var i=0;i<AI_array.length;i++) {
-    		player.being_spoken_to = false;
-			player.AI_focus = false;
-    		AI_array[i].engaged = false;
-    		AI_array[i].my_target = false;
-			if (AI_array[i].persona.genre == "MURDERER") AI_array[i].logic.purpose = "murder";
-			else AI_array[i].logic.purpose = "survival";
-			
-    		
-    	}
-    }
-    if (time[2]==1 && time[1]>40) {
+    	player.being_spoken_to = false;
+		player.AI_focus = false;
+    };
+    if (time[2]==1 && time[1]==40) {
     	camera.darkness = false;
-    	player.conversation_point = "blackout";
-    	for (var i=0;i<AI_array.length;i++) AI_array[i].spoken_with_already = [], AI_array[i].persona.conversation.topic = "blackout", AI_array[i].logic.purpose = "think";
     };
 
     
@@ -453,6 +443,8 @@ AI.prototype.fall = function() {
 // ############ ACTIONS ###############
 
 AI.prototype.find_target = function() {
+	// cinematically freeze camera
+	// if (this.my_target == player && Math.abs(this.x-this.my_target.x)%1<.3 && !camera.camera_lock && this.y == player.y) camera.camera_lock = true, player.walk_speed = 0;
 	if (this.y < this.my_target.y) this.walk(.005,"DOWN");
 	if (this.y > this.my_target.y) this.walk(.005,"UP");
 	if (this.y == this.my_target.y) {
@@ -547,6 +539,7 @@ AI.prototype.target_suspicion = function() {
 
 
 AI.prototype.no_witnesses = function(target) {
+	if (camera.darkness) return true;
 	// loop through array
 	for (i=0;i<AI_array.length;i++) {
 		// make sure that the current AI being checked is not the target
@@ -566,7 +559,7 @@ AI.prototype.no_witnesses = function(target) {
 	return true;
 };
 
-AI.prototype.kill = function() {
+AI.prototype.kill_2 = function() {
 	var target = this.my_target;
 		// see if any other AIs are nearby
 	if (camera.darkness == false) {
@@ -593,14 +586,21 @@ AI.prototype.kill = function() {
 		this.fleeing = true;
 		this.logic.purpose = "think";
 	}
-		
 }
 
-AI.prototype.hunt = function() {
-	if (this.my_target.alive) {
-		this.find_target();
-	}	
+AI.prototype.kill = function() {
+	this.my_target.logic.purpose = "die";
+	if (camera.camera_lock) camera.camera_lock = false;
+	if (camera.darkness) camera.darkness = false;
+	this.fleeing = true;
+	this.logic.purpose = "think";
 };
+
+// AI.prototype.hunt = function() {
+// 	if (this.my_target.alive) {
+// 		this.find_target();
+// 	}	
+// };
 
 AI.prototype.stand = function() {
 	// find out if this AI is standing on top of another AI
@@ -637,6 +637,7 @@ AI.prototype.being_spoken_to = function() {
 		// ends above if else
 		this.speech_bubble = false;
 		// allows conversation partner to continue whatever they were doing
+		this.spoken_with_already.push(this.my_target)
 
 		this.walking = true;
 		this.engaged = false;
@@ -674,8 +675,6 @@ AI.prototype.speak = function() {
 			this.time_count = 0;
 			// resets socialize
 			this.spoken_with_already.push(this.my_target);
-			if (this.my_target!=player) this.my_target.spoken_with_already.push(this);
-			
 			this.engaged = false;
 			if (this.my_target != player && this.my_target.persona.genre != "GUEST") this.suspicion += 1;
 			this.my_target = false;
@@ -779,76 +778,94 @@ AI.prototype.socialize = function() {
 	};
 };
 
-AI.prototype.think = function() {
+AI.prototype.think_2 = function() {
 	if(this.engaged) this.engaged = false;
 	if(time[0]==0) this.time_count++;
 	if (this.logic.act == "being_spoken_to") this.time_count = 0, this.logic.purpose = "socialize";
 	if (this.available_conversation_partners() == true && this.time_count >= 3+this.random && this.suspicion < 3 && !this.fleeing) this.time_count=0, this.logic.purpose = "socialize";
 	if (this.available_conversation_partners() == false && this.persona.conversation.topic == "greeting" && this.time_count >= 3+this.random && this.suspicion < 3 && !this.fleeing) {
+		this.persona.conversation.topic = "introduce";
 		this.time_count=0;
 		this.spoken_with_already = [];
-		this.persona.conversation.topic = "introduce";
 		this.logic.purpose = "socialize";
 	}
 	else if (this.logic.act != "being_spoken_to") this.logic.act = "pace";
 };
 
-AI.prototype.think_2 = function() {
+AI.prototype.think = function() {
 	// standard think items
 	if(this.engaged) this.engaged = false;
 	if(time[0]==0) this.time_count++;
 	// overrides from other characters
 	if (this.logic.act == "being_spoken_to") this.time_count = 0, this.logic.purpose = "socialize";
-	// think tree
-	if (this.time_count >= 3+this.random) { // character has waited 3+ seconds, to slow down action
-		if (this.available_conversation_partners()==true) { // character has available conversation partners
-			
-		}
-		else { //character does NOT have available conversation partners
-			switch (this.persona.conversation.topic) {
-				case "greeting" :
-				this.persona.conversation.topic = "introduce";
-				break;
-				case "introduce" :
-				this.persona.conversation.topic = "job";
-				break;
-				case "job" :
-				break;
-				case "family" :
-				break;
-				case "greeting" :
-				break;
-				case "greeting" :
-				break;
-				case "greeting" :
-				break;
-				case "greeting" :
-				break;
-				case "greeting" :
-				break;
-
-			}
-
-		} 
-	}
-	else { // character has NOT yet waited 3+ seconds
-
-	}
 	
+	// THINK TREE
+	if (!camera.darkness) { // lights are on
+		if (this.suspicion < 3) { // character is less than catalyst level of suspicion
+			if (this.time_count >= 3+this.random) { // character has waited 3+ seconds, to slow down action
+				if (this.available_conversation_partners()==true) { // character has available conversation partners
+					this.time_count=0;
+					this.logic.purpose = "socialize";
+				}
+				else { //character does NOT have available conversation partners
+					switch (this.persona.conversation.topic) {
+						case "greeting" :
+						this.persona.conversation.topic = "introduce";
+						break;
+						case "introduce" :
+						this.persona.conversation.topic = "work";
+						break;
+						case "work" :
+						this.persona.conversation.topic = "leisure";
+						break;
+						case "leisure" :
+						this.persona.conversation.topic = "hisory";
+						break;
+						default:
+						break;
+					}
+					this.spoken_with_already = [];
+					this.time_count=0;
+					this.logic.purpose = "socialize";
+				} 
+			}
+			else { // character has NOT yet waited 3+ seconds
+				if (this.logic.act != "being_spoken_to") this.logic.act = "pace";
+			}
+		}
+		else { // character's suspicion level is higher than catalyst level
 
-
-
+		}
+	}
+	else { // lights are off
+		this.engaged = false;
+    	this.my_target = false;
+    	this.time_count = 0;
+		if (this.persona.genre == "MURDERER") this.logic.purpose = "murder";
+		else this.logic.purpose = "survival";
+	}
 };
 
 AI.prototype.murder = function() {
-	if (!this.my_target) this.logic.act = "target_suspicion";
-	if (this.my_target.alive) this.logic.act = "hunt";
-	if (this.y == this.my_target.y && this.x > this.my_target.x-.1 && this.x < this.my_target.x+.1 && camera.viewHeight == 0) this.logic.act = "kill";
+	if (this.y == this.my_target.y && this.x > this.my_target.x-.1 && this.x < this.my_target.x+.1 && camera.viewHeight == 0 && this.no_witnesses) {
+		this.logic.act = "kill";	
+	} 
+	else if (this.y == this.my_target.y && this.x > this.my_target.x-.1 && this.x < this.my_target.x+.1 && camera.viewHeight == 0 && !this.no_witnesses) {
+		this.logic.purpose = "think";
+	}
+	if (this.my_target.alive) this.logic.act = "find_target";
+	if (!this.my_target) this.logic.act = "target_suspicion";	
 };
 
 AI.prototype.survival = function() {
-	this.fleeing = true;
-	this.logic.act = "pace";
+	if(time[0]==0) this.time_count++;
+	if(this.time_count > 9) {
+		this.logic.purpose = "think";
+	}
+	else {
+		this.fleeing = true;
+		this.logic.act = "pace";	
+	}
 }
 
 AI.prototype.investigate = function() {
