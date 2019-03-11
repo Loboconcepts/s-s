@@ -122,76 +122,99 @@
 			
 		},{purpose:"think", act:"stand"},0);
 
-		var dominik_bell = new AI(3.4,3,1,new Bitmap("assets/characters/dominik-bell.png",2000,800),{ full_name: "Dominik Bell", genre: "GUEST", inches: 90, conversation: { topic : "greeting", greeting: ["Howdy partner. How ya doing?",{ 0: "That's hot.", 1: "That's cold." },false], introduce : ["Hi. I'm Dominik!", { 0: "Pleasure is all mine.", 1: "Pleasure is all mine." },false], blackout : ["What was that?", { 0: "", 1: "" },false] } },{purpose:"think", act:"stand"},4);
+		var dominik_bell = new AI(3.4,3,1,new Bitmap("assets/characters/dominik-bell.png",2000,800),{ full_name: "Dominik Bell", genre: "GUEST", inches: 90,
+			conversation: { topic : "greeting", 
+				greeting: ["HELLO HOW ARE YOU?",{ 0: "EXCEPTIONAL!", 1: "SORRY TO HEAR THAT!" },false], 
+				introduce : ["MY NAME IS DOMINIK BELL.", { 0: "NICE TO MEET YOU!", 1: "NICE TO MEET YOU." },false], 
+				blackout : ["WHAT JUST HAPPENED?", { 0: "ME NEITHER!", 1: "AGREED!" },false], 
+				work : ["I PRETEND TO BE A STATUE FOR A LIVING! YOURSELF?", { 0: "INTERESTING!", 1: "OKAY." },false], 
+				leisure : ["I BELIEVE STREET PERFORMING SHOULD BE SUBSIDIZED BY TAXPAYERS.", { 0: "__________", 1: "__________" },false], 
+				history : ["My ex Madelyn is my enemy. She recently found something of mine.", { 0: "__________", 1: "__________" },false]
+			} },{purpose:"think", act:"stand"},0);
 
-		var annabelle_stuart = new AI(3.8,2,1,new Bitmap("assets/characters/annabelle-stuart.png",2000,800),{ full_name: "Annabelle Stuart", genre: "GUEST", inches: 78, conversation: { topic : "greeting", greeting: ["Howdy partner. How ya doing?",{ 0: "That's hot.", 1: "That's cold." },false], introduce : ["Hi. I'm annabelle!", { 0: "Pleasure is all mine.", 1: "Pleasure is all mine." },false], blackout : ["What was that?", { 0: "", 1: "" },false] } },{purpose:"think", act:"stand"},0);
+		var annabelle_stuart = new AI(3.8,2,1,new Bitmap("assets/characters/annabelle-stuart.png",2000,800),{ full_name: "Annabelle Stuart", genre: "GUEST", inches: 78,
+			conversation: { topic : "greeting", 
+				greeting: ["Yes? Oh yes, how are you?",{ 0: "What? Oh, good.", 1: "What? Oh, good good." },false], 
+				introduce : ["Huh? Oh, I'm Annabelle Stuart.", { 0: "Hmm? Oh, yes, pleasure.", 1: "Hmm? Oh, yes, pleasure." },false], 
+				blackout : ["Huh? What?", { 0: "Huh?", 1: "What?" },false], 
+				work : ["Did you say something? I'm a sound engineer. You?", { 0: "I like cheese too...", 1: "I was voted most likely to be a musician." },false], 
+				leisure : ["What? I would like to change the future.", { 0: "__________", 1: "__________" },false], 
+				history : ["My ex Madelyn is my enemy. She recently found something of mine.", { 0: "__________", 1: "__________" },false]
+			} },{purpose:"think", act:"stand"},0);
 
-		var austin_gamble = new AI(2.8,1,1,new Bitmap("./assets/characters/austin-gamble.png",2000,800),{ full_name: "Austin Gamble", genre: "GUEST", inches: 82, conversation: { topic : "greeting", greeting: ["Howdy partner. How ya doing?",{ 0: "That's hot.", 1: "That's cold." },false], introduce : ["Hi. I'm Austin!", { 0: "Pleasure is all mine.", 1: "Pleasure is all mine." },false], blackout : ["What was that?", { 0: "", 1: "" },false] } },{purpose:"think", act:"stand"},0);
+		var austin_gamble = new AI(2.8,1,1,new Bitmap("./assets/characters/austin-gamble.png",2000,800),{ full_name: "Austin Gamble", genre: "GUEST", inches: 82,
+			conversation: { topic : "greeting", 
+				greeting: ["Hmm yes. How are you, friend?",{ 0: "Yes nice yes.", 1: "Hmm, shame." },false], 
+				introduce : ["Hmm, my name is Austin Salamander Gamble.", { 0: "Hmm, yes, yes.", 1: "Hmm yes." },false], 
+				blackout : ["Hmmm strange things. Do you know what happened?", { 0: "Hmmm.", 1: "Hmmm yes yes." },false], 
+				work : ["Hmmm, I'm a lighthouse keeper. It pays well. You?", { 0: "Hmmm, no lighthouse keeper, though.", 1: "Hmmm..." },false], 
+				leisure : ["Hmmm, there is a ship captain I have sworn revenge upon...", { 0: "__________", 1: "__________" },false], 
+				history : ["My ex Madelyn is my enemy. She recently found something of mine.", { 0: "__________", 1: "__________" },false]
+			} },{purpose:"think", act:"stand"},0);
 
-		var beau_snow = new AI(4.8,1,1,new Bitmap("./assets/characters/beau-snow.png",2000,800),{ full_name: "Beau Snow", genre: "MURDERER", inches: 98, conversation: { topic : "greeting", greeting: ["Howdy partner. How ya doing?",{ 0: "That's hot.", 1: "That's cold." },false], introduce : ["Hi. I'm Beau!", { 0: "Pleasure is all mine.", 1: "Pleasure is all mine." },false], blackout : ["What was that?", { 0: "", 1: "" },false] } },{purpose:"think", act:"stand"},0);
+		var beau_snow = new AI(4.8,1,1,new Bitmap("./assets/characters/beau-snow.png",2000,800),{ full_name: "Beau Snow", genre: "MURDERER", inches: 98,
+			conversation: { topic : "greeting", 
+				greeting: ["Hello, friend. How are you?",{ 0: "Good.", 1: "Okay." },false], 
+				introduce : ["I'm Beau Snow.", { 0: "Nice to meet you.", 1: "Nice to meet you..." },false], 
+				blackout : ["Whoa. That was strange. Did you see anything?", { 0: "Good.", 1: "Okay..." },false], 
+				work : ["I'm a roller derby commentator. You?", { 0: "Interesting.", 1: "Interesting..." },false], 
+				leisure : ["I enjoy touching blue shiny objects.", { 0: "__________", 1: "__________" },false], 
+				history : ["My ex Madelyn is my enemy. She recently found something of mine.", { 0: "__________", 1: "__________" },false]
+			} },{purpose:"think", act:"stand"},0);
 
-		var clay_tillman = new AI(2.8,3,1,new Bitmap("./assets/characters/clay-tillman.png",2000,800),{ full_name: "Clay Tillman", genre: "GUEST", inches: 90, conversation: { topic : "greeting", greeting: ["Howdy partner. How ya doing?",{ 0: "That's hot.", 1: "That's cold." },false], introduce : ["Hi. I'm Clay!", { 0: "Pleasure is all mine.", 1: "Pleasure is all mine." },false], blackout : ["What was that?", { 0: "", 1: "" },false] } },{purpose:"think", act:"stand"},0);
+		var clay_tillman = new AI(2.8,3,1,new Bitmap("./assets/characters/clay-tillman.png",2000,800),{ full_name: "Clay Tillman", genre: "GUEST", inches: 90,
+			conversation: { topic : "greeting", 
+				greeting: ["Eep! Sorry, how are you?",{ 0: "Good!", 1: "I'm sorry to hear that." },false], 
+				introduce : ["My name is Clay Tillman.", { 0: "Nice to meet you!", 1: "Nice to meet you..." },false], 
+				blackout : ["Eep! What was that?", { 0: "Eep!", 1: "Eep..." },false], 
+				work : ["I speak so calmly because I am a school counselor. You?", { 0: "Eep!", 1: "Eep..." },false], 
+				leisure : ["I really enjoy pie. I would like to find the best pie ever.", { 0: "__________", 1: "__________" },false], 
+				history : ["My ex Madelyn is my enemy. She recently found something of mine.", { 0: "__________", 1: "__________" },false]
+			} },{purpose:"think", act:"stand"},0);
 
-		var esme_ferguson = new AI(3.8,2,1,new Bitmap("./assets/characters/esme-ferguson.png",2000,800),{ full_name: "Esme Ferguson", genre: "GUEST", inches: 80, conversation: { topic : "greeting", greeting: ["Howdy partner. How ya doing?",{ 0: "That's hot.", 1: "That's cold." },false], introduce : ["Hi. I'm Esme!", { 0: "Pleasure is all mine.", 1: "Pleasure is all mine." },false], blackout : ["What was that?", { 0: "", 1: "" },false] } },{purpose:"think", act:"stand"},0);
+		var esme_ferguson = new AI(3.8,2,1,new Bitmap("./assets/characters/esme-ferguson.png",2000,800),{ full_name: "Esme Ferguson", genre: "GUEST", inches: 80, 
+			conversation: { topic : "greeting", 
+				greeting: ["Mmmm hey there, How are you doing?",{ 0: "That's hot.", 1: "I can help with that." },false], 
+				introduce : ["My name is Esme Ferguson. You'd best remember that.", { 0: "Pleasure!", 1: "So it's like that, huh..." },false], 
+				blackout : ["Whoa! What's going on?", { 0: "Yikes!", 1: "I agree..." },false], 
+				work : ["I put advertisments under windshields, a solicitor. You?", { 0: "Interesting!", 1: "Interesting..." },false], 
+				leisure : ["I've almost come up with the cure for homsyphitis.", { 0: "__________", 1: "__________" },false], 
+				history : ["My ex Madelyn is my enemy. She recently found something of mine.", { 0: "__________", 1: "__________" },false]
+			} },{purpose:"think", act:"stand"},0);
 
-		var raiden_castro = new AI(1.8,3,1,new Bitmap("./assets/characters/raiden-castro.png",2000,800),{ full_name: "Raiden Castro", genre: "GUEST", inches: 81, conversation: { topic : "greeting", greeting: ["Howdy partner. How ya doing?",{ 0: "That's hot.", 1: "That's cold." },false], introduce : ["Hi. I'm Raiden!", { 0: "Pleasure is all mine.", 1: "Pleasure is all mine." },false], blackout : ["What was that?", { 0: "", 1: "" },false] } },{purpose:"think", act:"stand"},0);
+		var raiden_castro = new AI(1.8,3,1,new Bitmap("./assets/characters/raiden-castro.png",2000,800),{ full_name: "Raiden Castro", genre: "GUEST", inches: 81, 
+			conversation: { topic : "greeting", 
+				greeting: ["Hello, my child. How are you?",{ 0: "Wonderful!", 1: "You must pray." },false], 
+				introduce : ["I am cleric Raiden Castro.", { 0: "Very nice to make your acquaintance.", 1: "Nice to make your acquaintance." },false], 
+				blackout : ["There's nothing to fear in the darkness, my child.", { 0: "Believe me.", 1: "Do not let your belief falter." },false], 
+				work : ["I'm a cleric of Bé-Cha-Féctgh, the arahitogami. You?", { 0: "You do good work.", 1: "Your life has meaning." },false], 
+				leisure : ["My goal is to spread the good word of the arahitogami.", { 0: "__________", 1: "__________" },false], 
+				history : ["My ex Madelyn is my enemy. She recently found something of mine.", { 0: "__________", 1: "__________" },false]
+			} },{purpose:"think", act:"stand"},0);
 
-		var kristina_blackburn = new AI(2.8,0,1,new Bitmap("./assets/characters/kristina-blackburn.png",2000,800),{ full_name: "Kristina Blackburn", genre: "GUEST", inches: 89, conversation: { topic : "greeting", greeting: ["Howdy partner. How ya doing?",{ 0: "That's hot.", 1: "That's cold." },false], introduce : ["Hi. I'm Kristina!", { 0: "Pleasure is all mine.", 1: "Pleasure is all mine." },false], blackout : ["What was that?", { 0: "", 1: "" },false] } },{purpose:"think", act:"stand"},0);
+		var duke_valentine = new AI(3,1,1,new Bitmap("./assets/characters/duke-valentine.png",2000,800),{ full_name: "Duke Valentine", genre: "GUEST", inches: 85, 
+			conversation: { topic : "greeting", 
+				greeting: ["Yo yo yo, how ya living?",{ 0: "Large!", 1: "*cough*" },false], 
+				introduce : ["The name's Valentine. Duke Valentine.", { 0: "Nice to meet you!", 1: "Nice to meet you..." },false], 
+				blackout : ["Whoa! What's going on?", { 0: "Yikes!", 1: "I agree..." },false], 
+				work : ["I'm a certified registered nurse, yo. Yourself?", { 0: "Very cool!", 1: "You? Hmm..." },false], 
+				leisure : ["I'm trying to have multiple sources of income for stability.", { 0: "__________", 1: "__________" },false], 
+				history : ["My ex Madelyn is my enemy. She recently found something of mine.", { 0: "__________", 1: "__________" },false]
+			} },{purpose:"think", act:"stand"},0);
 
-
-		var sunwell_sunflower = new AI(2.5,1,1,new Bitmap('assets/characters/annabelle-stuart.png',2000,1200),{
-			full_name: "Sunwell Sunflower",
-			genre: "MURDERER",
-			inches: 98,
-			conversation: {
-				topic : "greeting",
-				greeting: ["How does the rest of your life look?",
-					{
-						0: "Hmmm.",
-						1: "I can help with that."
-					},
-				false],
-				introduce : ["Sunwell. Leave me alone.", 
-					{
-						0: "Go away.",
-						1: "Go away."
-					},
-				false],
-				blackout : ["What do you want?", {
-					0: "",
-					1: ""
-				},false]
-			}
-		},{purpose:"think", act:"stand"},1);
-
-		var perry_periscope = new AI(4.3,1,1,new Bitmap('assets/characters/annabelle-stuart.png',2000,1200),{
-			full_name: "Perry Periscope",
-			genre: "AGENT",
-			inches: 92,
-			conversation: {
-				topic : "greeting",
-				greeting: ["Hey pal. How's it going?",
-					{
-						0: "Glad to hear it.",
-						1: "Damn shame."
-					},
-				false],
-				introduce : ["The name's Perry.", 
-					{
-						0: "Nice to meet you.",
-						1: "Nice to meet you."
-					},
-				false],
-				blackout : ["What was that?", {
-					0: "",
-					1: ""
-				},false]
-			}
-		},{purpose:"think", act:"stand"},1);
+		var kristina_blackburn = new AI(2.8,0,1,new Bitmap("./assets/characters/kristina-blackburn.png",2000,800),{ full_name: "Kristina Blackburn", genre: "GUEST", inches: 89, 
+			conversation: { topic : "greeting", 
+				greeting: ["Yo yo yo, how ya living?",{ 0: "Large!", 1: "*cough*" },false], 
+				introduce : ["The name's Valentine. Duke Valentine.", { 0: "Nice to meet you!", 1: "Nice to meet you..." },false], 
+				blackout : ["Whoa! What's going on?", { 0: "Yikes!", 1: "I agree..." },false], 
+				work : ["I'm a certified registered nurse, yo. Yourself?", { 0: "Very cool!", 1: "You? Hmm..." },false], 
+				leisure : ["I'm trying to have multiple sources of income for stability.", { 0: "__________", 1: "__________" },false], 
+				history : ["My ex Madelyn is my enemy. She recently found something of mine.", { 0: "__________", 1: "__________" },false]
+			} },{purpose:"think", act:"stand"},0);
 
 
-		var AI_array = [esme_ferguson,annabelle_stuart,dominik_bell,austin_gamble,beau_snow,clay_tillman,raiden_castro,kristina_blackburn];
-		var everyone_array = [esme_ferguson,annabelle_stuart,dominik_bell,austin_gamble,beau_snow,clay_tillman,raiden_castro,kristina_blackburn,player];
+		var AI_array = [esme_ferguson,annabelle_stuart,dominik_bell,austin_gamble,beau_snow,clay_tillman,raiden_castro,duke_valentine];
+		var everyone_array = [esme_ferguson,annabelle_stuart,dominik_bell,austin_gamble,beau_snow,clay_tillman,raiden_castro,duke_valentine,player];
 		var corpse_array = [];
 		
 		

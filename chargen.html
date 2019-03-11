@@ -49,14 +49,30 @@
         </tbody>
       </table>
     </div>
+    
     <div class="copyBox">
       <p id="mainCopy"></p>
       <h2>Background</h2>
       <p id="backgroundInfo"></p>
       <h2>Persona</h2>
       <p id="personaInfo"></p>
+
+      <table>
+    	<tr>
+    		<td><strong>Topic</strong></td>
+    		<td><strong>First sentence</strong></td>
+    		<td><strong>Positive reply</strong></td>
+    		<td><strong>Negative reply</strong></td>
+    	</tr>
+    	<tr id="greeting">
+    		<td>Greeting</td>
+    		<td><input onblur="updateCode(this)"></td>
+    		<td><input onblur="updateCode(this)"></td>
+    		<td><input onblur="updateCode(this)"></td>
+    	</tr>
+    </table>
       <h2>Code</h2>
-      <code id="code"></code>
+      <textarea style="width:90%;height:200px;" id="code"></textarea>
 	<canvas id="canvas" width="2000" height="800"></canvas></div>
 
 	<br>
@@ -71,6 +87,11 @@
 		canvas.height = 800;
 		ctx['mozImageSmoothingEnabled'] = true;
 
+
+
+		function updateCode(x) {
+			console.log(x)
+		}
 
 
 	
@@ -531,11 +552,14 @@ function fillCopy(current) {
 	+' = new AI('+(Math.floor(Math.random()*5)+1)+',1,1,new Bitmap("./assets/characters/' 
 	+ charactersArray[current].firstName.toLowerCase()+'-'+charactersArray[current].lastName.toLowerCase()+'.png",2000,800),{ full_name: "' + charactersArray[current].firstName+' '+charactersArray[current].lastName
 	+'", genre: "GUEST", inches: '+characterHeight
-	+', conversation: { topic : "greeting", greeting: ["'
-	+ conversation_peices.greetings[rn(conversation_peices.greetings.length)] + ' ' 
-	+ conversation_peices.nick_names[rn(conversation_peices.nick_names.length)] + ['. ','! ','. '][rn(3)]
-	+ conversation_peices.greet_question[rn(conversation_peices.greet_question.length)] 
-	+'",{ 0: "That\'s hot.", 1: "That\'s cold." },false], introduce : ["Hi. I\'m '+ charactersArray[current].firstName+'!", { 0: "Pleasure is all mine.", 1: "Pleasure is all mine." },false], blackout : ["What was that?", { 0: "", 1: "" },false] } },{purpose:"think", act:"stand"},0);'
+	+', conversation: { topic : "greeting",'
+	+'\ngreeting: ["_________",{ 0: "__________", 1: "__________" },false],'
+	+'\nintroduce : ["Hi. I\'m '+ charactersArray[current].firstName+'!", { 0: "__________", 1: "__________" },false],'
+	+'\nblackout : ["__________", { 0: "__________", 1: "__________" },false],'
+	+'\nwork : ["__________", { 0: "__________", 1: "__________" },false],'
+	+'\nleisure : ["__________", { 0: "__________", 1: "__________" },false],'
+	+'\nhistory : ["__________", { 0: "__________", 1: "__________" },false]'
+	+'\n} },{purpose:"think", act:"stand"},0);'
 
 
 }
