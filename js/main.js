@@ -847,14 +847,20 @@ AI.prototype.think = function() {
 };
 
 AI.prototype.murder = function() {
-	if (this.y == this.my_target.y && this.x > this.my_target.x-.1 && this.x < this.my_target.x+.1 && camera.viewHeight == 0 && this.no_witnesses) {
-		this.logic.act = "kill";	
-	} 
-	else if (this.y == this.my_target.y && this.x > this.my_target.x-.1 && this.x < this.my_target.x+.1 && camera.viewHeight == 0 && !this.no_witnesses) {
-		this.logic.purpose = "think";
+	if(time[0]==0) this.time_count++;
+	if (this.time_count<10) {
+		if (this.y == this.my_target.y && this.x > this.my_target.x-.1 && this.x < this.my_target.x+.1 && camera.viewHeight == 0 && this.no_witnesses) {
+			this.logic.act = "kill";	
+		} 
+		else if (this.y == this.my_target.y && this.x > this.my_target.x-.1 && this.x < this.my_target.x+.1 && camera.viewHeight == 0 && !this.no_witnesses) {
+			this.logic.purpose = "think";
+		}
+		if (this.my_target.alive) this.logic.act = "find_target";
+		if (!this.my_target) this.logic.act = "target_suspicion";	
 	}
-	if (this.my_target.alive) this.logic.act = "find_target";
-	if (!this.my_target) this.logic.act = "target_suspicion";	
+	else {
+		this.logic.purpose = "think";
+	};
 };
 
 AI.prototype.survival = function() {
@@ -1166,6 +1172,11 @@ Camera.prototype.drawFrontObjects = function (x,y,location) {
 Camera.prototype.speech_bubble = function(x,speech,inches,worldHeight) {
 	let center = x+canvas.width/12;
 
+	function split_large_sentences(speech) {
+		
+
+	}
+
 	this.ctx.save();
 	this.ctx.strokeStyle = "#000000";
 	this.ctx.lineWidth = 2;
@@ -1181,9 +1192,7 @@ Camera.prototype.speech_bubble = function(x,speech,inches,worldHeight) {
 	this.ctx.fillStyle = "#ffffff";
 	this.ctx.fillText(speech,center,canvas.height-((canvas.height/2.5)*((inches*.01)*2))+this.viewHeight+worldHeight);
 	this.ctx.restore();
-
-
-}
+};
 
 Camera.prototype.drawRoom = function(x,y,location) {	
 	var texture = mansion.texture;
