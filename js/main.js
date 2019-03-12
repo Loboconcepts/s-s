@@ -282,7 +282,7 @@ Player.prototype.engage = function() {
 			this.AI_focus.direction = this.direction*-1;
 			this.AI_focus.seg = 0;
 			// reset for after convo exits back to explore mode
-			this.AI_focus.logic.act = "target_closest";
+			this.AI_focus.logic.act = "think";
 			this.AI_focus.my_target = false;
 			this.being_spoken_to = false;
 			this.AI_focus.spoken_with_already.push(this);
@@ -781,6 +781,7 @@ AI.prototype.think = function() {
 			if (this.time_count >= 3+this.random) { // character has waited 3+ seconds, to slow down action
 				if (this.available_conversation_partners()==true) { // character has available conversation partners
 					this.time_count=0;
+					if (this.logic.act != "being_spoken_to") this.logic.act = "pace";
 					this.logic.purpose = "socialize";
 				}
 				else { //character does NOT have available conversation partners
@@ -795,9 +796,10 @@ AI.prototype.think = function() {
 						this.persona.conversation.topic = "leisure";
 						break;
 						case "leisure" :
-						this.persona.conversation.topic = "hisory";
+						this.persona.conversation.topic = "history";
 						break;
 						default:
+						if (this.logic.act != "being_spoken_to") this.logic.act = "pace";
 						break;
 					}
 					this.spoken_with_already = [];
@@ -810,7 +812,7 @@ AI.prototype.think = function() {
 			}
 		}
 		else { // character's suspicion level is higher than catalyst level
-
+			if (this.logic.act != "being_spoken_to") this.logic.act = "pace";
 		}
 	}
 	else { // lights are off
