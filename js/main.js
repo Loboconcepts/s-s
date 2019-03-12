@@ -379,11 +379,10 @@ function AI (x,y,direction,texture,persona,logic,suspicion) {
     this.logic = logic;
     this.suspicion = suspicion;
     this.spoken_with_already = [];
-    this.my_target=false;
-    this.engaged = false;
+    this.my_target=false; // who is this person targeting
+    this.engaged = false; // in position to interact with someone
     this.time_count = 0;
     this.speech_bubble = false;
-    this.walking = true;
     this.alive = true;
     this.fleeing = false;
     this.random = Math.floor(Math.random()*10);
@@ -393,41 +392,36 @@ function AI (x,y,direction,texture,persona,logic,suspicion) {
 // ######### PHYSICAL ACTIONS ##############
 
 AI.prototype.walk = function(x_distance,UPorDOWN) {
-	if (this.walking) {
-		if (UPorDOWN) {
-			if (UPorDOWN=="UP") var distance = (mansion.grid[(1+this.y)*mansion.length]==1) ? .005 : -.005;
-			if (UPorDOWN=="DOWN") var distance = (mansion.grid[(1+this.y)*mansion.length]==1) ? -.005 : .005
-		}
-		else {
-			var distance = x_distance;
-		}
-		this.direction = (distance<0) ? -1:1;
-		var pos = function(x,y,horizontal, vertical) {
-			return mansion.grid[(Math.floor(x)+(1*horizontal))+((y+vertical)*mansion.length)];
-		}
-
-		if (this.x > 1.5 && this.x < (mansion.length+.5)) {
-			this.x+=distance;
-			this.seg+=Math.abs(distance*30);
-			if (this.seg >= 10) this.seg = 0;
-		}
-		else if (this.x <= 1.5 && distance > 0) {
-			this.x+=distance;
-		}
-		else if (this.x >= mansion.length-.1 && distance < 0) {
-			this.x+=distance;
-		}
-		if (UPorDOWN == "UP") {
-			if (this.x>(mansion.length+.5) && pos(this.x,this.y,0,0) == 1) this.y+=-1;
-			if (this.x<1.5 && pos(this.x,this.y,0,0) == 3) this.y +=-1;	
-		}
-		else {
-			if (this.x>(mansion.length+.5) && pos(this.x,this.y,0,0) == 2) this.y+=1;
-			if (this.x<1.5 && pos(this.x,this.y,0,0) == 4) this.y+=1;	
-		}
+	if (UPorDOWN) {
+		if (UPorDOWN=="UP") var distance = (mansion.grid[(1+this.y)*mansion.length]==1) ? .005 : -.005;
+		if (UPorDOWN=="DOWN") var distance = (mansion.grid[(1+this.y)*mansion.length]==1) ? -.005 : .005
 	}
 	else {
-		this.seg = 0;
+		var distance = x_distance;
+	}
+	this.direction = (distance<0) ? -1:1;
+	var pos = function(x,y,horizontal, vertical) {
+		return mansion.grid[(Math.floor(x)+(1*horizontal))+((y+vertical)*mansion.length)];
+	}
+
+	if (this.x > 1.5 && this.x < (mansion.length+.5)) {
+		this.x+=distance;
+		this.seg+=Math.abs(distance*30);
+		if (this.seg >= 10) this.seg = 0;
+	}
+	else if (this.x <= 1.5 && distance > 0) {
+		this.x+=distance;
+	}
+	else if (this.x >= mansion.length-.1 && distance < 0) {
+		this.x+=distance;
+	}
+	if (UPorDOWN == "UP") {
+		if (this.x>(mansion.length+.5) && pos(this.x,this.y,0,0) == 1) this.y+=-1;
+		if (this.x<1.5 && pos(this.x,this.y,0,0) == 3) this.y +=-1;	
+	}
+	else {
+		if (this.x>(mansion.length+.5) && pos(this.x,this.y,0,0) == 2) this.y+=1;
+		if (this.x<1.5 && pos(this.x,this.y,0,0) == 4) this.y+=1;	
 	}
 }
 
@@ -638,8 +632,6 @@ AI.prototype.being_spoken_to = function() {
 		this.speech_bubble = false;
 		// allows conversation partner to continue whatever they were doing
 		this.spoken_with_already.push(this.my_target)
-
-		this.walking = true;
 		this.engaged = false;
 		// if (this.my_target) if (this.my_target.persona.genre != "GUEST") this.suspicion += 1;
 		this.my_target = false;
@@ -732,7 +724,6 @@ AI.prototype.what_is_nearby = function() {
 }
 
 AI.prototype.pace = function() {
-	if (!this.walking) this.walking;
 	if ((time[1]+this.random)%6==0) {
 		this.walk(.003);
 	}
