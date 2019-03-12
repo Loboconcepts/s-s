@@ -274,7 +274,7 @@ Player.prototype.engage = function() {
 			this.AI_focus = AI_array[i];
 			this.AI_focus.direction = this.direction*-1;
 			this.AI_focus.seg = 0;
-			if (gameState != state_CONVERSATION) return this.interact(this.conversation_point, 0);
+			if (gameState != state_CONVERSATION) this.interact(this.conversation_point, 0);
 		}
 		else if (AI_array[i].engaged && AI_array[i].my_target == this) {
 			this.AI_focus = AI_array[i];
@@ -289,7 +289,7 @@ Player.prototype.engage = function() {
 			// change player's conversation point to AI's
 			this.conversation_point = this.AI_focus.persona.conversation.topic;
 			// move to interact
-			if (gameState != state_CONVERSATION) return this.interact(this.conversation_point, 0);
+			if (gameState != state_CONVERSATION) this.interact(this.conversation_point, 0);
 			
 		}
 	}
@@ -500,7 +500,7 @@ AI.prototype.target_closest = function() {
 			}
 		}
 		else {
-			this.logic.purpose = "think";
+			this.seg = 0;
 		}
 	}
 };
@@ -619,7 +619,7 @@ AI.prototype.stand = function() {
 	// it needs to move until it is not
 };
 
-AI.prototype.being_spoken_to_old = function() {
+AI.prototype.being_spoken_to = function() {
 	if(time[0]==0) this.time_count++;
 	this.seg = 0;
 	if (this.time_count<=2) {
@@ -629,7 +629,6 @@ AI.prototype.being_spoken_to_old = function() {
 			this.speech_bubble = this.persona.conversation[this.my_target.persona.conversation.topic][0];
 		}
 		else {
-			this.logic.act = "pace";
 			this.logic.purpose = "think";
 		}
 	}
@@ -650,10 +649,10 @@ AI.prototype.being_spoken_to_old = function() {
 
 
 // Need to make player conversation_point switch temporarily to AI's when player is engaged by AI.
-AI.prototype.speak_old = function() {
+AI.prototype.speak = function() {
 	if (!this.my_target || !this.my_target.alive) {
 		this.my_target = false;
-		this.logic.purpose = "think";	
+		this.logic.act = "target_closest";	
 	}
 	else {
 		if (this.my_target!=player && this.my_target.logic.act != "being_spoken_to") this.my_target.time_count = 0, this.my_target.logic.act = "being_spoken_to";
@@ -671,7 +670,7 @@ AI.prototype.speak_old = function() {
 		else if (this.time_count>2 && this.time_count<=4) {
 			this.speech_bubble = false;
 		}
-		else if (this.time_count>4) {
+		else {
 			if (this.my_target==player) this.my_target.being_spoken_to = false;
 			this.time_count = 0;
 			// resets socialize
@@ -686,28 +685,6 @@ AI.prototype.speak_old = function() {
 	}
 	
 };
-
-AI.prototype.speak = function() {
-	if (this.my_target!=player) {
-		if (this.my_target.logic.act == "being_spoken_to") {
-			
-		}
-		else { // my target is not being spoken to by me yet
-			this.my_target.time_count = 0;
-			this.my_target.logic.act = "being_spoken_to";
-		}
-	}
-	else {
-		if (Math.abs(this.x-player.x)<=.1) {
-			this.my_target.being_spoken_to = true;
-		}
-		else {
-			this.my_target.being_spoken_to = false;
-		}
-
-	}
-	
-}
 
 // Take player.reply_select after player.chosen_reply = true and perform an action with it.
 AI.prototype.react = function(whatConvo) {
@@ -783,82 +760,36 @@ AI.prototype.available_conversation_partners = function() {
 };
 
 // ####### PURPOSES ########
-AI.prototype.socialize_old = function() {
-	if (!camera.darkness) {
-		if (this.available_conversation_partners() == false && this.logic.act != "being_spoken_to") this.my_target=false, this.logic.purpose = "think";
-		if (this.suspicion > 2 && this.logic.act != "being_spoken_to") this.my_target=false, this.logic.purpose = "think";
-		if (!this.my_target) this.logic.act = "target_closest";
-		if (this.my_target && Math.abs(this.x - this.my_target.x) > .1) this.engaged = false;
-		if (this.my_target && this.my_target != player) {
-			if (!this.my_target.being_spoken_to) this.logic.act = "find_target";
-			if ((this.my_target.logic.act != "speak" && this.my_target.logic.act != "being_spoken_to") && !this.engaged) this.logic.act = "find_target";
-			if (this.my_target.engaged && this.logic.act != "being_spoken_to") this.logic.act = "waiting_to_talk";
-			if (this.engaged && (this.my_target.logic.act != "speak" && this.my_target.logic.act != "being_spoken_to")) this.logic.act = "speak";
-		}
-		else if (this.my_target == player) {
-			if (!this.my_target.being_spoken_to) this.logic.act = "find_target";
-			if (this.my_target.being_spoken_to) this.logic.act = "waiting_to_talk";
-			if (this.engaged) this.logic.act = "speak";
-		};
+AI.prototype.socialize = function() {
+	if (this.available_conversation_partners() == false && this.logic.act != "being_spoken_to") this.my_target=false, this.logic.purpose = "think";
+	if (this.suspicion > 2 && this.logic.act != "being_spoken_to") this.my_target=false, this.logic.purpose = "think";
+	if (!this.my_target) this.logic.act = "target_closest";
+	if (this.my_target && Math.abs(this.x - this.my_target.x) > .1) this.engaged = false;
+	if (this.my_target && this.my_target != player) {
+		if (!this.my_target.being_spoken_to) this.logic.act = "find_target";
+		if ((this.my_target.logic.act != "speak" && this.my_target.logic.act != "being_spoken_to") && !this.engaged) this.logic.act = "find_target";
+		if (this.my_target.engaged && this.logic.act != "being_spoken_to") this.logic.act = "waiting_to_talk";
+		if (this.engaged && (this.my_target.logic.act != "speak" && this.my_target.logic.act != "being_spoken_to")) this.logic.act = "speak";
 	}
-	else {
-		this.logic.purpose = "think";
+	else if (this.my_target == player) {
+		if (!this.my_target.being_spoken_to) this.logic.act = "find_target";
+		if (this.my_target.being_spoken_to) this.logic.act = "waiting_to_talk";
+		if (this.engaged) this.logic.act = "speak";
 	};
 };
 
-AI.prototype.entertain = function() {
-	if (this.logic.act = "being_spoken_to") {
-		this.seg = 0;
+AI.prototype.think_2 = function() {
+	if(this.engaged) this.engaged = false;
+	if(time[0]==0) this.time_count++;
+	if (this.logic.act == "being_spoken_to") this.time_count = 0, this.logic.purpose = "socialize";
+	if (this.available_conversation_partners() == true && this.time_count >= 3+this.random && this.suspicion < 3 && !this.fleeing) this.time_count=0, this.logic.purpose = "socialize";
+	if (this.available_conversation_partners() == false && this.persona.conversation.topic == "greeting" && this.time_count >= 3+this.random && this.suspicion < 3 && !this.fleeing) {
+		this.persona.conversation.topic = "introduce";
+		this.time_count=0;
+		this.spoken_with_already = [];
+		this.logic.purpose = "socialize";
 	}
-}
-
-AI.prototype.socialize = function() {
-	if (!camera.darkness) { // lights are off
-		if (this.logic.act != "being_spoken_to") {
-			if (this.available_conversation_partners()) { //someone to talk to
-				if (this.my_target)  { // I have a target
-					if (this.my_target != player) {
-						if (this.my_target.logic.act != "speak" && this.my_target.logic.act != "being_spoken_to") { // my target is neither speaking nor being spoken to
-							if (this.engaged) { // I am close enough to my target to speak
-								this.logic.act = "speak";
-							}
-							else { // I am not close enough to my target
-								this.logic.act = "find_target";
-							}
-						}
-						else { // my target is currently talking to someone
-							this.logic.act = "waiting_to_talk";
-						}
-					}
-					else { //my target is the player
-						if (this.engaged) { // I am close enough to speak
-							this.logic.act = "speak";
-						}
-						else {
-							if (!this.my_target.being_spoken_to) { // my tagret is not being spoken to
-								this.logic.act = "find_target";
-							}
-							else { // my target is being spoken to
-								this.logic.act = "waiting_to_talk";
-							}
-						}
-					}
-				}
-				else { // I do not have a target
-					this.logic.act = "target_closest";
-				}
-			}
-			else { // I have already spoken to everyone
-				this.logic.purpose = "think";
-			}
-		}
-		else {// I am being spoken to
-			
-		}	
-	}
-	else { // lights are off
-		this.logic.purpose = "think";
-	};
+	else if (this.logic.act != "being_spoken_to") this.logic.act = "pace";
 };
 
 AI.prototype.think = function() {
@@ -866,8 +797,7 @@ AI.prototype.think = function() {
 	if(this.engaged) this.engaged = false;
 	if(time[0]==0) this.time_count++;
 	// overrides from other characters
-	// if (this.logic.act == "being_spoken_to") this.time_count = 0, this.logic.purpose = "socialize"; do I need to switch purpose to socialize?
-	if (this.logic.act == "being_spoken_to") this.time_count = 0, this.logic.purpose = "entertain";
+	if (this.logic.act == "being_spoken_to") this.time_count = 0, this.logic.purpose = "socialize";
 	
 	// THINK TREE
 	if (!camera.darkness) { // lights are on
