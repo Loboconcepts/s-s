@@ -616,19 +616,14 @@ AI.prototype.stand = function() {
 AI.prototype.being_spoken_to = function() {
 	if(time[0]==0) this.time_count++;
 	this.seg = 0;
-	if (this.time_count<=2) {
+	if (this.time_count <=2) {
+
 	}
 	else if (this.time_count>2 && this.time_count<=4) {
-		if (this.my_target) {
-			this.speech_bubble = this.persona.conversation[this.my_target.persona.conversation.topic][0];
-		}
-		else {
-			this.logic.act = "stand";
-			this.logic.purpose = "think";
-		}
+		if (this.my_target) this.speech_bubble = this.persona.conversation[this.my_target.persona.conversation.topic][0];
 	}
-	else {
-		this.time_count = 0;
+	else if (this.time_count > 4){
+		
 		// ends above if else
 		this.speech_bubble = false;
 		// allows conversation partner to continue whatever they were doing
@@ -636,19 +631,20 @@ AI.prototype.being_spoken_to = function() {
 		this.engaged = false;
 		// if (this.my_target) if (this.my_target.persona.genre != "GUEST") this.suspicion += 1;
 		this.my_target = false;
+		this.logic.act = "pace";
+		this.time_count = 0;
+
 	}
 };
 
 
 // Need to make player conversation_point switch temporarily to AI's when player is engaged by AI.
 AI.prototype.speak = function() {
-	if (!this.my_target || !this.my_target.alive) {
+	if (!this.my_target.alive) {
 		this.my_target = false;
-		this.logic.act = "stand";	
 	}
 	else {
 		if (this.my_target!=player && this.my_target.logic.act != "being_spoken_to") this.my_target.time_count = 0, this.my_target.logic.act = "being_spoken_to";
-		if (this.my_target==player && Math.abs(this.x-player.x)<=.1) this.my_target.engaged_by_AI = true;
 		if (this.my_target==player && Math.abs(this.x-player.x)>.1) this.my_target.engaged_by_AI = false;
 		if (this.x<this.my_target.x) this.my_target.direction = -1;
 		if (this.x>this.my_target.x) this.my_target.direction = 1;
@@ -780,11 +776,23 @@ AI.prototype.socialize = function() {
 					this.logic.act = "find_target";
 				}
 				else { // I am close enough to talk to my target
-					if (this.my_target.engaged_by_AI || this.my_target.logic.act == "being_spoken_to" || this.my_target.logic.act == "speak") { // my target is in a conversation
-						this.logic.act = "waiting_to_talk";
+					if (this.my_target == player) { // my target is the player
+						if (!this.my_target.engaged_by_AI) { // 
+							this.my_target.engaged_by_AI = this;
+							if(this.engaged) this.logic.act = "speak";
+						}
+						else if (this.my_target.engaged_by_AI != this) { // player is being spoken to by AI that is not current AI
+							this.logic.act = "waiting_to_talk";
+						}
 					}
-					else { // my target is NOT in a conversation
-						if(this.engaged)this.logic.act = "speak";
+					else { // my target is an AI
+						if ((this.my_target.my_target != this && this.my_target.logic.act == "being_spoken_to") || this.my_target.logic.act == "speak") { // my target is in a conversation
+							
+						}
+						else { // my target is NOT in a conversation
+							if(this.engaged && this.my_target) this.logic.act = "speak";
+						}
+
 					}
 				}
 			}
@@ -801,7 +809,7 @@ AI.prototype.think = function() {
 	if(this.engaged) this.engaged = false;
 	if(time[0]==0) this.time_count++;
 	// overrides from other characters
-	if (this.logic.act == "being_spoken_to") this.time_count = 0, this.logic.purpose = "socialize";
+	// if (this.logic.act == "being_spoken_to") this.time_count = 0, this.logic.purpose = "socialize";
 	
 	// THINK TREE
 	if (!camera.darkness) { // lights are on
