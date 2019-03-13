@@ -194,7 +194,7 @@ function Player (x,y,direction,talk) {
     this.time_conversation = "greeting";
     this.conversation_point = "greeting";
     this.walk_speed = .006;
-    this.being_spoken_to = false;
+    this.engaged_by_AI = false;
     this.alive = true;
 };
 
@@ -284,7 +284,7 @@ Player.prototype.engage = function() {
 			// reset for after convo exits back to explore mode
 			this.AI_focus.logic.act = "think";
 			this.AI_focus.my_target = false;
-			this.being_spoken_to = false;
+			this.engaged_by_AI = false;
 			this.AI_focus.spoken_with_already.push(this);
 			// change player's conversation point to AI's
 			this.conversation_point = this.AI_focus.persona.conversation.topic;
@@ -623,6 +623,7 @@ AI.prototype.being_spoken_to = function() {
 			this.speech_bubble = this.persona.conversation[this.my_target.persona.conversation.topic][0];
 		}
 		else {
+			this.logic.act = "stand";
 			this.logic.purpose = "think";
 		}
 	}
@@ -647,8 +648,8 @@ AI.prototype.speak = function() {
 	}
 	else {
 		if (this.my_target!=player && this.my_target.logic.act != "being_spoken_to") this.my_target.time_count = 0, this.my_target.logic.act = "being_spoken_to";
-		if (this.my_target==player && Math.abs(this.x-player.x)<=.1) this.my_target.being_spoken_to = true;
-		if (this.my_target==player && Math.abs(this.x-player.x)>.1) this.my_target.being_spoken_to = false;
+		if (this.my_target==player && Math.abs(this.x-player.x)<=.1) this.my_target.engaged_by_AI = true;
+		if (this.my_target==player && Math.abs(this.x-player.x)>.1) this.my_target.engaged_by_AI = false;
 		if (this.x<this.my_target.x) this.my_target.direction = -1;
 		if (this.x>this.my_target.x) this.my_target.direction = 1;
 		if (this.my_target!=player && this.my_target.my_target != this) this.my_target.my_target = this;
@@ -662,7 +663,7 @@ AI.prototype.speak = function() {
 			this.speech_bubble = false;
 		}
 		else {
-			if (this.my_target==player) this.my_target.being_spoken_to = false;
+			if (this.my_target==player) this.my_target.engaged_by_AI = false;
 			this.time_count = 0;
 			// resets socialize
 			this.spoken_with_already.push(this.my_target);
@@ -750,7 +751,7 @@ AI.prototype.available_conversation_partners = function() {
 };
 
 // ####### PURPOSES ########
-AI.prototype.socialize = function() {
+AI.prototype.socialize_old = function() {
 	if (this.available_conversation_partners() == false && this.logic.act != "being_spoken_to") this.my_target=false, this.logic.purpose = "think";
 	if (this.suspicion > 2 && this.logic.act != "being_spoken_to") this.my_target=false, this.logic.purpose = "think";
 	if (!this.my_target) this.logic.act = "target_closest";
@@ -762,11 +763,38 @@ AI.prototype.socialize = function() {
 		if (this.engaged && (this.my_target.logic.act != "speak" && this.my_target.logic.act != "being_spoken_to")) this.logic.act = "speak";
 	}
 	else if (this.my_target == player) {
-		if (!this.my_target.being_spoken_to) this.logic.act = "find_target";
-		if (this.my_target.being_spoken_to) this.logic.act = "waiting_to_talk";
+		if (!this.my_target.engaged_by_AI) this.logic.act = "find_target";
+		if (this.my_target.engaged_by_AI) this.logic.act = "waiting_to_talk";
 		if (this.engaged) this.logic.act = "speak";
 	};
 };
+
+AI.prototype.socialize = function() {
+	if (this.logic.act != "being_spoken_to") { //not being spoken to
+		if (this.available_conversation_partners()) { // I have people left to talk to
+			if (!this.my_target) { // I do not have a target
+				this.logic.act = "target_closest";
+			}
+			else { // I have a target
+				if (!this.engaged) { // my target is too far away to talk to
+					this.logic.act = "find_target";
+				}
+				else { // I am close enough to talk to my target
+					if (this.my_target.engaged_by_AI || this.my_target.logic.act == "being_spoken_to" || this.my_target.logic.act == "speak") { // my target is in a conversation
+						this.logic.act = "waiting_to_talk";
+					}
+					else { // my target is NOT in a conversation
+						if(this.engaged)this.logic.act = "speak";
+					}
+				}
+			}
+		}
+		else { // I have no one to talk to
+			this.my_target=false;
+			this.logic.purpose = "think";
+		}
+	}
+}
 
 AI.prototype.think = function() {
 	// standard think items
