@@ -596,7 +596,7 @@ AI.prototype.kill = function() {
 // 	}	
 // };
 
-AI.prototype.stand = function() {
+AI.prototype.nothing = function() {
 	// find out if this AI is standing on top of another AI
 	this.seg = 0;
 	// for (i=0;i<AI_array.length;i++) {
@@ -631,7 +631,7 @@ AI.prototype.being_spoken_to = function() {
 		this.engaged = false;
 		// if (this.my_target) if (this.my_target.persona.genre != "GUEST") this.suspicion += 1;
 		this.my_target = false;
-		this.logic.act = "pace";
+		this.logic.act = "nothing";
 		this.time_count = 0;
 
 	}
