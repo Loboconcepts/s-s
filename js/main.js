@@ -598,6 +598,7 @@ AI.prototype.kill = function() {
 
 AI.prototype.nothing = function() {
 	// find out if this AI is standing on top of another AI
+	this.logic.purpose = "think";
 	this.seg = 0;
 	// for (i=0;i<AI_array.length;i++) {
 	// 	if (this.y == AI_array[i].y) {
@@ -666,7 +667,7 @@ AI.prototype.speak = function() {
 			this.engaged = false;
 			if (this.my_target != player && this.my_target.persona.genre != "GUEST") this.suspicion += 1;
 			this.my_target = false;
-			this.logic.purpose = "think";
+			this.logic.act = "nothing";
 
 		}
 		if (this.my_target == player && player.AI_focus == this) this.speech_bubble = false;
@@ -748,7 +749,7 @@ AI.prototype.available_conversation_partners = function() {
 
 // ####### PURPOSES ########
 AI.prototype.socialize_old = function() {
-	if (this.available_conversation_partners() == false && this.logic.act != "being_spoken_to") this.my_target=false, this.logic.purpose = "think";
+	if (this.available_conversation_partners() == false && this.logic.act != "being_spoken_to") this.my_target=false, this.logic.act = "nothing";
 	if (this.suspicion > 2 && this.logic.act != "being_spoken_to") this.my_target=false, this.logic.purpose = "think";
 	if (!this.my_target) this.logic.act = "target_closest";
 	if (this.my_target && Math.abs(this.x - this.my_target.x) > .1) this.engaged = false;
@@ -772,8 +773,10 @@ AI.prototype.socialize = function() {
 				this.logic.act = "target_closest";
 			}
 			else { // I have a target
-				if (!this.engaged) { // my target is too far away to talk to
-					this.logic.act = "find_target";
+				if (!this.engaged) this.logic.act = "find_target";
+				if (Math.abs(this.x - this.my_target.x) > .1) { // my target is too far away
+					if (this.engaged) this.engaged = false;
+					if (this.my_target.engaged_by_AI == this) this.my_target.engaged_by_AI = false;
 				}
 				else { // I am close enough to talk to my target
 					if (this.my_target == player) { // my target is the player
@@ -787,7 +790,7 @@ AI.prototype.socialize = function() {
 					}
 					else { // my target is an AI
 						if ((this.my_target.my_target != this && this.my_target.logic.act == "being_spoken_to") || this.my_target.logic.act == "speak") { // my target is in a conversation
-							
+							this.logic.act = "waiting_to_talk";
 						}
 						else { // my target is NOT in a conversation
 							if(this.engaged && this.my_target) this.logic.act = "speak";
@@ -799,7 +802,7 @@ AI.prototype.socialize = function() {
 		}
 		else { // I have no one to talk to
 			this.my_target=false;
-			this.logic.purpose = "think";
+			this.logic.act = "nothing";
 		}
 	}
 }
@@ -867,20 +870,20 @@ AI.prototype.murder = function() {
 			this.logic.act = "kill";	
 		} 
 		else if (this.y == this.my_target.y && this.x > this.my_target.x-.1 && this.x < this.my_target.x+.1 && camera.viewHeight == 0 && !this.no_witnesses) {
-			this.logic.purpose = "think";
+			this.logic.act = "nothing";
 		}
 		if (this.my_target.alive) this.logic.act = "find_target";
 		if (!this.my_target) this.logic.act = "target_suspicion";	
 	}
 	else {
-		this.logic.purpose = "think";
+		this.logic.act = "nothing";
 	};
 };
 
 AI.prototype.survival = function() {
 	if(time[0]==0) this.time_count++;
 	if(this.time_count > 9) {
-		this.logic.purpose = "think";
+		this.logic.act = "nothing";
 	}
 	else {
 		this.fleeing = true;
