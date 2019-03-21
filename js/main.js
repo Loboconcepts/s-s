@@ -436,7 +436,7 @@ AI.prototype.fall = function() {
 
 // ############ ACTIONS ###############
 
-AI.prototype.find_target = function() {
+AI.prototype.approach_target = function() {
 	// cinematically freeze camera
 	// if (this.my_target == player && Math.abs(this.x-this.my_target.x)%1<.3 && !camera.camera_lock && this.y == player.y) camera.camera_lock = true, player.walk_speed = 0;
 	if (this.y < this.my_target.y) this.walk(.005,"DOWN");
@@ -497,7 +497,8 @@ AI.prototype.target_closest = function() {
 				}
 			}
 			else {
-				this.seg = 0;
+				this.logic.act = "nothing";
+				this.logic.purpose = "think";
 			}
 		}
 	}
@@ -596,14 +597,17 @@ AI.prototype.kill = function() {
 
 // AI.prototype.hunt = function() {
 // 	if (this.my_target.alive) {
-// 		this.find_target();
+// 		this.approach_target();
 // 	}	
 // };
 
 AI.prototype.nothing = function() {
 	// find out if this AI is standing on top of another AI
-	this.logic.purpose = "think";
+	this.time_count = 0;
 	this.seg = 0;
+	this.speech_bubble = false;
+	this.engaged = false;
+	this.my_target = false;
 	// for (i=0;i<AI_array.length;i++) {
 	// 	if (this.y == AI_array[i].y) {
 	// 		if (Math.floor(this.x*100) == Math.floor(AI_array[i].x*100)) {
@@ -627,17 +631,14 @@ AI.prototype.being_spoken_to = function() {
 	else if (this.time_count>2 && this.time_count<=4) {
 		if (this.my_target) this.speech_bubble = this.persona.conversation[this.my_target.persona.conversation.topic][0];
 	}
-	else if (this.time_count > 4){
-		
-		// ends above if else
-		this.speech_bubble = false;
-		// allows conversation partner to continue whatever they were doing
-		this.spoken_with_already.push(this.my_target)
+	else if (this.time_count > 4) {
+
+		if (this.my_target) if (this.my_target.persona.genre != "GUEST") this.suspicion += 1;
+		if (this.persona.conversation.topic == this.my_target.persona.conversation.topic) this.spoken_with_already.push(this.my_target);
 		this.engaged = false;
-		// if (this.my_target) if (this.my_target.persona.genre != "GUEST") this.suspicion += 1;
 		this.my_target = false;
 		this.logic.act = "nothing";
-		this.time_count = 0;
+		this.logic.purpose = "think";
 
 	}
 };
@@ -649,11 +650,12 @@ AI.prototype.speak = function() {
 		this.my_target = false;
 	}
 	else {
-		if (this.my_target!=player && this.my_target.logic.act != "being_spoken_to") this.my_target.time_count = 0, this.my_target.logic.act = "being_spoken_to";
+		if (this.my_target!=player && this.my_target.my_target != this) this.my_target.my_target = this;
+		if (this.my_target!=player && this.my_target.logic.act != "being_spoken_to" && this.time_count == 0) this.my_target.time_count = 0, this.my_target.logic.act = "being_spoken_to";
 		if (this.my_target==player && Math.abs(this.x-player.x)>.1) this.my_target.engaged_by_AI = false;
 		if (this.x<this.my_target.x) this.my_target.direction = -1;
 		if (this.x>this.my_target.x) this.my_target.direction = 1;
-		if (this.my_target!=player && this.my_target.my_target != this) this.my_target.my_target = this;
+		
 
 		if(time[0]==0) this.time_count++;
 		// whoever initiates talks first for two seconds
@@ -665,13 +667,14 @@ AI.prototype.speak = function() {
 		}
 		else {
 			if (this.my_target==player) this.my_target.engaged_by_AI = false;
-			this.time_count = 0;
 			// resets socialize
 			this.spoken_with_already.push(this.my_target);
-			this.engaged = false;
+			
 			if (this.my_target != player && this.my_target.persona.genre != "GUEST") this.suspicion += 1;
+			this.engaged = false;
 			this.my_target = false;
 			this.logic.act = "nothing";
+			this.logic.purpose = "think";
 
 		}
 		if (this.my_target == player && player.AI_focus == this) this.speech_bubble = false;
@@ -752,32 +755,32 @@ AI.prototype.available_conversation_partners = function() {
 };
 
 // ####### PURPOSES ########
-AI.prototype.socialize = function() {
+AI.prototype.socialize_old = function() {
 	if (this.available_conversation_partners() == false && this.logic.act != "being_spoken_to") this.my_target=false, this.logic.act = "nothing";
 	if (this.suspicion > 2 && this.logic.act != "being_spoken_to") this.my_target=false, this.logic.purpose = "think";
 	if (!this.my_target) this.logic.act = "target_closest";
 	if (this.my_target && Math.abs(this.x - this.my_target.x) > .1) this.engaged = false;
 	if (this.my_target && this.my_target != player) {
-		if (!this.my_target.being_spoken_to) this.logic.act = "find_target";
-		if ((this.my_target.logic.act != "speak" && this.my_target.logic.act != "being_spoken_to") && !this.engaged) this.logic.act = "find_target";
+		if (!this.my_target.being_spoken_to) this.logic.act = "approach_target";
+		if ((this.my_target.logic.act != "speak" && this.my_target.logic.act != "being_spoken_to") && !this.engaged) this.logic.act = "approach_target";
 		if (this.my_target.engaged && this.logic.act != "being_spoken_to") this.logic.act = "waiting_to_talk";
 		if (this.engaged && (this.my_target.logic.act != "speak" && this.my_target.logic.act != "being_spoken_to")) this.logic.act = "speak";
 	}
 	else if (this.my_target == player) {
-		if (!this.my_target.engaged_by_AI) this.logic.act = "find_target";
+		if (!this.my_target.engaged_by_AI) this.logic.act = "approach_target";
 		if (this.my_target.engaged_by_AI) this.logic.act = "waiting_to_talk";
 		if (this.engaged) this.logic.act = "speak";
 	};
 };
 
-AI.prototype.socialize_new = function() {
+AI.prototype.socialize = function() {
 	if (this.logic.act != "being_spoken_to") { //not being spoken to
 		if (this.available_conversation_partners()) { // I have people left to talk to
 			if (!this.my_target) { // I do not have a target
 				this.logic.act = "target_closest";
 			}
 			else { // I have a target
-				if (!this.engaged && this.logic.act != "waiting_to_talk") this.logic.act = "find_target";
+				if (!this.engaged && this.my_target.my_target != this && this.my_target.logic.act != "being_spoken_to" && this.my_target.logic.act != "speak") this.logic.act = "approach_target";
 				if (Math.abs(this.x - this.my_target.x) > .1) { // my target is too far away
 					if (this.engaged) this.engaged = false;
 					if (this.my_target.engaged_by_AI == this) this.my_target.engaged_by_AI = false;
@@ -793,7 +796,7 @@ AI.prototype.socialize_new = function() {
 						}
 					}
 					else { // my target is an AI
-						if ((this.my_target.my_target != this && this.my_target.logic.act == "being_spoken_to") || this.my_target.logic.act == "speak") { // my target is in a conversation
+						if (this.my_target.my_target != this && (this.my_target.logic.act == "being_spoken_to" || this.my_target.logic.act == "speak")) { // my target is in a conversation
 							this.logic.act = "waiting_to_talk";
 						}
 						else { // my target is NOT in a conversation
@@ -815,6 +818,7 @@ AI.prototype.think = function() {
 	// standard think items
 	if(this.engaged) this.engaged = false;
 	if(time[0]==0) this.time_count++;
+	if (this.logic.act == "being_spoken_to") this.time_count = 0, this.logic.purpose = "socialize";
 	// overrides from other characters
 	// if (this.logic.act == "being_spoken_to") this.time_count = 0, this.logic.purpose = "socialize";
 	
@@ -876,7 +880,7 @@ AI.prototype.murder = function() {
 		else if (this.y == this.my_target.y && this.x > this.my_target.x-.1 && this.x < this.my_target.x+.1 && camera.viewHeight == 0 && !this.no_witnesses) {
 			this.logic.act = "nothing";
 		}
-		if (this.my_target.alive) this.logic.act = "find_target";
+		if (this.my_target.alive) this.logic.act = "approach_target";
 		if (!this.my_target) this.logic.act = "target_suspicion";	
 	}
 	else {
