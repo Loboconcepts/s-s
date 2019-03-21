@@ -168,9 +168,12 @@ function Map(length, floors, grid) {
 		new Bitmap('./assets/end-left-wall.png',1280,720),      // 5
 		new Bitmap('./assets/end-right-wall.png',1280,720),     // 6
 		new Bitmap('./assets/wallpaper.png',1280,720),          // 7
-		];
+	];
 	this.objects = [
 		new Bitmap('./assets/table.png',1280,221)          // 0
+	];
+	this.items = [
+		new Bitmap('./assets/table.png',100,200)
 	];
 };
 
@@ -603,6 +606,7 @@ AI.prototype.kill = function() {
 
 AI.prototype.nothing = function() {
 	// find out if this AI is standing on top of another AI
+	this.logic.purpose = "think";
 	this.time_count = 0;
 	this.seg = 0;
 	this.speech_bubble = false;
@@ -824,7 +828,7 @@ AI.prototype.think = function() {
 	
 	// THINK TREE
 	if (!camera.darkness) { // lights are on
-		if (this.suspicion < 3) { // character is less than catalyst level of suspicion
+		if (this.suspicion < 4) { // character is less than catalyst level of suspicion
 			if (this.time_count >= 3+this.random) { // character has waited 3+ seconds, to slow down action
 				if (this.available_conversation_partners()==true) { // character has available conversation partners
 					this.time_count=0;
