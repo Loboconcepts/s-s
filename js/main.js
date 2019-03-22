@@ -1202,16 +1202,19 @@ Camera.prototype.speech_bubble = function(x,speech,inches,worldHeight) {
 	
 
 	function split_large_sentences(speech) {
-		for (var i=20;i<35;i++) {
-			if (speech[i]==" ") {
-				speechArray.push(speech.substring(0,i));
-				speechArray.push(speech.substring(i+1));
-				return;
+		if (speech.length > 30) {
+			for (var i=20;i<35;i++) {
+				if (speech[i]==" ") {
+					speechArray.push(speech.substring(0,i));
+					speechArray.push(speech.substring(i+1).padEnd(i));
+					return;
+				}
 			}
+			return speechArray = ["",speech];
 		}
-		return speechArray = ["",speech];
-		
-
+		else {
+			return speechArray = ["",speech];	
+		}
 	}
 	split_large_sentences(speech)
 
