@@ -1194,17 +1194,26 @@ Camera.prototype.drawFrontObjects = function (x,y,location) {
 		var object = mansion.objects[0];
 		this.ctx.drawImage(object.image,0,0,object.width,object.height,(canvas.width/2.5)+((3-x)*(canvas.width)),(canvas.height-canvas.height/4)+this.viewHeight,canvas.width,canvas.height/4);	
 	}
-	
-
 };
 
 Camera.prototype.speech_bubble = function(x,speech,inches,worldHeight) {
 	let center = x+canvas.width/12;
+	var speechArray = [];
+	
 
 	function split_large_sentences(speech) {
+		for (var i=20;i<35;i++) {
+			if (speech[i]==" ") {
+				speechArray.push(speech.substring(0,i));
+				speechArray.push(speech.substring(i+1));
+				return;
+			}
+		}
+		return speechArray = ["",speech];
 		
 
 	}
+	split_large_sentences(speech)
 
 	this.ctx.save();
 	this.ctx.strokeStyle = "#000000";
@@ -1217,9 +1226,11 @@ Camera.prototype.speech_bubble = function(x,speech,inches,worldHeight) {
 	this.ctx.font = this.width/25 + 'px Monaco';
 	this.ctx.lineWidth = 4;
 	this.ctx.strokeStyle = "#000000";
-	this.ctx.strokeText(speech,center,canvas.height-((canvas.height/2.5)*((inches*.01)*2))+this.viewHeight+worldHeight);
+	this.ctx.strokeText(speechArray[0],center,canvas.height-((canvas.height/2.5)*((inches*.0115)*2))+this.viewHeight+worldHeight);
+	this.ctx.strokeText(speechArray[1],center,canvas.height-((canvas.height/2.5)*((inches*.01)*2))+this.viewHeight+worldHeight);
 	this.ctx.fillStyle = "#ffffff";
-	this.ctx.fillText(speech,center,canvas.height-((canvas.height/2.5)*((inches*.01)*2))+this.viewHeight+worldHeight);
+	this.ctx.fillText(speechArray[0],center,canvas.height-((canvas.height/2.5)*((inches*.0115)*2))+this.viewHeight+worldHeight);
+	this.ctx.fillText(speechArray[1],center,canvas.height-((canvas.height/2.5)*((inches*.01)*2))+this.viewHeight+worldHeight);
 	this.ctx.restore();
 };
 
