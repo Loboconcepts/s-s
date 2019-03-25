@@ -595,7 +595,7 @@ AI.prototype.kill = function() {
 	if (camera.camera_lock) camera.camera_lock = false;
 	if (camera.darkness) camera.darkness = false;
 	this.fleeing = true;
-	this.logic.purpose = "think";
+	this.logic.purpose = "survival";
 };
 
 // AI.prototype.hunt = function() {
@@ -877,15 +877,30 @@ AI.prototype.think = function() {
 
 AI.prototype.murder = function() {
 	if(time[0]==0) this.time_count++;
-	if (this.time_count<10) {
-		if (this.y == this.my_target.y && this.x > this.my_target.x-.1 && this.x < this.my_target.x+.1 && camera.viewHeight == 0 && this.no_witnesses) {
-			this.logic.act = "kill";	
-		} 
-		else if (this.y == this.my_target.y && this.x > this.my_target.x-.1 && this.x < this.my_target.x+.1 && camera.viewHeight == 0 && !this.no_witnesses) {
-			this.logic.act = "nothing";
+	if (this.time_count<15) {
+		if (!this.my_target) {
+			this.logic.act = "target_suspicion";	
 		}
-		if (this.my_target.alive) this.logic.act = "approach_target";
-		if (!this.my_target) this.logic.act = "target_suspicion";	
+		else {
+			if (this.y == this.my_target.y && this.x > this.my_target.x-.1 && this.x < this.my_target.x+.1 && camera.viewHeight == 0 && !this.no_witnesses) {
+				this.logic.act = "nothing";
+			}
+			else {
+				if (this.y == this.my_target.y && this.x > this.my_target.x-.1 && this.x < this.my_target.x+.1 && camera.viewHeight == 0 && this.no_witnesses) {
+					this.logic.act = "kill";
+					this.persona.conversation.topic = "kill";
+					this.speech_bubble = this.persona.conversation[this.persona.conversation.topic][0];
+				}
+				else {
+					if (this.my_target.alive) {
+						this.logic.act = "approach_target";
+					}
+					else {
+						this.logic.act = "nothing";
+					}		
+				}
+			}
+		}
 	}
 	else {
 		this.logic.act = "nothing";
@@ -908,6 +923,7 @@ AI.prototype.investigate = function() {
 }
 
 AI.prototype.die = function() {
+	if (this.logic.act != "fall") this.seg = 0;
 	this.my_target = false;
 	this.speech_bubble = false;
 	this.logic.act = "fall";
