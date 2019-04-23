@@ -783,30 +783,36 @@ AI.prototype.socialize = function() {
 			if (!this.my_target) { // I do not have a target
 				this.logic.act = "target_closest";
 			}
-			else { // I have a target
+			else if (this.my_target != player) { // I have a target who in an AI
 				if (!this.engaged && this.my_target.my_target != this && this.my_target.logic.act != "being_spoken_to" && this.my_target.logic.act != "speak") this.logic.act = "approach_target";
 				if (Math.abs(this.x - this.my_target.x) > .1) { // my target is too far away
 					if (this.engaged) this.engaged = false;
 					if (this.my_target.engaged_by_AI == this) this.my_target.engaged_by_AI = false;
 				}
 				else { // I am close enough to talk to my target
-					if (this.my_target == player) { // my target is the player
-						if (!this.my_target.engaged_by_AI) { // 
-							this.my_target.engaged_by_AI = this;
-							if(this.engaged) this.logic.act = "speak";
-						}
-						else if (this.my_target.engaged_by_AI != this) { // player is being spoken to by AI that is not current AI
-							this.logic.act = "waiting_to_talk";
-						}
+					if (this.my_target.my_target != this && (this.my_target.logic.act == "being_spoken_to" || this.my_target.logic.act == "speak")) { // my target is in a conversation
+						this.logic.act = "waiting_to_talk";
 					}
-					else { // my target is an AI
-						if (this.my_target.my_target != this && (this.my_target.logic.act == "being_spoken_to" || this.my_target.logic.act == "speak")) { // my target is in a conversation
-							this.logic.act = "waiting_to_talk";
-						}
-						else { // my target is NOT in a conversation
-							if(this.engaged && this.my_target) this.logic.act = "speak";
-						}
-
+					else { // my target is NOT in a conversation
+						if(this.engaged && this.my_target) this.logic.act = "speak";
+					}
+				}
+			}
+			else { // I have a target who is the player
+				if (!this.engaged) {
+					this.logic.act = "approach_target";
+				}
+				if (Math.abs(this.x - this.my_target.x) > .1) { // my target is too far away
+					if (this.engaged) this.engaged = false;
+					if (this.my_target.engaged_by_AI == this) this.my_target.engaged_by_AI = false;
+				}
+				else { // I am close enough to talk to my target
+					if (this.my_target.engaged_by_AI && this.my_target.engaged_by_AI!=this) { // player is being spoken to by AI that is not current AI
+						this.logic.act = "waiting_to_talk";
+					}
+					else {
+						if (!this.my_target.engaged_by_AI) this.my_target.engaged_by_AI = this;
+						this.logic.act = "speak";
 					}
 				}
 			}
