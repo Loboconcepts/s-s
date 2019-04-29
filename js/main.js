@@ -650,6 +650,7 @@ AI.prototype.being_spoken_to = function() {
 
 // Need to make player conversation_point switch temporarily to AI's when player is engaged by AI.
 AI.prototype.speak = function() {
+	if (this.seg != 0) this.seg = 0;
 	if (!this.my_target.alive) {
 		this.my_target = false;
 	}
@@ -799,7 +800,10 @@ AI.prototype.socialize = function() {
 				}
 			}
 			else { // I have a target who is the player
-				if (!this.engaged) {
+				if (this.my_target.engaged_by_AI && this.my_target.engaged_by_AI!=this) { // player is being spoken to by AI that is not current AI
+					this.logic.act = "waiting_to_talk";
+				}
+				else if (!this.engaged) {
 					this.logic.act = "approach_target";
 				}
 				if (Math.abs(this.x - this.my_target.x) > .1) { // my target is too far away
@@ -807,13 +811,8 @@ AI.prototype.socialize = function() {
 					if (this.my_target.engaged_by_AI == this) this.my_target.engaged_by_AI = false;
 				}
 				else { // I am close enough to talk to my target
-					if (this.my_target.engaged_by_AI && this.my_target.engaged_by_AI!=this) { // player is being spoken to by AI that is not current AI
-						this.logic.act = "waiting_to_talk";
-					}
-					else {
-						if (!this.my_target.engaged_by_AI) this.my_target.engaged_by_AI = this;
-						this.logic.act = "speak";
-					}
+					if (!this.my_target.engaged_by_AI) this.my_target.engaged_by_AI = this;
+					this.logic.act = "speak";
 				}
 			}
 		}
